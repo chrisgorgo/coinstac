@@ -32,7 +32,8 @@
   "scripts": {
     "lint": "echo 'run linter!'",
     "validate": "echo 'run validator!'",
-    "test": "grunt test"
+    "test": "grunt test",
+    "webpack": "node webpack-server.js"
   },
   "repository": {
     "type": "git",

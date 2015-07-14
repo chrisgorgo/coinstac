@@ -1,8 +1,6 @@
 'use strict';
-var f = require('./test');
 
-module.exports = window.go = function() {
-    window.fff=f;
-};
+import React from 'react';
+import App from './components/app';
 
-window.go();
+React.render(<App />, document.getElementsByTagName('body')[0]);
