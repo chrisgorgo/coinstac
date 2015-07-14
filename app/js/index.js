@@ -7,5 +7,5 @@ import routes from './routes';
 let RouteHandler = Router.RouteHandler;
 
 routes.run((Root) => {
-  React.render(<Root />, document.body);
+    React.render(<Root />, document.body);
 });

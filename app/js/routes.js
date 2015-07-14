@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Use React Router to implement application routing.
  *
