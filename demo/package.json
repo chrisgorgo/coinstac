@@ -1,0 +1,20 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "PouchAdapter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "watchify demo.js -o bundle.pouchdemo.js -v"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ampersand-events": "^1.1.1",
+    "lodash.assign": "^3.2.0",
+    "lodash.map": "^3.1.4",
+    "lodash.uniq": "^3.2.2",
+    "pouchdb": "^3.6.0",
+    "pouchdb-find": "^0.3.5"
+  }
+}
