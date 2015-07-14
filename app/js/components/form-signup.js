@@ -1,14 +1,16 @@
+// TODO add validation styles to <Input>s
 'use strict';
 
 import React from 'react';
 import {Input, Button} from 'react-bootstrap';
+import FieldPassword from './field-password'
 import _ from 'lodash';
 
 export default class FormSignup extends React.Component {
     handleFormSubmission(e) {
         e.preventDefault();
 
-        let refs = _.assign(this.refs);
+        let refs = _.assign(this.refs); // TODO send to API
     }
     render() {
         return (
@@ -23,14 +25,7 @@ export default class FormSignup extends React.Component {
                             type="text"
                             label="Username:"
                             ref="signup-username" />
-                        <Input
-                            type="password"
-                            label="Password:"
-                            ref="signup-password" />
-                        <Input
-                            type="password"
-                            label="Confirm Password:"
-                            ref="signup-password-confirm" />
+                        <FieldPassword validation={true} />
                         <Input
                             type="select"
                             label="Institution:"
