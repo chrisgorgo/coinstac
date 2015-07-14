@@ -2,25 +2,26 @@
 
 import React from 'react';
 import {Nav, NavItem} from 'react-bootstrap';
+import { NavItemLink } from 'react-router-bootstrap';
 import FormLogin from './form-login';
 import FormSignup from './form-signup';
 
 
 export default class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            formType: 'login'
-        };
-    }
+    // constructor(props) {
+    //     super(props);
+    //
+    //     this.state = {
+    //         formType: 'login'
+    //     };
+    // }
     handleFormChange(formType) {
         this.setState({formType: formType});
     }
     render() {
         let form;
 
-        if (this.state.formType === 'login') {
+        if (this.props.formType === 'login') {
             form = <FormLogin />;
         } else {
             form = <FormSignup />;
@@ -35,9 +36,9 @@ export default class App extends React.Component {
                                 <h1 className="logo text-center">
                                     <abbr title="Collaborative Informatics and Neuroimaging Suite Toolkit for Anonymous Computation">COINSTAC</abbr>
                                 </h1>
-                                <Nav bsStyle='pills' justified activeKey={this.state.formType} onSelect={this.handleFormChange.bind(this)}>
-                                    <NavItem eventKey={"login"}>Log In</NavItem>
-                                    <NavItem eventKey={"signup"}>Sign Up</NavItem>
+                                <Nav bsStyle='pills' justified>
+                                    <NavItemLink to="login">Log In</NavItemLink>
+                                    <NavItemLink to="signup">Sign Up</NavItemLink>
                                 </Nav>
                                 {form}
                             </div>
