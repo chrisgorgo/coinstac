@@ -1,0 +1,67 @@
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+
+@import "~bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+
+
+.screen {
+  min-height: 100vh;
+  padding-top: $grid-gutter-width / 2;
+  padding-bottom: $grid-gutter-width / 2;
+}
+.screen__content {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/**
+ * Logo
+ */
+.logo {
+  margin: 0 0 2rem;
+
+  abbr[title] {
+    border: none;
+  }
+}
+
+/**
+ * Account
+ *
+ * @todo  Refactor styles into modules
+ */
+.account {
+  background: $gray-lighter;
+
+  .nav-pills {
+    margin: 0 0 2rem;
+  }
+}
+
+
+/**
+ * Navigation
+ */
+.main {
+  position: relative;
+}
+@media (min-width: $screen-sm) {
+  .navigation {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    left: 0;
+    padding: $grid-gutter-width / 2;
+    position: fixed;
+    top: 0;
+    width: 33.33%;
+
+    .logo {
+      margin-bottom: 2rem;
+    }
+    .nav-pills {
+      flex-grow: 1;
+    }
+  }
+}
