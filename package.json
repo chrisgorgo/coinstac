@@ -10,6 +10,7 @@
     "bootstrap": "twbs/bootstrap-sass#v3.3.5",
     "config": "^1.11.0",
     "lodash": "^3.10.0",
+    "jade": "^1.11.0",
     "node-libs-browser": "^0.5.2",
     "pre-commit": "^1.0.10",
     "react-bootstrap": "^0.23.7",
@@ -41,11 +42,12 @@
   },
   "electron-version": "0.27.2",
   "scripts": {
+    "build-index": "node app/build-index.js",
     "lint": "echo 'run linter!'",
     "validate": "echo 'run validator!'",
     "test": "grunt test",
     "webpack": "node webpack-server.js",
-    "start": "npm run pre-run && electron ."
+    "start": "npm run build-index && electron ."
   },
   "repository": {
     "type": "git",
