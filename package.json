@@ -22,8 +22,11 @@
     "grunt-mocha-cli": "^1.12.0",
     "load-grunt-config": "^0.16.0",
     "load-grunt-tasks": "^3.1.0",
+    "react-hot-loader": "^1.2.8",
     "should": "^5.0.0",
-    "time-grunt": "^1.0.0"
+    "time-grunt": "^1.0.0",
+    "webpack": "^1.10.1",
+    "webpack-dev-server": "^1.10.1"
   },
   "electron-version": "0.27.2",
   "scripts": {

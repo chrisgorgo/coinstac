@@ -9,20 +9,27 @@ var fs = require('fs');
 console.log(' >> ' + process.env.COINS_ENV);
 module.exports = {
     entry: {
-        tracker: './ampersand/app.js',
-        main: './global-utils.js'
+        app: [
+            './app/js/index.js'
+        ]
     },
+    // output: {
+    //     path: path.join(__dirname + '/app/build', 'js'),
+    //     filename: '[name].bundle.js', // one for each `entry`
+    //     chunkFilename: "[id].chunk.js"
+    // },
     output: {
-        path: path.join(__dirname + '/build', 'js'),
-        publicPath: 'http://localhost:22222',
-        filename: '[name].bundle.js', // one for each `entry`
-        chunkFilename: "[id].chunk.js"
+        filename: '[name].bundle.js',
+        path: __dirname + '/app/build/js',
+        publicPath: 'http://localhost:22222/assets/' // Required for webpack-dev-server
     },
     plugins: [
-        new CommonsChunkPlugin('global.bundle.js', ['tracker', 'main']),
+        // new CommonsChunkPlugin('global.bundle.js', ['tracker', 'main']),
+          new webpack.NoErrorsPlugin()
     ],
     module: {
-        loaders: []
+        // Load the react-hot-loader
+        // loaders: [ { test: /\.jsx?$/, loaders: ['react-hot', 'jsx-loader'] } ]
     },
     devServer: {
     }
