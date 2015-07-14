@@ -5,21 +5,45 @@ var Events = require('ampersand-events');
 var assign = require('lodash.assign');
 var map = require('lodash.map');
 var unique = require('lodash.uniq');
+var isArray = require('lodash.isarray');
+var url = require('url');
 
-function PouchAdapter() {
+function PouchAdapter(opts) {
+    var dbUrl = url.format(opts.conn);
+    var replicate = opts.replicate;
+    if (!opts.name) {
+        throw new ReferenceError('db name required');
+    }
+    this.db = new PouchDB(dbUrl);
+    if (replicate) {
+        replicate = isArray(replicate) ? replicate : [replicate];
+        replicate.forEach(function setReplicationRequest(rep) {
+            switch (rep.dir) {
+                case 'out':
+                    PouchDB.replicate(opts.name, dbUrl, {live: true});
+                    break;
+                case 'in':
+                    PouchDB.replicate(dbUrl, opts.name, {live: true});
+                    break;
+                default:
+                    throw new Error('in/out replication direction ' +
+                        'must be specified');
+            }
+        });
+    }
 }
 
 assign(PouchAdapter.prototype, Events, {
 
     all: function() {
         return this.db.allDocs({
-            include_docs: true
+            include_docs: true // jshint ignore:line
         }).then(function(docs) {
             return map(docs.rows, function(v) { return v.doc; });
         });
     },
 
-    add: function(doc, opts) {
+    add: function(doc, opts) { // jshint ignore:line
         // http://pouchdb.com/api.html#create_document
         // db.post(doc, [docId], [docRev], [options], [callback])
         return this.db.post(doc).then(function(meta) {
@@ -30,7 +54,7 @@ assign(PouchAdapter.prototype, Events, {
         });
     },
 
-    createDB: function(opts) {
+    createDB: function(opts) { // jshint ignore:line
         this.db = new PouchDB(this.minister.dbdir + '/' + this.name);
         return Promise.resolve(this);
     },
@@ -38,7 +62,7 @@ assign(PouchAdapter.prototype, Events, {
     createIndexes: function(indicies) {
         return this.db.createIndex({
             index: {
-                fields: _.unique(indicies)
+                fields: unique(indicies)
             }
         })
         .catch(function(err) {
@@ -48,11 +72,11 @@ assign(PouchAdapter.prototype, Events, {
         });
     },
 
-    delete: function(doc, opts) {
+    delete: function(doc, opts) { // jshint ignore:line
         return this.db.remove(doc);
     },
 
-    deleteDB: function(opts) {
+    deleteDB: function(opts) { // jshint ignore:line
         return this.db.destroy();
     },
 

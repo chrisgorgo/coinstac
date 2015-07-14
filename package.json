@@ -10,6 +10,7 @@
     "config": "^1.11.0",
     "jade": "^1.11.0",
     "node-libs-browser": "^0.5.2",
+    "pouchdb": "^3.6.0",
     "pre-commit": "^1.0.10",
     "webpack": "^1.10.1",
     "webpack-dev-server": "^1.10.1"

@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>pouch demo</title>
-    <script src="bundle.pouchdemo.js" type="text/javascript" charset="utf-8" async defer></script>
+    <script src="pouchdemo.bundle.js" type="text/javascript" charset="utf-8" async defer></script>
 </head>
 <body>
-    <p>Ensure that a local couchdb server is running at <span data-hook="target-server">??server??</span></p>
+    <p>Ensure that a local couchdb server is running at <a data-hook="target-server">??server??</a>.
+    Please note that the you must bind @0.0.0.0 to enable external access (danger!) to permit other connections.
+    I have updated my /etc/couchdb/local.ini to permit this.</p>
 </body>
 </html>
