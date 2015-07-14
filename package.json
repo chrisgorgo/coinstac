@@ -13,6 +13,8 @@
     "node-libs-browser": "^0.5.2",
     "pre-commit": "^1.0.10",
     "react-bootstrap": "^0.23.7",
+    "react-router": "^0.13.3",
+    "react-router-bootstrap": "^0.17.2",
     "webpack": "^1.10.1",
     "webpack-dev-server": "^1.10.1"
   },

@@ -1,6 +1,11 @@
 'use strict';
 
 import React from 'react';
-import App from './components/app';
+import Router from 'react-router';
+import routes from './routes';
 
-React.render(<App />, document.getElementsByTagName('body')[0]);
+let RouteHandler = Router.RouteHandler;
+
+routes.run((Root) => {
+  React.render(<Root />, document.body);
+});
