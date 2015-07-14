@@ -7,7 +7,7 @@ var locals = {
 if (process.env.COINS_ENV === 'development') {
     locals.entryUrl = 'http://localhost:22222/assets/app.bundle.js';
 } else {
-    locals.entryUrl = 'build/js/app.bundle.js';
+    locals.entryUrl = 'bundle.js';
 }
 
 // Complile the index template
