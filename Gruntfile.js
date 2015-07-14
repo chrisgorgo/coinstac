@@ -3,7 +3,6 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
     require('load-grunt-tasks')(grunt);
     require('load-grunt-config')(grunt);
-
     require('./grunt/download.js')(grunt);
     require('./grunt/compile.js')(grunt);
 
