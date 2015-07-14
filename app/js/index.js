@@ -1,8 +1,8 @@
 'use strict';
-var f = require('./test');
+var test = require('./test');
 
 module.exports = window.go = function() {
-    window.fff=f;
+    window.test = test;
 };
 
 window.go();
