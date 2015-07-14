@@ -7,10 +7,12 @@
     "test": "test"
   },
   "dependencies": {
+    "babel-core": "^5.6.20",
+    "babel-loader": "^5.3.1",
     "bootstrap": "twbs/bootstrap-sass#v3.3.5",
     "config": "^1.11.0",
-    "lodash": "^3.10.0",
     "jade": "^1.11.0",
+    "lodash": "^3.10.0",
     "node-libs-browser": "^0.5.2",
     "pre-commit": "^1.0.10",
     "react-bootstrap": "^0.23.7",
