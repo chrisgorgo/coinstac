@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "config": "^1.11.0",
+    "jade": "^1.11.0",
     "node-libs-browser": "^0.5.2",
     "pre-commit": "^1.0.10",
     "webpack": "^1.10.1",
@@ -33,7 +34,12 @@
     "lint": "echo 'run linter!'",
     "validate": "echo 'run validator!'",
     "test": "grunt test",
+<<<<<<< HEAD
     "webpack": "node webpack-server.js"
+=======
+    "pre-run": "node app/pre-run.js",
+    "start": "npm run pre-run && electron ."
+>>>>>>> 7b2288e1d7dc9ae2706a44b2416a93a997e735be
   },
   "repository": {
     "type": "git",
