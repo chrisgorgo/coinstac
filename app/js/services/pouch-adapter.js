@@ -5,7 +5,7 @@ var _ = require('lodash');
 var url = require('url');
 
 function PouchAdapter(opts) {
-    var dbUrl = url.format(opts.conn);
+    var dbUrl = url.format(opts.conn).toLowerCase();
     var replicate = opts.replicate;
     if (!opts.name) {
         throw new ReferenceError('db name required');
