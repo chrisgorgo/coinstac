@@ -1,27 +1,54 @@
 'use strict';
 
 import React from 'react';
-import fs from 'fs';
+import { Button } from 'react-bootstrap';
+import files from '../services/files';
+import FileItem from './file-item';
+
+function getFilesState() {
+    return { files: files.getSavedFiles() };
+}
 
 export default class DashboardFiles extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            files: fs.readdirSync('./')
-        };
+    constructor() {
+        super();
+        this.state = getFilesState();
+    }
+    componentDidMount() {
+        files.addChangeListener(this._onChange.bind(this));
+    }
+    componentWillUnmount() {
+        files.removeChangeListener(this._onChange.bind(this));
+    }
+    _onChange() {
+        this.setState(getFilesState());
+    }
+    addFiles(e) {
+        e.preventDefault();
+
+        files.getFilesFromUser();
     }
     render() {
-        var files = this.state.files.map((filename) => {
-          return (
-            <div>
-                <span>{filename}</span>
-            </div>
-          );
-        });
         return (
-            <div>
-                <h2>Files</h2>
-                {files}
+            <div className="dashboard-files">
+                <div className="page-header">
+                    <h1>Files</h1>
+                </div>
+                <div className="clearfix">
+                    <div className="pull-right">
+                        <Button
+                            bsStyle="primary"
+                            onClick={this.addFiles.bind(this)}>Add File</Button>
+                    </div>
+                </div>
+                {this.state.files.map(file => {
+                    return (
+                        <FileItem
+                            filename={file.filename}
+                            size={file.size}
+                            modified={file.modified} />
+                    );
+                })}
             </div>
         );
     }

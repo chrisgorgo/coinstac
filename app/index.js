@@ -2,6 +2,10 @@
 
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');
+var ipc = require('ipc');
+var dialog = require('dialog');
+var fs = require('fs');
+var RSVP = require('rsvp');
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -36,5 +40,39 @@ app.on('ready', function() {
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         mainWindow = null;
+    });
+
+    // Listen for `add-file` event and respond with files
+    ipc.on('add-file', function (event) {
+        dialog.showOpenDialog(
+            mainWindow,
+            { properties: ['openFile'] },
+            function (files) {
+                files = files || [];
+
+                var promises = files.map(function (file) {
+                    return new RSVP.Promise(function (resolve, reject) {
+                        fs.stat(file, function (err, stat) {
+                            console.log('Reading file: ' + file, stat);
+
+                            if (err) {
+                                reject(err);
+                            }
+                            resolve({
+                                filename: file,
+                                size: stat.size,
+                                modified: stat.mtime.getTime()
+                            });
+                        });
+                    });
+                });
+
+                RSVP.all(promises).then(function (files) {
+                    event.sender.send('files-added', files);
+                }).catch(function (err) {
+                    console.error(err);
+                });
+            }
+        );
     });
 });
