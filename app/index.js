@@ -6,6 +6,7 @@ var ipc = require('ipc');
 var dialog = require('dialog');
 var fs = require('fs');
 var RSVP = require('rsvp');
+require('./build-index.js'); // generate index.html
 
 // Report crashes to our server.
 require('crash-reporter').start();

@@ -56,12 +56,11 @@
   },
   "electron-version": "0.27.2",
   "scripts": {
-    "build-index": "node app/build-index.js",
     "lint": "echo 'run linter!'",
     "validate": "echo 'run validator!'",
     "test": "grunt test",
     "webpack": "node webpack-server.js",
-    "start": "npm run build-index && electron .",
+    "start": "electron .",
     "postinstall": "./node_modules/.bin/electron-rebuild"
   },
   "repository": {
