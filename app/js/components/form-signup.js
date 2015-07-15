@@ -5,12 +5,13 @@ import React from 'react';
 import {Input, Button} from 'react-bootstrap';
 import FieldPassword from './field-password'
 import _ from 'lodash';
+import xhr from 'xhr';
 
 export default class FormSignup extends React.Component {
     handleFormSubmission(e) {
         e.preventDefault();
-
         let refs = _.assign(this.refs); // TODO send to API
+        request.post();
     }
     render() {
         return (

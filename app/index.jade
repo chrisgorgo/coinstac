@@ -6,4 +6,6 @@ html(lang="en")
         link(rel="stylesheet", href="styles/bootstrap.min.css")
     body
         #app
+        script(type='text/javascript')
+            | window.config =!{JSON.stringify(config)};
         script(type='text/javascript', src=entryUrl)

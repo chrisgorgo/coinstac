@@ -5,7 +5,6 @@ import _ from 'lodash';
 export default class FormLogin extends React.Component {
     handleFormSubmission(e) {
         e.preventDefault();
-
         let refs = _.assign(this.refs);
     }
     render() {

@@ -1,4 +1,8 @@
 {
-    "required": "I am required",
-    "optional": "I am optional"
+    "api": {
+        "protocol": "http",
+        "hostname": "localhost",
+        "port": 3001,
+        "url": "generated-by-app"
+    }
 }

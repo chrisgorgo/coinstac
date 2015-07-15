@@ -1,7 +1,19 @@
 var fs = require('fs');
 var jade = require('jade');
-var locals = {
-    pageTitle: 'COINSTAC'
+var config = require('config');
+var _ = require('lodash');
+var url = require('url');
+var locals;
+
+config.api.url = url.format({
+    protocol: config.api.protocol,
+    hostname: config.api.hostname,
+    port: config.api.port
+});
+
+locals = {
+    pageTitle: 'COINSTAC',
+    config: _.assign(config)
 };
 
 if (process.env.COINS_ENV === 'development') {
