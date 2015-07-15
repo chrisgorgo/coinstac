@@ -4,14 +4,51 @@
 import React from 'react';
 import {Input, Button} from 'react-bootstrap';
 import FieldPassword from './field-password'
+// import FieldEmail from './field-email' // TODO debug `Input` not being extended
 import _ from 'lodash';
 import xhr from 'xhr';
+let config = window.config;
 
 export default class FormSignup extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            disableSubmit: true
+        };
+    }
     handleFormSubmission(e) {
         e.preventDefault();
-        let refs = _.assign(this.refs); // TODO send to API
-        request.post();
+        let refs = _.assign(this.refs);
+
+        xhr({
+            url: config.api.url + '/users',
+            method: 'post',
+            json: this.data()
+        }, function(err, response, body) {
+            // TODO API response not standard
+            window.localStorage.setItem('uid', body);
+            console.log(window.localStorage.getItem('uid'));
+        });
+    }
+    data() {
+        return {
+            username: this.refs['signup-username'].getInputDOMNode().value,
+            password: this.refs.password.state.password,
+            email:  this.refs.email.getInputDOMNode().value,
+            institution: this.refs.institution.getInputDOMNode().value,
+            name: this.refs['signup-name'].getInputDOMNode().value
+        };
+    }
+    handleFieldChange(evt) {
+        let data = this.data();
+        let state = this.state;
+
+        if (!data.username || !data.password || !data.email || !data.name) {
+            state.disableSubmit = true;
+        } else {
+            state.disableSubmit = false;
+        }
+        this.setState(state);
     }
     render() {
         return (
@@ -19,21 +56,34 @@ export default class FormSignup extends React.Component {
                 <div className="panel-body">
                     <form onSubmit={this.handleFormSubmission.bind(this)}>
                         <Input
+                            onChange={this.handleFieldChange.bind(this)}
                             type="text"
                             label="Name:"
                             ref="signup-name" />
                         <Input
+                            onChange={this.handleFieldChange.bind(this)}
                             type="text"
                             label="Username:"
                             ref="signup-username" />
-                        <FieldPassword validation={true} />
                         <Input
+                            onChange={this.handleFieldChange.bind(this)}
+                            type="email"
+                            label="Email:"
+                            ref="email" />
+                        <FieldPassword
+                            onChange={this.handleFieldChange.bind(this)}
+                            validation={true}
+                            ref="password" />
+                        <Input
+                            onChange={this.handleFieldChange.bind(this)}
                             type="select"
                             label="Institution:"
+                            ref="institution"
                             help="(Optional)" />
                         <Button
                             bsStyle="primary"
                             type="submit"
+                            disabled={this.state.disableSubmit}
                             block>Sign Up</Button>
                     </form>
                 </div>
