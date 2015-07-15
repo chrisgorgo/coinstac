@@ -19,13 +19,13 @@ import Signup from './components/signup';
 
 const routes = (
     <Route handler={App}>
-        <DefaultRoute name="home" path="/" handler={Home}>
-            <DefaultRoute name="dashboard" path="/dashboard" handler={Dashboard}>
+        <Route name="home" path="/" handler={Home}>
+            <Route name="dashboard" path="/" handler={Dashboard}>
                 <DefaultRoute handler={DashboardHome} />
                 <Route name="consortia" handler={DashboardConsortia} />
                 <Route name="files" handler={DashboardFiles} />
-            </DefaultRoute>
-        </DefaultRoute>
+            </Route>
+        </Route>
         <Route name="login" handler={Login} />
         <Route name="signup" handler={Signup} />
     </Route>
