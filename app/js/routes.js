@@ -7,22 +7,27 @@
  * @{@link  https://github.com/rackt/react-router}
  */
 import React from 'react';
-import Router, {Route, DefaultRoute, RouteHandler} from 'react-router';
+import Router, { Route, DefaultRoute, RouteHandler } from 'react-router';
 import App from './components/app';
-import Form from './components/form';
 import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
 import DashboardConsortia from './components/dashboard-consortia';
 import DashboardFiles from './components/dashboard-files';
+import Home from './components/home';
+import Login from './components/login';
+import Signup from './components/signup';
 
 const routes = (
     <Route handler={App}>
-        <Route path="/form" handler={Form} />
-        <Route name="dashboard" path="/dashboard" handler={Dashboard}>
-            <DefaultRoute handler={DashboardHome} />
-            <Route name="consortia" handler={DashboardConsortia} />
-            <Route name="files" handler={DashboardFiles} />
+        <Route name="home" path="/" handler={Home}>
+            <Route name="dashboard" path="/" handler={Dashboard}>
+                <DefaultRoute handler={DashboardHome} />
+                <Route name="consortia" handler={DashboardConsortia} />
+                <Route name="files" handler={DashboardFiles} />
+            </Route>
         </Route>
+        <Route name="login" handler={Login} />
+        <Route name="signup" handler={Signup} />
     </Route>
 );
 
