@@ -13,6 +13,11 @@ module.exports = {
         path: __dirname + '/app',
         filename: 'bundle.js'
     },
+    externals: [
+        {
+            fs: 'commonjs fs'
+        }
+    ],
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin()
