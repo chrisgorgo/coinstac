@@ -19,12 +19,12 @@ export default class App extends React.Component {
         this.setState({formType: formType});
     }
     render() {
-        let form;
+        let authForm;
 
         if (this.props.formType === 'login') {
-            form = <FormLogin />;
+            authForm = <FormLogin />;
         } else {
-            form = <FormSignup />;
+            authForm = <FormSignup />;
         }
 
         return (
@@ -40,7 +40,7 @@ export default class App extends React.Component {
                                     <NavItemLink to="login">Log In</NavItemLink>
                                     <NavItemLink to="signup">Sign Up</NavItemLink>
                                 </Nav>
-                                {form}
+                                {authForm}
                             </div>
                         </div>
                     </div>

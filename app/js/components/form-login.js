@@ -1,6 +1,7 @@
 import React from 'react';
 import {Input, Button} from 'react-bootstrap';
 import _ from 'lodash';
+import {ButtonLink} from 'react-router-bootstrap';
 
 export default class FormLogin extends React.Component {
     handleFormSubmission(e) {
@@ -30,6 +31,7 @@ export default class FormLogin extends React.Component {
                         </form>
                     </div>
                 </div>
+                <ButtonLink to="dashboard" block>HOT ROUTE</ButtonLink>
                 <Button bsStyle="link" block>Forgot Password?</Button>
             </div>
         );
