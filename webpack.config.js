@@ -15,7 +15,8 @@ module.exports = {
     },
     externals: [
         {
-            fs: 'commonjs fs'
+            fs: 'commonjs fs',
+            pouchdb: 'commonjs pouchdb'
         }
     ],
     plugins: [

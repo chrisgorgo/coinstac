@@ -1,32 +1,25 @@
-'use strict'
-
+'use strict';
 import xhr from 'xhr';
 import { Promise } from 'rsvp';
 import _ from 'lodash';
+let config = window.config;
 
 // TODO: Implement better storage
 let Storage;
 
 function getStorage() {
     return new Promise(function (resolve, reject) {
-        if (Storage) {
-            resolve(Storage);
-        }
-
-        xhr(
-            { uri: 'http://localhost:3001/consortia' },
-            function (err, res, body) {
-                if (err) {
-                    reject(err);
-                } else if (res.statusCode.toString().charAt(0) !== '2') {
-                    reject('Bad request: ' + res.toString());
-                }
-
-                Storage = JSON.parse(body);
-
-                resolve(Storage);
+        xhr({
+            uri: config.api.url + '/consortia'
+        }, function (err, res, body) {
+            if (err) {
+                reject(err);
             }
-        );
+
+            Storage = JSON.parse(body);
+
+            resolve(Storage);
+        });
     });
 }
 
