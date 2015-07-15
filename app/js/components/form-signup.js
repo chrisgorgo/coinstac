@@ -3,10 +3,11 @@
 
 import React from 'react';
 import {Input, Button} from 'react-bootstrap';
-import FieldPassword from './field-password'
+import FieldPassword from './field-password';
 // import FieldEmail from './field-email' // TODO debug `Input` not being extended
 import _ from 'lodash';
 import xhr from 'xhr';
+import auth from '../services/auth';
 let config = window.config;
 
 export default class FormSignup extends React.Component {
@@ -19,15 +20,15 @@ export default class FormSignup extends React.Component {
     handleFormSubmission(e) {
         e.preventDefault();
         let refs = _.assign(this.refs);
-
+        let userData = this.data();
         xhr({
             url: config.api.url + '/users',
             method: 'post',
-            json: this.data()
+            json: userData
         }, function(err, response, body) {
             // TODO API response not standard
-            window.localStorage.setItem('uid', body);
-            console.log(window.localStorage.getItem('uid'));
+            _.assign(userData, {uid: body});
+            auth.setUser(userData);
         });
     }
     data() {
