@@ -11,6 +11,12 @@ config.api.url = url.format({
     port: config.api.port
 });
 
+config.db.remote.url = url.format({
+    protocol: config.db.remote.protocol,
+    hostname: config.db.remote.hostname,
+    port: config.db.remote.port
+});
+
 locals = {
     pageTitle: 'COINSTAC',
     config: _.assign(config)

@@ -1,22 +1,11 @@
 'use strict';
 import PouchAdapter from '../services/pouch-adapter';
+let dbs = window.dbs = []; // TODO remove window global
 
-// new PouchAdapter({
-//     name: dbName,
-//     conn: {
-//         protocol: 'http',
-//         hostname: hostname,
-//         port: port,
-//         pathname: dbName
-//     },
-//     pouchOptions: {},
-//     replicate: [
-//         {
-//             dir: 'in'
-//         },
-//         {
-//             dir: 'out'
-//         }
-//     ]
-// });
-export default {};
+dbs.register = function(opts) {
+    let db = new PouchAdapter(opts);
+    dbs.push(db);
+    return db;
+};
+
+export default dbs;

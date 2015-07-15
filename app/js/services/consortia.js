@@ -4,10 +4,8 @@ import { Promise } from 'rsvp';
 import _ from 'lodash';
 let config = window.config;
 
-// TODO: Implement better storage
-let Storage;
-
-function getStorage() {
+function _getAll() {
+    let docs;
     return new Promise(function (resolve, reject) {
         xhr({
             uri: config.api.url + '/consortia'
@@ -16,9 +14,10 @@ function getStorage() {
                 reject(err);
             }
 
-            Storage = JSON.parse(body);
-
-            resolve(Storage);
+            docs = JSON.parse(body).map(row => {
+                return row.doc;
+            });
+            resolve(docs);
         });
     });
 }
@@ -26,7 +25,7 @@ function getStorage() {
 export default {
     getAll: function() {
         return new Promise(function (resolve, reject) {
-            getStorage().then(function (storage) {
+            _getAll().then(function (storage) {
                 resolve(storage);
             }).catch(function (err) {
                 reject(err);
@@ -35,10 +34,9 @@ export default {
     },
     getByLabel: function (label) {
         return new Promise(function (resolve, reject) {
-            getStorage().then(function (storage) {
-
-                const consortium = _.find(storage, item => {
-                    return item.doc.label === label;
+            _getAll().then(function (docs) {
+                const consortium = _.find(docs, doc => {
+                    return doc.label === label;
                 });
 
                 if (consortium) {

@@ -27,7 +27,7 @@ export default class FormSignup extends React.Component {
             json: userData
         }, function(err, response, body) {
             // TODO API response not standard
-            _.assign(userData, {uid: body});
+            _.assign(userData, {id: body});
             auth.setUser(userData);
         });
     }

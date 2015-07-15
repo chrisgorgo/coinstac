@@ -1,7 +1,6 @@
 'use strict';
 var PouchDB = require('pouchdb');
 PouchDB.plugin(require('pouchdb-find'));
-var Events = require('ampersand-events');
 var assign = require('lodash.assign');
 var map = require('lodash.map');
 var unique = require('lodash.uniq');
@@ -33,7 +32,7 @@ function PouchAdapter(opts) {
     }
 }
 
-assign(PouchAdapter.prototype, Events, {
+assign(PouchAdapter.prototype, {
 
     all: function() {
         return this.db.allDocs({
@@ -52,11 +51,6 @@ assign(PouchAdapter.prototype, Events, {
             doc._rev = meta.rev;
             return doc;
         });
-    },
-
-    createDB: function(opts) { // jshint ignore:line
-        this.db = new PouchDB(this.minister.dbdir + '/' + this.name);
-        return Promise.resolve(this);
     },
 
     createIndexes: function(indicies) {

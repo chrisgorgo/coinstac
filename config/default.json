@@ -4,5 +4,13 @@
         "hostname": "localhost",
         "port": 3001,
         "url": "generated-by-app"
+    },
+    "db": {
+        "remote": {
+            "protocol": "http",
+            "hostname": "localhost",
+            "port": 5984,
+            "url": "generated-by-app"
+        }
     }
 }
