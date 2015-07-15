@@ -12,7 +12,7 @@ export default class Home extends React.Component {
     }
     render() {
         return (
-            <div class="home">
+            <div className="home">
                 <RouteHandler />
             </div>
         );

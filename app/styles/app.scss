@@ -46,22 +46,27 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 .main {
   position: relative;
 }
-@media (min-width: $screen-sm) {
-  .navigation {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    left: 0;
-    padding: $grid-gutter-width / 2;
-    position: fixed;
-    top: 0;
-    width: 33.33%;
 
-    .logo {
-      margin-bottom: 2rem;
+.navigation {
+    > nav .glyphicon {
+        display: inline-block;
+        margin-right: 1rem;
     }
-    .nav-pills {
-      flex-grow: 1;
+    @media (min-width: $screen-sm) {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        left: 0;
+        padding: $grid-gutter-width / 2;
+        position: fixed;
+        top: 0;
+        width: 33.33%;
+
+        .logo {
+            margin-bottom: 2rem;
+        }
+        > nav {
+            flex-grow: 1;
+        }
     }
-  }
 }
