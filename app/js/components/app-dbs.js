@@ -16,11 +16,7 @@ let adapterDefaults = {
 window.dbs = dbs;
 window.log = function() {console.dir(arguments);};
 let windowDbLog = (dbWrapper) => {
-    dbWrapper.db.changes({
-        since: 'now',
-        live: true,
-        include_docs: true // jshint ignore:line
-    }).on('change', window.log);
+    dbWrapper.changes.on('change', window.log);
 };
 // end live reporting
 

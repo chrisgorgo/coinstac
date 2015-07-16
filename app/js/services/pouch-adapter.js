@@ -11,6 +11,11 @@ function PouchAdapter(opts) {
         throw new ReferenceError('db name required');
     }
     this.db = new PouchDB(dbUrl);
+    this.changes = this.db.changes({
+        since: 'now',
+        live: true,
+        include_docs: true // jshint ignore:line
+    });
     if (replicate) {
         switch (replicate) {
             case 'out':
@@ -32,10 +37,10 @@ function PouchAdapter(opts) {
 
 _.assign(PouchAdapter.prototype, {
 
-    all: function() {
-        return this.db.allDocs({
+    all: function(opts) {
+        return this.db.allDocs(_.defaults(opts || {}, {
             include_docs: true // jshint ignore:line
-        }).then(function(docs) {
+        })).then(function(docs) {
             return _.map(docs.rows, function(v) { return v.doc; });
         });
     },
@@ -66,6 +71,13 @@ _.assign(PouchAdapter.prototype, {
 
     delete: function(doc, opts) { // jshint ignore:line
         return this.db.remove(doc);
+    },
+
+    deleteAll: function(doc, opts) { // jshint ignore:line
+        return this.all().then(function deleteEach(docs) {
+            docs = docs.map((doc) => { return this.delete(doc); });
+            return Promise.all(docs);
+        }.bind(this));
     },
 
     deleteDB: function(opts) { // jshint ignore:line
