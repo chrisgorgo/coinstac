@@ -20,6 +20,10 @@ export default class DashboardNav extends React.Component {
                     <span className="glyphicon glyphicon-file" aria-hidden="true"></span>
                     Files
                 </NavItemLink>
+                <NavItemLink to="projects">
+                    <span className="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                    Projects
+                </NavItemLink>
             </Nav>
         )
     }
