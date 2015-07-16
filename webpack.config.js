@@ -17,7 +17,8 @@ module.exports = {
         {
             fs: 'commonjs fs',
             pouchdb: 'commonjs pouchdb',
-            ipc: 'commonjs ipc'
+            ipc: 'commonjs ipc',
+            config: 'commonjs config'
         }
     ],
     plugins: [

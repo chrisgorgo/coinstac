@@ -12,20 +12,21 @@ function PouchAdapter(opts) {
     }
     this.db = new PouchDB(dbUrl);
     if (replicate) {
-        replicate = _.isArray(replicate) ? replicate : [replicate];
-        replicate.forEach(function setReplicationRequest(rep) {
-            switch (rep.dir) {
-                case 'out':
-                    PouchDB.replicate(opts.name, dbUrl, {live: true});
-                    break;
-                case 'in':
-                    PouchDB.replicate(dbUrl, opts.name, {live: true});
-                    break;
-                default:
-                    throw new Error('in/out replication direction ' +
-                        'must be specified');
-            }
-        });
+        switch (replicate) {
+            case 'out':
+                PouchDB.replicate(opts.name, dbUrl, {live: true});
+                break;
+            case 'in':
+                PouchDB.replicate(dbUrl, opts.name, {live: true});
+                break;
+            case 'sync':
+                PouchDB.replicate(opts.name, dbUrl, {live: true});
+                PouchDB.replicate(dbUrl, opts.name, {live: true});
+                break;
+            default:
+                throw new Error('in/out replication direction ' +
+                    'must be specified');
+        }
     }
 }
 

@@ -1,21 +1,7 @@
 var fs = require('fs');
 var jade = require('jade');
-var config = require('config');
 var _ = require('lodash');
-var url = require('url');
 var locals;
-
-config.api.url = url.format({
-    protocol: config.api.protocol,
-    hostname: config.api.hostname,
-    port: config.api.port
-});
-
-config.db.remote.url = url.format({
-    protocol: config.db.remote.protocol,
-    hostname: config.db.remote.hostname,
-    port: config.db.remote.port
-});
 
 locals = {
     pageTitle: 'COINSTAC',
