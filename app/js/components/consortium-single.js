@@ -108,7 +108,13 @@ export default class ConsortiumSingle extends React.Component {
         }
         if (consortium && consortium.analysis) {
             consortiumAnalysisNames = consortium.analysis.map(anal => {
-                return <li>{anal.name} <a bsStyle="error" className="pull-right">Delete</a></li>;
+                return <li>
+                    <span>{anal.name}</span>
+                    <a bsStyle="error" className="pull-right">Delete</a>
+                    <span className="pull-right"    style={{marginRight: '4px', fontFamily: 'monospace'}}>
+                        <small><small>(id: {anal.id})</small></small>
+                    </span>
+                </li>;
             });
         }
         return (

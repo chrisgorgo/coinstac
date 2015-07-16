@@ -37,7 +37,7 @@ module.exports = {
             { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,    loader: "url?limit=10000&minetype=image/svg+xml" }
         , {
             test: /\.jsx?$/,
-            loaders: ['react-hot', 'babel'],
+            loaders: ['react-hot', 'babel?stage=0'],
             include: path.join(__dirname, 'app/js/')
         }, {
             test: /\.css$/,

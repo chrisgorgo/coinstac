@@ -3,6 +3,7 @@
 import React from 'react';
 import {Button, ButtonToolbar} from 'react-bootstrap';
 import FieldInput from './field-input';
+import uuid from 'uuid';
 
 export default class FormAddAnalysis extends React.Component {
     constructor(props) {
@@ -68,7 +69,8 @@ export default class FormAddAnalysis extends React.Component {
         this.state.submitting = true;
         this.setState(this.state);
         this.props.onSubmit({
-            name: this.refs.name.value
+            name: this.refs.name.value,
+            id: uuid.v4()
         }, this.submitComplete.bind(this));
     }
 
