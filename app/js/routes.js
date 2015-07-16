@@ -17,6 +17,7 @@ import Home from './components/home';
 import Login from './components/login';
 import Signup from './components/signup';
 import ConsortiumSingle from './components/consortium-single';
+import Projects from './components/projects';
 
 const routes = (
     <Route handler={App}>
@@ -26,6 +27,7 @@ const routes = (
                 <Route name="consortia" handler={DashboardConsortia} />
                 <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingle} />
                 <Route name="files" handler={DashboardFiles} />
+                <Route name="projects" handler={Projects} />
             </Route>
         </Route>
         <Route name="login" handler={Login} />
