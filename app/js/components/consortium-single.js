@@ -49,8 +49,7 @@ export default class ConsortiumSingle extends React.Component {
         }
     }
 
-    isMember() {
-        let consortium = this.state.consortium;
+    isMember(consortium) {
         let user = auth.getUser();
         let userIds;
         if (consortium) {
@@ -146,7 +145,7 @@ export default class ConsortiumSingle extends React.Component {
 
     render() {
         const consortium = this.state.consortium || null;
-        const isMember = this.isMember();
+        const isMember = this.isMember(consortium);
         const joinText = isMember ? 'Member' : 'Join Consortium';
         const analysesLight = this.state.analysesLight || [];
         let consortiumAnalysisNames;

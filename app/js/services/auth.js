@@ -20,7 +20,12 @@ class Auth {
         this.isAuthenticated = false;
     }
     getUser() {
-        return JSON.parse(localStorage.getItem('auth')).user;
+        let user;
+        try {
+            return JSON.parse(localStorage.getItem('auth')).user;
+        } catch (err) {
+            throw new Error('unable to find user information in localStorage');
+        }
     }
     toString() {
         let user = _.assign({}, this.user);
