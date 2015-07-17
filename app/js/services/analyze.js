@@ -33,6 +33,8 @@ const run = async (conf) => {
         });
         return Promise.all(processing);
     } catch(err) {
+        console.error('ToDo - must handle this better'); // ToDo
+        console.dir(err);
         throw err;
     }
 };
@@ -64,7 +66,6 @@ const process = async (opts) => {
         debugger;
     }
     result = opts.process(file.sha); // ToDo - actually process file content
-    debugger;
     return db.add({data: result});
 }
 

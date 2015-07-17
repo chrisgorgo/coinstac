@@ -7,7 +7,6 @@ import consortia from '../services/consortia';
 export default class DashboardConsortia extends React.Component {
     constructor() {
         super();
-
         this.state = { consortia: [] };
     }
     componentDidMount() {
@@ -24,7 +23,7 @@ export default class DashboardConsortia extends React.Component {
                 {this.state.consortia.map(function (consortium) {
                     return (
                         <Consortium
-                            key={consortium._id}
+                            _id={consortium._id}
                             label={consortium.label}
                             users={consortium.users}
                             description={consortium.description}

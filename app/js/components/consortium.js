@@ -8,7 +8,7 @@ export default class Consortium extends React.Component {
         return (
             <div className="consortium">
                 <h2>
-                    <Link to="consortium-single" params={{label: this.props.label}}>
+                    <Link to="consortium-single" params={{label: this.props.label}} query={{_id: this.props._id}}>
                         {this.props.label}
                     </Link>
                 </h2>

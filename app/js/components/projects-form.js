@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Input, ButtonToolbar, Button } from 'react-bootstrap';
+import request from 'browser-request';
 import { files, consortia, myProjects } from '../stores/store';
 
 export default class ProjectsForm extends React.Component {
@@ -23,6 +24,7 @@ export default class ProjectsForm extends React.Component {
             projectFiles: (project.files || [])
         };
     }
+
     handleNameChange(event) {
         this.setState({ projectName: event.target.value });
     }
@@ -61,8 +63,8 @@ export default class ProjectsForm extends React.Component {
                     {files.map(file => {
                         const isSelected = projectFiles.indexOf(file) > -1;
                         return (
-                            <option value={file} selected={isSelected}>
-                                {file}
+                            <option value={file.sha} selected={isSelected}>
+                                {file.filename}
                             </option>
                         );
                     })}
@@ -74,7 +76,7 @@ export default class ProjectsForm extends React.Component {
                     </Button>
                     <Button bsStyle="primary">
                         <span className="glyphicon glyphicon-ok" aria-hidden="true">&nbsp;</span>
-                        {(isNew ? 'Update' : 'Save')}
+                        {(isNew ? 'Update Project' : 'Save Project')}
                     </Button>
                 </ButtonToolbar>
             </form>

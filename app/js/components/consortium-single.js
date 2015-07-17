@@ -5,12 +5,11 @@ import consortia from '../services/consortia';
 import FormAddAnalysis from './form-add-analysis';
 import {Button} from 'react-bootstrap';
 import auth from '../services/auth';
-import dbs from './app-dbs';
 import _ from 'lodash';
 import xhr from 'xhr';
 import config from 'config';
 import moment from 'moment'; // ToDo moment can be removed, but is here for testing
-import run from '../services/analyze.js'
+import run from '../services/analyze'
 
 export default class ConsortiumSingle extends React.Component {
     constructor() {
@@ -29,26 +28,26 @@ export default class ConsortiumSingle extends React.Component {
     }
 
     componentWillMount() {
-
-        this.db = dbs.register({
-            name: this.props.params.label,
-            replicate: 'sync'
-        });
-        this.refreshDbViewMeta();
-        this.db.changes.on('change', () => {
-            this.refreshDbViewMeta();
-        });
-    }
-    componentDidMount() {
-        let label = this.props.params.label;
-        consortia.getByLabel(label).then(function(consortium) {
+        consortia.getBy('_id', this.props.query._id).then((consortium) => {
             if (!consortium) {
-                throw new ReferenceError('consortium not found');
+                throw new ReferenceError(`consortium ${this.props.query._id} not found in registry`);
             }
-            this.setState(_.assign(this.state, {consortium: consortium}));
-        }.bind(this)).catch(err => console.error(err));
+            this.state.consortium = consortium;
+            this.db = this.state.consortium.db; // ToDo this should be params.id eventually
+            if (!this.db) {
+                throw new ReferenceError(`db ${this.state.consortium.label} not in registry`);
+            }
+            this.setState(this.state);
+            this.refreshDbViewMeta();
+            this.db.on('change', this.refreshDbViewMeta);
+        }.bind(this));
     }
 
+    componentWillUnmount() {
+        if (this.db) {
+            this.db.off('change', this.refreshDbViewMeta);
+        }
+    }
 
     isMember() {
         let consortium = this.state.consortium;
@@ -83,10 +82,11 @@ export default class ConsortiumSingle extends React.Component {
     }
 
     refreshDbViewMeta() {
-        return this.db.all({include_docs: true}).then((analysesLight) => { // ToDo, flip to true post debuggins
-            this.state = _.assign(this.state, { analysesLight });
-            this.setState(this.state);
-        });
+        return this.db.all({include_docs: true})
+            .then((analysesLight) => { // ToDo, flip to true post debuggins
+                this.state = _.assign(this.state, { analysesLight });
+                this.setState(this.state);
+            }.bind(this));
     }
 
     showNewAnalysisType() {

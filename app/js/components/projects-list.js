@@ -17,7 +17,7 @@ export default class ProjectsList extends React.Component {
                         Add Project
                     </ButtonLink>
                 </div>
-                {store.myProjects.map(project => {
+                {store.projectStore.map(project => {
                     return (
                         <div className="project">
                             <h4>

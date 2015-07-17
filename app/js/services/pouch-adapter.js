@@ -8,7 +8,8 @@ var config = require('config');
 function PouchAdapter(opts) {
     var dbUrl = url.format(opts.conn).toLowerCase();
     var replicate = opts.replicate;
-    if (!opts.name) {
+    this.name = _.kebabCase(opts.name.toLowerCase());
+    if (!this.name) {
         throw new ReferenceError('db name required');
     }
     this.db = new PouchDB(dbUrl, {
@@ -26,14 +27,14 @@ function PouchAdapter(opts) {
     if (replicate) {
         switch (replicate) {
             case 'out':
-                PouchDB.replicate(opts.name, dbUrl, {live: true});
+                PouchDB.replicate(this.name, dbUrl, {live: true});
                 break;
             case 'in':
-                PouchDB.replicate(dbUrl, opts.name, {live: true});
+                PouchDB.replicate(dbUrl, this.name, {live: true});
                 break;
             case 'sync':
-                PouchDB.replicate(opts.name, dbUrl, {live: true});
-                PouchDB.replicate(dbUrl, opts.name, {live: true});
+                PouchDB.replicate(this.name, dbUrl, {live: true});
+                PouchDB.replicate(dbUrl, this.name, {live: true});
                 break;
             default:
                 throw new Error('in/out replication direction ' +
@@ -93,6 +94,17 @@ _.assign(PouchAdapter.prototype, {
 
     get: function(uid) {
         return this.db.get(uid);
+    },
+
+    on: function(evt, cb) {
+        this.changes.on(evt, cb);
+    },
+
+    off: function(evt, cb) {
+        if (!cb) {
+            throw new ReferenceError('listener to stop listening to must be specified');
+        }
+        this.changes.removeListener(evt, cb);
     },
 
     update: function(doc, opts) {
