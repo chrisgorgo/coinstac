@@ -8,7 +8,7 @@ import FieldPassword from './field-password';
 import _ from 'lodash';
 import xhr from 'xhr';
 import auth from '../services/auth';
-let config = window.config;
+import config from 'config';
 
 export default class FormSignup extends React.Component {
     constructor(props) {
