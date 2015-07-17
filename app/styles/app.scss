@@ -19,11 +19,22 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
  * Logo
  */
 .logo {
-  margin: 0 0 2rem;
+    margin: 0 0 2rem;
 
-  abbr[title] {
-    border: none;
-  }
+    &:before {
+        background: url(/images/logo.png) no-repeat;
+        background-size: contain;
+        content: '';
+        display: inline-block;
+        height: 4rem;
+        margin: 0 .75rem 0 0;
+        width: 4rem;
+        vertical-align: top;
+    }
+
+    abbr[title] {
+        border: none;
+    }
 }
 
 /**
