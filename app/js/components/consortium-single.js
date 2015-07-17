@@ -9,32 +9,61 @@ import dbs from './app-dbs';
 import _ from 'lodash';
 import xhr from 'xhr';
 import config from 'config';
+import moment from 'moment'; // ToDo moment can be removed, but is here for testing
+import run from '../services/analyze.js'
 
 export default class ConsortiumSingle extends React.Component {
     constructor() {
         super();
         this.state = {
+            analysesLight: [],
             consortium: null,
             showAddAnalysis: false,
             isMember: null
         };
     }
 
+    cancelNewAnalysisType() {
+        this.state.showAddAnalysis = false;
+        this.setState(this.state);
+    }
+
+    componentWillMount() {
+
+        this.db = dbs.register({
+            name: this.props.params.label,
+            replicate: 'sync'
+        });
+        this.refreshDbViewMeta();
+        this.db.changes.on('change', () => {
+            this.refreshDbViewMeta();
+        });
+    }
     componentDidMount() {
         let label = this.props.params.label;
         consortia.getByLabel(label).then(function(consortium) {
             if (!consortium) {
                 throw new ReferenceError('consortium not found');
             }
-            this.db = dbs.register({
-                name: this.props.params.label,
-                replicate: 'sync'
-            });
             this.setState(_.assign(this.state, {consortium: consortium}));
         }.bind(this)).catch(err => console.error(err));
     }
 
-    handleClickJoinConsortium() {
+
+    isMember() {
+        let consortium = this.state.consortium;
+        let user = auth.getUser();
+        let userIds;
+        if (consortium) {
+            userIds = consortium.users.map(user => { return user.id; });
+            if (_.contains(userIds, user.id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    joinConsortium() {
         let user = auth.getUser();
         this.state.consortium.users.push(auth.getUser());
         xhr({
@@ -53,26 +82,15 @@ export default class ConsortiumSingle extends React.Component {
         }.bind(this));
     }
 
-    isMember() {
-        let consortium = this.state.consortium;
-        let user = auth.getUser();
-        let userIds;
-        if (consortium) {
-            userIds = consortium.users.map(user => { return user.id; });
-            if (_.contains(userIds, user.id)) {
-                return true;
-            }
-        }
-        return false;
+    refreshDbViewMeta() {
+        return this.db.all({include_docs: true}).then((analysesLight) => { // ToDo, flip to true post debuggins
+            this.state = _.assign(this.state, { analysesLight });
+            this.setState(this.state);
+        });
     }
 
     showNewAnalysisType() {
         this.state.showAddAnalysis = true;
-        this.setState(this.state);
-    }
-
-    cancelNewAnalysisType() {
-        this.state.showAddAnalysis = false;
         this.setState(this.state);
     }
 
@@ -98,10 +116,34 @@ export default class ConsortiumSingle extends React.Component {
         }.bind(this));
     }
 
+    /**
+     * TODO remove function, add to projects pane
+     * @return {[type]} [description]
+     */
+    testingAddToAnalysis() {
+        run({
+            files: [
+                {
+                    // _id: 'file_process_test_' + (moment().format()),
+                    sha: 'asdfasdw'
+                },
+                {
+                    // _id: 'file_process_test_' + (moment().format()),
+                    sha: 'asdfasdw'
+                }
+            ],
+            consortium: this.state.consortium,
+            db: this.db
+        }).then(() => {
+            return this.refreshDbViewMeta();
+        });
+    }
+
     render() {
         const consortium = this.state.consortium || null;
         const isMember = this.isMember();
         const joinText = isMember ? 'Member' : 'Join Consortium';
+        const analysesLight = this.state.analysesLight || [];
         let consortiumAnalysisNames;
         if (!consortium) {
             return <div className="consortium-single consortium-single--no-result"></div>;
@@ -121,7 +163,7 @@ export default class ConsortiumSingle extends React.Component {
             <div className="consortium-single">
                 <h1>{consortium.label}</h1>
                 <Button
-                    onClick={this.handleClickJoinConsortium.bind(this)}
+                    onClick={this.joinConsortium.bind(this)}
                     bsStyle="success"
                     className="clearfix pull-right"
                     type="button"
@@ -172,6 +214,23 @@ export default class ConsortiumSingle extends React.Component {
                         </ul>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <h5>Stats</h5>
+                        <h6>Analyses Meta</h6>
+                        <ul className="list">
+                            <li>Record count: {analysesLight.length}</li>
+                        </ul>
+                        <h6>Analyses Data</h6>
+                        <ul className="list">
+                            {analysesLight.map(data => {
+                                return <li>{JSON.stringify(data, null, 2)}</li>;
+                            })}
+                        </ul>
+                    </div>
+                </div>
+
+                <Button onClick={this.testingAddToAnalysis.bind(this)}>Test add to analysis</Button>
             </div>
         );
     }

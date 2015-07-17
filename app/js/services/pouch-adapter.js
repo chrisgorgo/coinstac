@@ -3,6 +3,7 @@ var PouchDB = require('pouchdb');
 PouchDB.plugin(require('pouchdb-find'));
 var _ = require('lodash');
 var url = require('url');
+var config = require('config');
 
 function PouchAdapter(opts) {
     var dbUrl = url.format(opts.conn).toLowerCase();
@@ -10,7 +11,13 @@ function PouchAdapter(opts) {
     if (!opts.name) {
         throw new ReferenceError('db name required');
     }
-    this.db = new PouchDB(dbUrl);
+    this.db = new PouchDB(dbUrl, {
+        ajax: {
+            headers: {
+                referer: 'http://localhost:5984/' //config.api.url
+            }
+        }
+    });
     this.changes = this.db.changes({
         since: 'now',
         live: true,
@@ -102,9 +109,7 @@ _.assign(PouchAdapter.prototype, {
     // https://github.com/nolanlawson/pouchdb-find#dbfindrequest--callback
     query: function(opts) {
         var query = {};
-        var selectorKeys;
         query.selector = opts.selector;
-        selectorKeys = Object.keys(query.selector);
         if (opts.fields) {
             query.fields = opts.fields;
         }

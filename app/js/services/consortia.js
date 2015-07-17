@@ -2,7 +2,7 @@
 import xhr from 'xhr';
 import { Promise } from 'rsvp';
 import _ from 'lodash';
-let config = window.config;
+import config from 'config';
 
 function _getAll() {
     let docs;
