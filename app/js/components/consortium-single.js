@@ -213,7 +213,7 @@ export default class ConsortiumSingle extends React.Component {
                         <h5>Users:</h5>
                         <ul className="list-inline">
                             {consortium.users.map(user => {
-                                return <li>{user}</li>;
+                                return <li>{user.username}</li>;
                             })}
                         </ul>
                     </div>

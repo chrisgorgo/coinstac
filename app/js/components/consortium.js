@@ -53,7 +53,7 @@ export default class Consortium extends React.Component {
                             <h5>Users:</h5>
                             <ul className="list-inline">
                                 {this.props.users.map(function (user) {
-                                    return <li>{user.id}</li>;
+                                    return <li>{user.username}</li>;
                                 })}
                             </ul>
                         </div>
