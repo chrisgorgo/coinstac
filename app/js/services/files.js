@@ -2,10 +2,12 @@
 
 import _ from 'lodash';
 import EventEmitter from 'event-emitter';
+import sha from 'sha';
+import path from 'path';
 var ipc = require('ipc');
 
 const STORAGE_KEY = 'coinstac-files';
-const emitter = EventEmitter();
+const emitter = EventEmitter(); // jshint ignore:line
 
 ipc.on('files-added', function (files) {
     if (files) {
@@ -13,7 +15,7 @@ ipc.on('files-added', function (files) {
     }
 });
 
-const FileStore = {
+const FileStore = { // jshint ignore:line
     addChangeListener: function (callback) {
         emitter.on('change', callback);
     },
@@ -34,7 +36,11 @@ const FileStore = {
             // TODO: Implement app-level notifications for this
             throw new Error(`File already saved: ${file.filename}`);
         }
-
+        // convert web file api naming conventions to node naming conventions
+        file.path = file.filename;
+        file.filename = path.basename(file.path);
+        file.dirname = path.dirname(file.path);
+        file.sha = sha.getSync(file.path);
         files.push(file);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
         emitter.emit('change');
@@ -42,7 +48,7 @@ const FileStore = {
     removeFileByPath: function(path) {
         const files = this.getSavedFiles();
         /** @{@link  https://lodash.com/docs/#findIndex} */
-        const index = _.findIndex(files, file => file.filename === path);
+        const index = _.findIndex(files, file => file.path === path);
         let removedFile;
 
         if (index !== -1) {

@@ -25,7 +25,6 @@ export default class DashboardFiles extends React.Component {
     }
     addFiles(e) {
         e.preventDefault();
-
         files.getFilesFromUser();
     }
     render() {
@@ -45,6 +44,9 @@ export default class DashboardFiles extends React.Component {
                     return (
                         <FileItem
                             filename={file.filename}
+                            path={file.path}
+                            dirname={file.dirname}
+                            sha={file.sha}
                             size={file.size}
                             modified={file.modified} />
                     );

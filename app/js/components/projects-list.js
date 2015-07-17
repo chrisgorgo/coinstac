@@ -27,7 +27,6 @@ export default class ProjectsList extends React.Component {
     }
     render() {
         const projects = (this.state || {}).projects || [];
-        console.log('Have projects:', projects);
         return (
             <div className="projects-list">
                 <div className="clearfix">

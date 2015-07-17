@@ -1,4 +1,3 @@
-/* global dbs */
 'use strict';
 import dbRegistry from '../services/db-registry';
 import _ from 'lodash';
@@ -71,8 +70,11 @@ let projectStore = new Store('projects');
     consortia: ['consortia1']
 }].forEach((data) => { projectStore.register(data); });
 
-export {projectStore};
 
 let consortiaStore = new ConsortiaStore('consortia');
 
-export {consortiaStore};
+export default {
+    projectStore,
+    consortiaStore,
+    fileStore
+};

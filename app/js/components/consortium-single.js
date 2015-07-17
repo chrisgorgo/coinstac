@@ -65,10 +65,12 @@ export default class ConsortiumSingle extends React.Component {
     joinConsortium() {
         let user = auth.getUser();
         this.state.consortium.users.push(auth.getUser());
+        let tConsortium = _.clone(this.state.consortium);
+        delete tConsortium.db; // ToDo replace consortium with Model, serialize
         xhr({
             url: config.api.url + '/consortia',
             method: 'put',
-            json: this.state.consortium
+            json: tConsortium
         }, function(err, response, body) {
             if (err) {
                 throw new Error(err);
@@ -95,17 +97,20 @@ export default class ConsortiumSingle extends React.Component {
     }
 
     submitAnalysisType(newAnalysis, cb) {
-        this.state.consortium.analysis = this.state.consortium.analysis || [];
-        this.state.consortium.analysis.push(newAnalysis);
+        let tConsortium;
+        this.state.consortium.analyses = this.state.consortium.analyses || [];
+        tConsortium = _.clone(this.state.consortium);
+        delete tConsortium.db; // ToDo make consortium a REST API Model w/ ampersand model, and use .serialize() here
+        this.state.consortium.analyses.push(newAnalysis);
         xhr({
             url: config.api.url + '/consortia',
             method: 'put',
-            json: this.state.consortium
+            json: tConsortium
         }, function(err, response, body) {
             if (err) {
                 throw new Error(err);  // ToDo - post user friendly error instead
-                this.state.consortium.analysis = _.remove(this.state.consortium.analysis, (a) => {
-                    return a.name === newAnalysis.name;
+                this.state.consortium.analyses = _.remove(this.state.consortium.analyses, (a) => {
+                    return a.label === newAnalysis.label;
                 });
             } else {
                 this.state.consortium._rev = body.rev;
@@ -148,10 +153,10 @@ export default class ConsortiumSingle extends React.Component {
         if (!consortium) {
             return <div className="consortium-single consortium-single--no-result"></div>;
         }
-        if (consortium && consortium.analysis) {
-            consortiumAnalysisNames = consortium.analysis.map(anal => {
+        if (consortium && consortium.analyses) {
+            consortiumAnalysisNames = consortium.analyses.map(anal => {
                 return <li>
-                    <span>{anal.name}</span>
+                    <span>{anal.label}</span>
                     <a bsStyle="error" className="pull-right">Delete</a>
                     <span className="pull-right"    style={{marginRight: '4px', fontFamily: 'monospace'}}>
                         <small><small>(id: {anal.id})</small></small>
@@ -172,7 +177,7 @@ export default class ConsortiumSingle extends React.Component {
                 <p className="lead">{consortium.description}</p>
                 <div className="row">
                     <div className="col-xs-12">
-                        <h5>Analysis Types</h5>
+                        <h5 title="These analyses are run on all raw data added to the project">Analyses</h5>
                         <Button
                             onClick={this.showNewAnalysisType.bind(this)}
                             bsStyle="primary"

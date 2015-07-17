@@ -17,34 +17,34 @@ export default class FormAddAnalysis extends React.Component {
     }
 
     cancel() {
-        this.refs.name.reset();
+        this.refs.label.reset();
         this.props.onCancel();
     }
 
-    handleNameFieldChange() {
-        // ToDo don't enable submit if there are analysis name conflicts
-        let name = this.refs.name;
+    handleLabelFieldChange() {
+        // ToDo don't enable submit if there are analysis label conflicts
+        let label = this.refs.label;
         let state = this.state;
-        state.valid = (name && name.valid) ? true : false;
-        state.nameError = name && name.error;
+        state.valid = (label && label.valid) ? true : false;
+        state.labelError = label && label.error;
         this.setState(state);
     }
 
     /**
-     * Run tests against the name field onChange
+     * Run tests against the label field onChange
      * @return {array} array contains tests which return error msg strings
      */
     testsName() {
-        const name = this.refs.name.value;
+        const label = this.refs.label.value;
         const testUniqueAnalysis = () => {
             let analysis;
-            if (!this.props.consortium.analysis) {
+            if (!this.props.consortium.analyses) {
                 return;
             }
-            for (var i = this.props.consortium.analysis.length - 1; i >= 0; i--) {
-                analysis = this.props.consortium.analysis[i];
-                if (analysis.name === name) {
-                    return 'Analysis names must be unique';
+            for (var i = this.props.consortium.analyses.length - 1; i >= 0; i--) {
+                analysis = this.props.consortium.analyses[i];
+                if (analysis.label === label) {
+                    return 'Analysis labels must be unique';
                 }
             }
         };
@@ -54,10 +54,10 @@ export default class FormAddAnalysis extends React.Component {
     }
 
     validationStateName() {
-        let nameField = this.refs.name;
-        if (!nameField || nameField.pristine) {
+        let labelField = this.refs.label;
+        if (!labelField || labelField.pristine) {
             return '';
-        } else if (nameField.valid) {
+        } else if (labelField.valid) {
             return 'success';
         } else {
             return 'error';
@@ -69,7 +69,7 @@ export default class FormAddAnalysis extends React.Component {
         this.state.submitting = true;
         this.setState(this.state);
         this.props.onSubmit({
-            name: this.refs.name.value,
+            label: this.refs.label.value,
             id: uuid.v4()
         }, this.submitComplete.bind(this));
     }
@@ -78,7 +78,7 @@ export default class FormAddAnalysis extends React.Component {
         if (err) {
             // pass
         } else {
-            this.refs.name.reset();
+            this.refs.label.reset();
         }
         delete this.state.submitting;
         this.setState(this.state);
@@ -90,12 +90,12 @@ export default class FormAddAnalysis extends React.Component {
                 <form className="clearfix" onSubmit={this.submit.bind(this)} >
                     <FieldInput
                         bsStyle={this.validationStateName()}
-                        onChange={this.handleNameFieldChange.bind(this)}
+                        onChange={this.handleLabelFieldChange.bind(this)}
                         type="text"
-                        label="Name:"
-                        ref="name"
+                        label="Analysis Label:"
+                        ref="label"
                         tests={this.testsName.bind(this)}
-                        help={this.state.nameError}
+                        help={this.state.labelError}
                         hasFeedback
                         notNull />
                     <ButtonToolbar className="pull-right">

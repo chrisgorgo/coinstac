@@ -2,11 +2,14 @@
 
 import React from 'react';
 import Router from '../routes';
+import run from '../services/analyze';
 import { Input, ButtonToolbar, Button } from 'react-bootstrap';
 import request from 'browser-request';
-// import { files, consortia, myProjects } from '../stores/store';
 import projects from '../services/projects';
 import consortia from '../services/consortia';
+import fileService from '../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
+import stores from '../stores/store';
+const consortiaStore = stores.consortiaStore; // ToDo why cant i import directly
 
 export default class ProjectsForm extends React.Component {
     static propTypes: {
@@ -102,11 +105,25 @@ export default class ProjectsForm extends React.Component {
                 }
         }
     }
+    handleSubmitAnalyze() {
+        const submitToConsortium = consortiaStore.getBy('_id', this.refs.consortium.getInputDOMNode().value);
+        const submitToFileShas = this.refs.files.getSelectedOptions();
+        const files = (fileService.getSavedFiles() || []).filter((file) => {
+            return !!_.contains(submitToFileShas, file.sha);
+        });
+        // ToDo setup some async notificatin of processing
+        run({
+            files: files,
+            consortium: submitToConsortium,
+            db: submitToConsortium.db // ToDo remove db arg from analyze.run. pull db frmo consortium
+        });
+    }
     render() {
         const { consortia, files, project } = this.state;
         const projectName = project.name || '';
         const projectConsortium = project.consortium || [];
-        const projectFiles = [];
+        const projectFiles = fileService.getSavedFiles();
+
         let nameErrors;
         let consortiumErrors;
 
@@ -149,8 +166,11 @@ export default class ProjectsForm extends React.Component {
                     {consortia.map(consortium => {
                         // TODO: Implement multiple consortia select
                         const isSelected = projectConsortium === consortium._id;
+                        const hasAnalyses = consortium.analyses && consortium.analyses.length;
                         return (
-                            <option value={consortium._id} selected={isSelected}>
+                            <option value={consortium._id} selected={isSelected}
+                                disabled={!hasAnalyses}
+                                title={!hasAnalyses ? 'Please add analyses to consortium' : ''}>
                                 {consortium.label}
                             </option>
                         );
@@ -162,7 +182,7 @@ export default class ProjectsForm extends React.Component {
                     label="Files:"
                     help="Choose some files to share."
                     multiple>
-                    {files.map(file => {
+                    {projectFiles.map((file, ndx) => {
                         const isSelected = projectFiles.indexOf(file) > -1;
                         return (
                             <option value={file.sha} selected={isSelected}>
@@ -175,6 +195,10 @@ export default class ProjectsForm extends React.Component {
                     <Button bsStyle="link">
                         <span className="glyphicon glyphicon-remove" aria-hidden="true">&nbsp;</span>
                         Cancel
+                    </Button>
+                    <Button bsStyle="default" onClick={this.handleSubmitAnalyze.bind(this)} >
+                        <span className="glyphicon glyphicon-cloud-upload" aria-hidden="true">&nbsp;</span>
+                        Analyze
                     </Button>
                     <Button
                         onClick={this.handleSave.bind(this)}
