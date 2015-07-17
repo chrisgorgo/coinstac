@@ -1,4 +1,7 @@
+/* global dbs */
 'use strict';
+
+import db from '../components/app-dbs.js';
 
 export const files = [
     'my-file-1', 'my-file-2', 'my-file-3', 'my-file-4', 'my-file-5',
@@ -14,6 +17,7 @@ export const consortia = [{
     id: 'regular-old-consortium',
     name: 'Regular Old Consortium'
 }];
+
 export const myProjects = [{
     id: 'project-101',
     name: 'My Sweet Project',
