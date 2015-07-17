@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import { ButtonLink } from 'react-router-bootstrap';
 
 export default class UserAccount extends React.Component {
     render() {
@@ -14,6 +15,8 @@ export default class UserAccount extends React.Component {
                         <strong className="block">Dr. Kitty McFeline</strong>
                         <br />
                         <em className="h6">Institution Name</em>
+                        <br />
+                        <ButtonLink bsSize="xsmall" to="login">Log In</ButtonLink>
                     </div>
                 </div>
             </div>
