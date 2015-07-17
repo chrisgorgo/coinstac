@@ -48,6 +48,8 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 }
 
 .navigation {
+    background: $gray-lighter;
+
     > nav .glyphicon {
         display: inline-block;
         margin-right: 1rem;
