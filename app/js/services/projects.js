@@ -14,14 +14,8 @@ const projects = {
         return projectsDatabase.all();
     },
     delete: function (id) {
-        // TODO: Implement this method
-        // return new Promise(function (resolve, reject) {
-        //     projects.find(id).then(function (doc) {
-        //         return projectsDatabase.delete(doc).then(resolve).catch(reject);
-        //     }).catch(reject);
-        // });
-
-        // return projects.find(id).then(projectsDatabase.delete);
+        return projects.find(id)
+            .then(projectsDatabase.delete.bind(projectsDatabase));
     },
     find: function (id) {
         return projectsDatabase.get(id);
