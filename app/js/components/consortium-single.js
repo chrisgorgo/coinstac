@@ -39,13 +39,13 @@ export default class ConsortiumSingle extends React.Component {
             }
             this.setState(this.state);
             this.refreshDbViewMeta();
-            this.db.on('change', this.refreshDbViewMeta);
+            this.db.on('change', (evt) => { this.refreshDbViewMeta(); });
         }.bind(this));
     }
 
     componentWillUnmount() {
         if (this.db) {
-            this.db.off('change', this.refreshDbViewMeta);
+            this.db.off('change', (evt) => {this.refreshDbViewMeta(); });
         }
     }
 
@@ -82,8 +82,8 @@ export default class ConsortiumSingle extends React.Component {
     }
 
     refreshDbViewMeta() {
-        return this.db.all({include_docs: true})
-            .then((analysesLight) => { // ToDo, flip to true post debuggins
+        return this.db.all()
+            .then((analysesLight) => {
                 this.state = _.assign(this.state, { analysesLight });
                 this.setState(this.state);
             }.bind(this));
@@ -136,7 +136,7 @@ export default class ConsortiumSingle extends React.Component {
             db: this.db
         }).then(() => {
             return this.refreshDbViewMeta();
-        });
+        }.bind(this));
     }
 
     render() {
@@ -222,6 +222,7 @@ export default class ConsortiumSingle extends React.Component {
                             <li>Record count: {analysesLight.length}</li>
                         </ul>
                         <h6>Analyses Data</h6>
+                        <Button onClick={this.testingAddToAnalysis.bind(this)}>Test add to analysis</Button>
                         <ul className="list">
                             {analysesLight.map(data => {
                                 return <li>{JSON.stringify(data, null, 2)}</li>;
@@ -229,8 +230,6 @@ export default class ConsortiumSingle extends React.Component {
                         </ul>
                     </div>
                 </div>
-
-                <Button onClick={this.testingAddToAnalysis.bind(this)}>Test add to analysis</Button>
             </div>
         );
     }

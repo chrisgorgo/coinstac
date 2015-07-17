@@ -1,3 +1,4 @@
+/* global dbs */
 'use strict';
 import dbRegistry from '../services/db-registry';
 import _ from 'lodash';
@@ -36,7 +37,6 @@ class ConsortiaStore extends Store {
     register(consortium) {
         consortium = super.register(consortium);
         if (!consortium.db) {
-            debugger;
             consortium.db = dbRegistry.register({
                 name: consortium.label || consortium.name,
                 replicate: 'sync'
@@ -63,7 +63,7 @@ let projectStore = new Store('projects');
     id: 'project-101',
     name: 'My Sweet Project',
     files: ['file-id-1', 'file-id-2', 'file-id-3'],
-    consortia: ['my-sweet-consortia']
+    consortia: ['consortia1']
 }, {
     id: 'project-103',
     name: 'My Okay Project',
@@ -74,16 +74,5 @@ let projectStore = new Store('projects');
 export {projectStore};
 
 let consortiaStore = new ConsortiaStore('consortia');
-[{
-    id: 'my-sweet-consortia',
-    name: 'My Sweet Consortia'
-}, {
-    id: 'consortia1',
-    name: 'Super Consorting (consortia1)'
-}, {
-    id: 'regular-old-consortium',
-    name: 'Regular Old Consortium'
-}].forEach((data) => { consortiaStore.register(data); });
-
 
 export {consortiaStore};

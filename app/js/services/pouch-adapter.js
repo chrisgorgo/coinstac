@@ -6,13 +6,13 @@ var url = require('url');
 var config = require('config');
 
 function PouchAdapter(opts) {
-    var dbUrl = url.format(opts.conn).toLowerCase();
     var replicate = opts.replicate;
+    this.dbUrl = url.format(opts.conn).toLowerCase();
     this.name = _.kebabCase(opts.name.toLowerCase());
     if (!this.name) {
         throw new ReferenceError('db name required');
     }
-    this.db = new PouchDB(dbUrl, {
+    this.db = new PouchDB(this.dbUrl, {
         ajax: {
             headers: {
                 referer: 'http://localhost:5984/' //config.api.url
@@ -27,14 +27,14 @@ function PouchAdapter(opts) {
     if (replicate) {
         switch (replicate) {
             case 'out':
-                PouchDB.replicate(this.name, dbUrl, {live: true});
+                PouchDB.replicate(this.name, this.dbUrl, {live: true});
                 break;
             case 'in':
-                PouchDB.replicate(dbUrl, this.name, {live: true});
+                PouchDB.replicate(this.dbUrl, this.name, {live: true});
                 break;
             case 'sync':
-                PouchDB.replicate(this.name, dbUrl, {live: true});
-                PouchDB.replicate(dbUrl, this.name, {live: true});
+                PouchDB.replicate(this.name, this.dbUrl, {live: true});
+                PouchDB.replicate(this.dbUrl, this.name, {live: true});
                 break;
             default:
                 throw new Error('in/out replication direction ' +

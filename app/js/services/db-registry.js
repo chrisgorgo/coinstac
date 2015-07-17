@@ -4,7 +4,7 @@ import config from 'config';
 import _ from 'lodash';
 
 let dbs = [];
-let adapterDefaults = {
+const adapterDefaults = {
     conn: {
         protocol: config.db.remote.protocol,
         hostname: config.db.remote.hostname,
@@ -22,9 +22,11 @@ let windowDbLog = (dbWrapper) => {
 
 dbs.registery = {};
 dbs.register = function(opts) {
-    let dbConfig = _.defaultsDeep(opts, adapterDefaults);
-    dbConfig.name = _.kebabCase(dbConfig.name);
-    dbConfig.conn.pathname = (dbConfig.conn.pathname || dbConfig.name);
+    let dbConfig = { conn: {}};
+    _.extend(dbConfig.conn, adapterDefaults.conn);
+    dbConfig.name = _.kebabCase(opts.label || opts.name);
+    dbConfig.conn.pathname = (dbConfig.conn.pathname || opts.label || opts.name);
+    debugger;
     let db = new PouchAdapter(dbConfig);
     dbs.registery[opts.name] = db;
     dbs.push(db);

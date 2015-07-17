@@ -3,8 +3,6 @@
 import React from 'react';
 import { ButtonLink } from 'react-router-bootstrap';
 import ProjectsForm from './projects-form';
-// import * as store from '../stores/store';
-// import _ from 'lodash';
 
 export default class ProjectsSingle extends React.Component {
     static propTypes: {
