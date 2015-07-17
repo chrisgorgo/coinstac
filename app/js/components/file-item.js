@@ -25,22 +25,24 @@ export default class FileItem extends React.Component {
     }
     render() {
         return (
-            <div className="file-item">
-                <div className="clearfix">
-                    <h3 className="file-item__name pull-left">{this.props.filename}</h3>
-                    <ButtonToolbar className="pull-right">
-                        <Button onClick={this.removeFile.bind(this)} bsStyle="danger">
-                            <span className="glyphicon glyphicon-trash"></span>
-                            {" Remove"}
-                        </Button>
-                    </ButtonToolbar>
+            <div className="file-item panel panel-default">
+                <div className="panel-body">
+                    <div className="clearfix">
+                        <h3 className="file-item__name pull-left">{this.props.filename}</h3>
+                        <ButtonToolbar className="pull-right">
+                            <Button onClick={this.removeFile.bind(this)} bsStyle="danger">
+                                <span className="glyphicon glyphicon-trash"></span>
+                                {" Remove"}
+                            </Button>
+                        </ButtonToolbar>
+                    </div>
+                    <ul className="list-unstyled text-muted">
+                        <li>Full Path: <strong>{this.props.path}</strong></li>
+                        <li>Size: <strong>{getFileSize(this.props.size)}</strong></li>
+                        <li>Modified: <strong>{getTime(this.props.modified)}</strong></li>
+                        <li>sha: <strong>{this.props.sha}</strong></li>
+                    </ul>
                 </div>
-                <ul className="list-unstyled text-muted">
-                    <li>Full Path: <strong>{this.props.path}</strong></li>
-                    <li>Size: <strong>{getFileSize(this.props.size)}</strong></li>
-                    <li>Modified: <strong>{getTime(this.props.modified)}</strong></li>
-                    <li>sha: <strong>{this.props.sha}</strong></li>
-                </ul>
             </div>
         );
     }
