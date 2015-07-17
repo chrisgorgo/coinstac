@@ -30,15 +30,15 @@ export default class DashboardFiles extends React.Component {
     render() {
         return (
             <div className="dashboard-files">
-                <div className="page-header">
-                    <h1>Files</h1>
-                </div>
-                <div className="clearfix">
-                    <div className="pull-right">
-                        <Button
-                            bsStyle="primary"
-                            onClick={this.addFiles.bind(this)}>Add File</Button>
-                    </div>
+                <div className="page-header clearfix">
+                    <h1 className="pull-left">Files</h1>
+                    <Button
+                        onClick={this.addFiles.bind(this)}
+                        bsStyle="primary"
+                        className="pull-right">
+                            <strong>+</strong>
+                            Add File
+                        </Button>
                 </div>
                 {this.state.files.map(file => {
                     return (

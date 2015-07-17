@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { ButtonLink } from 'react-router-bootstrap';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import projects from '../services/projects';
@@ -29,14 +28,6 @@ export default class ProjectsList extends React.Component {
         const projects = (this.state || {}).projects || [];
         return (
             <div className="projects-list">
-                <div className="clearfix">
-                    <ButtonLink
-                        to="projects-new"
-                        bsStyle="primary"
-                        className="pull-right">
-                        Add Project
-                    </ButtonLink>
-                </div>
                 {projects.map(project => {
                     return (
                         <div className="project panel panel-default">

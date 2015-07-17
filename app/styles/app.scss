@@ -103,3 +103,11 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 .consortium__tags .label {
     margin: 0 .5rem .5rem 0;
 }
+
+/** Page header with button */
+.page-header .btn {
+    margin-top: 2.5rem;
+}
+.page-header .btn strong {
+    margin-right: .5rem;
+}
