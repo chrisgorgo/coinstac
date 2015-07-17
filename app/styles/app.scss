@@ -85,3 +85,19 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 .file-item__name {
     margin-top: 0;
 }
+
+/** Consortia */
+.dashboard-consortia > .row > .col-sm-6:nth-child(odd) {
+    clear: both;
+}
+.consortium {
+    min-height: 220px;
+}
+.consortium .btn-toolbar {
+    .glyphicon {
+        margin-right: .5rem;
+    }
+}
+.consortium__tags .label {
+    margin: 0 .5rem .5rem 0;
+}

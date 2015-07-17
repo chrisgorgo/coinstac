@@ -16,20 +16,24 @@ export default class DashboardConsortia extends React.Component {
     }
     render() {
         return (
-            <div>
+            <div className="dashboard-consortia">
                 <div className="page-header">
                     <h1>Consortia</h1>
                 </div>
-                {this.state.consortia.map(function (consortium) {
-                    return (
-                        <Consortium
-                            _id={consortium._id}
-                            label={consortium.label}
-                            users={consortium.users}
-                            description={consortium.description}
-                            tags={consortium.tags} />
-                    );
-                })}
+                <div className="row">
+                    {this.state.consortia.map(function (consortium) {
+                        return (
+                            <div className="col-xs-12 col-sm-6">
+                                <Consortium
+                                    _id={consortium._id}
+                                    label={consortium.label}
+                                    users={consortium.users}
+                                    description={consortium.description}
+                                    tags={consortium.tags} />
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         )
     }
