@@ -10,13 +10,13 @@ module.exports = {
         './js/index.js'
     ],
     output: {
-        path: __dirname + '/app',
+        path: __dirname + '/app/build',
         filename: 'bundle.js'
     },
     externals: [
         {
             fs: 'commonjs fs',
-            pouchdb: 'commonjs pouchdb',
+            // pouchdb: 'commonjs pouchdb',
             ipc: 'commonjs ipc',
             config: 'commonjs config',
             sha: 'commonjs sha',
@@ -32,6 +32,7 @@ module.exports = {
     },
     module: {
         loaders: [
+            { test: /\.json$/, loader: 'json' },
             { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,   loader: "url?limit=10000&minetype=application/font-woff" },
             { test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,  loader: "url?limit=10000&minetype=application/font-woff" },
             { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,    loader: "url?limit=10000&minetype=application/octet-stream" },

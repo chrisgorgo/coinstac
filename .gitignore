@@ -28,5 +28,5 @@ node_modules
 # Users Environment Variables
 .lock-wscript
 electron
-**/*.bundle.js
+app/build
 app/index.html

@@ -8,9 +8,9 @@ locals = {
 };
 
 if (process.env.COINS_ENV === 'development') {
-    locals.entryUrl = 'http://localhost:3000/bundle.js';
+    locals.entryUrl = 'http://localhost:3000/build/bundle.js';
 } else {
-    locals.entryUrl = 'bundle.js';
+    locals.entryUrl = 'build/bundle.js';
 }
 
 // Complile the index template

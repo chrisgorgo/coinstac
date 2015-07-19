@@ -24,7 +24,8 @@ import ProjectsNew from './components/projects-new';
 
 const routes = (
     <Route handler={App}>
-        <Route name="home" path="/" handler={Home}>
+        <Route name="login" path="/" handler={Login} />
+        <Route name="home" path="/home" handler={Home}>
             <Route name="dashboard" path="/" handler={Dashboard}>
                 <DefaultRoute handler={DashboardHome} />
                 <Route name="consortia" handler={DashboardConsortia} />
@@ -43,7 +44,6 @@ const routes = (
                 </Route>
             </Route>
         </Route>
-        <Route name="login" handler={Login} />
         <Route name="signup" handler={Signup} />
     </Route>
 );
