@@ -8,7 +8,7 @@ locals = {
 };
 
 if (process.env.COINS_ENV === 'development') {
-    locals.entryUrl = 'http://localhost:3000/build/bundle.js';
+    locals.entryUrl = 'http://localhost:3000/bundle.js';
 } else {
     locals.entryUrl = 'build/bundle.js';
 }

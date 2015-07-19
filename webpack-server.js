@@ -7,7 +7,8 @@ new WebpackDevServer(webpack(config), {
     publicPath: config.output.publicPath,
     hot: true,
     historyApiFallback: true,
-    contentBase: './app/'
+    contentBase: './app/',
+    colors: true
 }).listen(3000, 'localhost', function (err, result) { // jshint ignore:line
     if (err) {
         console.log(err);
