@@ -31,7 +31,7 @@ export default class FormLogin extends React.Component {
                         </form>
                     </div>
                 </div>
-                <ButtonLink to="dashboard" block>HOT ROUTE</ButtonLink>
+                <ButtonLink to="home" block>HOT ROUTE</ButtonLink>
                 <Button bsStyle="link" block>Forgot Password?</Button>
             </div>
         );

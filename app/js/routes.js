@@ -26,7 +26,7 @@ const routes = (
     <Route handler={App}>
         <Route name="login" path="/" handler={Login} />
         <Route name="home" path="/home" handler={Home}>
-            <Route name="dashboard" path="/" handler={Dashboard}>
+            <Route name="dashboard" path="/home" handler={Dashboard}>
                 <DefaultRoute handler={DashboardHome} />
                 <Route name="consortia" handler={DashboardConsortia} />
                 <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingle} />
