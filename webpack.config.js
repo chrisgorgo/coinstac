@@ -16,7 +16,6 @@ module.exports = {
     externals: [
         {
             fs: 'commonjs fs',
-            // pouchdb: 'commonjs pouchdb',
             ipc: 'commonjs ipc',
             config: 'commonjs config',
             sha: 'commonjs sha',
