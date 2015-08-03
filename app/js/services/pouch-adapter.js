@@ -7,8 +7,8 @@ var config = require('config');
 
 function PouchAdapter(opts) {
     var replicate = opts.replicate;
-    this.dbUrl = url.format(opts.conn).toLowerCase();
     this.name = _.kebabCase(opts.name.toLowerCase());
+    this.dbUrl = url.format(opts.conn).toLowerCase();
     if (!this.name) {
         throw new ReferenceError('db name required');
     }

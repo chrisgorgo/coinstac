@@ -25,9 +25,9 @@ dbs.register = function(opts) {
     let dbConfig = { conn: {}};
     _.extend(dbConfig.conn, adapterDefaults.conn);
     dbConfig.name = _.kebabCase(opts.label || opts.name);
-    dbConfig.conn.pathname = (dbConfig.conn.pathname || opts.label || opts.name);
+    dbConfig.conn.pathname = (dbConfig.conn.pathname || dbConfig.name);
     let db = new PouchAdapter(dbConfig);
-    dbs.registery[opts.name] = db;
+    dbs.registery[dbConfig.name] = db;
     dbs.push(db);
     windowDbLog(db); // ToDo remove!
     return db;
