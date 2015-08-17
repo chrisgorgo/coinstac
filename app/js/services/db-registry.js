@@ -1,5 +1,5 @@
 'use strict';
-import PouchAdapter from './pouch-adapter';
+import PouchWrapper from 'pouch-wrapper';
 import config from 'config';
 import _ from 'lodash';
 
@@ -11,6 +11,16 @@ const adapterDefaults = {
         port: config.db.remote.port,
     }
 };
+
+// TODO - determine how to stop spoofing the referer
+// import url from 'url';
+// const pouchOptions = {
+//     ajax: {
+//         headers: {
+//             referer: url.format(adapterDefaults.conn)
+//         }
+//     }
+// };
 
 // TODO remove window global and live reporting
 window.dbs = dbs;
@@ -26,7 +36,7 @@ dbs.register = function(opts) {
     _.extend(dbConfig.conn, adapterDefaults.conn);
     dbConfig.name = _.kebabCase(opts.label || opts.name);
     dbConfig.conn.pathname = (dbConfig.conn.pathname || dbConfig.name);
-    let db = new PouchAdapter(dbConfig);
+    let db = new PouchWrapper(dbConfig);
     dbs.registery[dbConfig.name] = db;
     dbs.push(db);
     windowDbLog(db); // ToDo remove!
