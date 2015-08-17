@@ -1,3 +1,4 @@
+// @note: holding onto this task to support downloading different OS versions for x-env builds
 'use strict';
 var downloadConfig = require('./download-electron.js')();
 var fs = require('fs');
