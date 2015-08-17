@@ -1,10 +1,10 @@
 'use strict';
 
 import React from 'react';
-import Form from './form';
+import LayoutNoAuth from './layout-noauth';
 
 export default class Signup extends React.Component {
     render() {
-        return <Form formType="signup" />;
+        return <LayoutNoAuth formType="signup" />;
     }
 };

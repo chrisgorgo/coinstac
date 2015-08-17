@@ -8,13 +8,13 @@ import FormSignup from './form-signup';
 
 
 export default class App extends React.Component {
-    // constructor(props) {
-    //     super(props);
-    //
-    //     this.state = {
-    //         formType: 'login'
-    //     };
-    // }
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            formType: 'login'
+        };
+    }
     handleFormChange(formType) {
         this.setState({formType: formType});
     }
