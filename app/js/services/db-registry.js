@@ -1,5 +1,5 @@
 'use strict';
-import PouchWrapper from 'pouch-wrapper';
+import PouchWrapper from 'pouchdb-wrapper';
 import config from 'config';
 import _ from 'lodash';
 
