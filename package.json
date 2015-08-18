@@ -64,7 +64,9 @@
     "validate": "echo 'run validator!'",
     "test": "grunt test",
     "webpack": "node webpack-server.js",
+    "webpackdev": "export COINS_ENV='development' && npm run webpack",
     "start": "electron .",
+    "startdev": "export COINS_ENV='development' && npm start",
     "postinstall": "./node_modules/.bin/electron-rebuild"
   },
   "repository": {

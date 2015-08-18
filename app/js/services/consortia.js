@@ -1,17 +1,17 @@
 'use strict';
 import xhr from 'xhr';
-import {consortiaStore} from '../stores/store';
+import {dbs} from './db-registry';
 import _ from 'lodash';
 import config from 'config';
 
-function _getAll() {
+function _getAllRemote() {
     let docs;
     return new Promise(function (resolve, reject) {
         xhr({
             uri: config.api.url + '/consortia'
         }, function (err, res, body) {
             if (err) {
-                reject(err);
+                return reject(err);
             }
 
             docs = JSON.parse(body).map(row => {
@@ -20,15 +20,18 @@ function _getAll() {
             docs = docs.map((doc) => {
                 return consortiaStore.register(doc);
             });
-            resolve(docs);
+            return resolve(docs);
         });
     });
 }
 
 class ConsortiaService {
+    constructor() {
+
+    }
     getAll() {
         return new Promise(function (resolve, reject) {
-            _getAll().then(function (docs) {
+            return _getAllRemote().then(function (docs) {
                 resolve(docs);
             }).catch(function (err) {
                 reject(err);
