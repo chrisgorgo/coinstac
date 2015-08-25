@@ -1,4 +1,12 @@
-# node_boilerplate
+# coinstac
+
+## install
+- run `npm i`
+
+## development
+- run `npm start`
+    - this runs the `electron` process with a `development` flag.  In turn, this tells the application to source data from a `webpack-development-server` vs the filesystem.
+
 boilerplate repo for node projects. Contains the official jshint and jscs RC files, as well as a basic Gruntfile and package.json to get you started.
 
 # Copying

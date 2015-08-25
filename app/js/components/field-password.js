@@ -34,14 +34,14 @@ export default class FieldPassword extends React.Component {
         return (
             <div>
                 <Input
-                    bsStyle={this.state.validationClass}
+                    bsStyle={this.state.validationClass || 'warning'}
                     type="password"
                     label="Password:"
                     ref="password"
                     onChange={this.handleChange.bind(this)}
                     hasFeedback={this.state.hasFeedback} />
                 <Input
-                    bsStyle={this.state.validationClass}
+                    bsStyle={this.state.validationClass || 'warning'}
                     type="password"
                     label="Confirm Password:"
                     onChange={this.handleChange.bind(this)}

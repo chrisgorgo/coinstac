@@ -6,7 +6,7 @@ import {Input, Button} from 'react-bootstrap';
 import FieldPassword from './field-password';
 // import FieldEmail from './field-email' // TODO debug `Input` not being extended
 import _ from 'lodash';
-import xhr from 'xhr';
+import request from 'browser-request'
 import auth from '../services/auth';
 import config from 'config';
 
@@ -20,10 +20,11 @@ export default class FormSignup extends React.Component {
     handleFormSubmission(e) {
         e.preventDefault();
         let refs = _.assign(this.refs);
-        let userData = this.data();
-        xhr({
+        let userData = {
+            encoded: btoa(JSON.stringify(this.data()))
+        };
+        request.post({
             url: config.api.url + '/users',
-            method: 'post',
             json: userData
         }, function(err, response, body) {
             // TODO API response not standard

@@ -1,58 +1,39 @@
+// @todo - move entirely to remote couch sync'd db, and use pouchdb-wrapper.find to get elements
 'use strict';
 import xhr from 'xhr';
 import {dbs} from './db-registry';
 import _ from 'lodash';
 import config from 'config';
 
-function _getAllRemote() {
-    let docs;
-    return new Promise(function (resolve, reject) {
-        xhr({
-            uri: config.api.url + '/consortia'
-        }, function (err, res, body) {
-            if (err) {
-                return reject(err);
-            }
-
-            docs = JSON.parse(body).map(row => {
-                return row.doc;
-            });
-            docs = docs.map((doc) => {
-                return consortiaStore.register(doc);
-            });
-            return resolve(docs);
-        });
-    });
-}
-
 class ConsortiaService {
     constructor() {
 
     }
     getAll() {
+        let docs;
         return new Promise(function (resolve, reject) {
-            return _getAllRemote().then(function (docs) {
-                resolve(docs);
-            }).catch(function (err) {
-                reject(err);
+            xhr({
+                uri: config.api.url + '/consortia',
+                json: true
+            }, function (err, res, body) {
+                if (err) {
+                    return reject(err);
+                }
+                return resolve(res.body.data); // res.body.data => consortia docs
             });
         });
     }
     getBy(prop, val) {
-        return new Promise(function (resolve, reject) {
-            _getAll()
-                .then(function (docs) {
-                    const consortium = _.find(docs, doc => {
-                        return doc[prop] === val;
-                    });
-                    if (consortium) {
-                        resolve(consortium);
-                    } else {
-                        reject(`Could not not find ${prop} equal to ${val}`);
-                    }
-                })
-                .catch(err => reject(err));
-        });
+        return this.getAll()
+            .then(function (docs) {
+                const consortium = _.find(docs, (doc) => {
+                    return doc[prop] === val;
+                });
+                if (consortium) {
+                    return(consortium);
+                }
+                throw new ReferenceError(`Could not not find ${prop} equal to ${val}`);
+            });
     }
     getByLabel(label) {
         return this.getBy('label', label);
