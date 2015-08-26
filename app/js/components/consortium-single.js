@@ -6,10 +6,12 @@ import FormAddAnalysis from './form-add-analysis';
 import {Button} from 'react-bootstrap';
 import auth from '../services/auth';
 import _ from 'lodash';
-import xhr from 'xhr';
+import axios from 'axios';
 import config from 'config';
 import moment from 'moment'; // ToDo moment can be removed, but is here for testing
-import run from '../services/analyze'
+import run from '../services/analyze';
+import dbs from '../services/db-registry';
+import Consortium from '../models/consortium.js'
 
 export default class ConsortiumSingle extends React.Component {
     constructor() {
@@ -32,21 +34,15 @@ export default class ConsortiumSingle extends React.Component {
             if (!consortium) {
                 throw new ReferenceError(`consortium ${this.props.query._id} not found in registry`);
             }
-            this.state.consortium = consortium;
-            this.db = this.state.consortium.db; // ToDo this should be params.id eventually
-            if (!this.db) {
-                throw new ReferenceError(`db ${this.state.consortium.label} not in registry`);
-            }
+            this.state.consortium = new Consortium(consortium);
+            this.db = dbs.get(consortium.label);
             this.setState(this.state);
-            this.refreshDbViewMeta();
-            this.db.on('change', (evt) => { this.refreshDbViewMeta(); });
-        }.bind(this));
+        }.bind(this)).catch(function(err) {
+            debugger; // handle case when consortium not found, which is innnsannnne!!!
+        });
     }
 
     componentWillUnmount() {
-        if (this.db) {
-            this.db.off('change', (evt) => {this.refreshDbViewMeta(); });
-        }
     }
 
     isMember(consortium) {
@@ -66,28 +62,24 @@ export default class ConsortiumSingle extends React.Component {
         this.state.consortium.users.push(auth.getUser());
         let tConsortium = _.clone(this.state.consortium);
         delete tConsortium.db; // ToDo replace consortium with Model, serialize
-        xhr({
+        axios.put({
             url: config.api.url + '/consortia',
-            method: 'put',
-            json: tConsortium
-        }, function(err, response, body) {
-            if (err) {
-                throw new Error(err);
-                this.state.consortium.users = _.remove(this.state.consortium.users, (u) => {
-                    return u.id === user.id;
-                });
-            }
+            data: tConsortium
+        }).then(function(response) {
+            debugger; // test for rev?
             this.state.consortium._rev = body.rev;
             this.setState(this.state);
-        }.bind(this));
+        }.bind(this)).catch(function(err) {
+            this.state.consortium.users = _.remove(this.state.consortium.users, (u) => {
+                return u.id === user.id;
+            });
+            throw new Error(err);
+        });
     }
 
     refreshDbViewMeta() {
-        return this.db.all()
-            .then((analysesLight) => {
-                this.state = _.assign(this.state, { analysesLight });
-                this.setState(this.state);
-            }.bind(this));
+        this.state = _.assign(this.state, { analysesLight: ['analyses', 'will', 'be', 'from', 'restful', 'service', 'not', 'consortia', 'db'] });
+        this.setState(this.state);
     }
 
     showNewAnalysisType() {
@@ -101,23 +93,22 @@ export default class ConsortiumSingle extends React.Component {
         tConsortium = _.clone(this.state.consortium);
         delete tConsortium.db; // ToDo make consortium a REST API Model w/ ampersand model, and use .serialize() here
         this.state.consortium.analyses.push(newAnalysis);
-        xhr({
+        axios.put({
             url: config.api.url + '/consortia',
-            method: 'put',
-            json: tConsortium
-        }, function(err, response, body) {
-            if (err) {
-                throw new Error(err);  // ToDo - post user friendly error instead
-                this.state.consortium.analyses = _.remove(this.state.consortium.analyses, (a) => {
-                    return a.label === newAnalysis.label;
-                });
-            } else {
-                this.state.consortium._rev = body.rev;
-                this.cancelNewAnalysisType(); // ~reset and close add form
-            }
-            cb(err, body);
+            data: tConsortium
+        }).then(function(response) {
+            debugger; // assert response makes it to its destination!
+            this.state.consortium._rev = body.rev;
+            this.cancelNewAnalysisType(); // ~reset and close add form
+            cb(null, body);
             this.setState(this.state);
-        }.bind(this));
+        }.bind(this)).catch(function(err) {
+            throw new Error(err);  // ToDo - post user friendly error instead
+            this.state.consortium.analyses = _.remove(this.state.consortium.analyses, (a) => {
+                return a.label === newAnalysis.label;
+            });
+            cb(err);
+        });
     }
 
     /**
@@ -150,11 +141,11 @@ export default class ConsortiumSingle extends React.Component {
         const analysesLight = this.state.analysesLight || [];
         let consortiumAnalysisNames;
         if (!consortium) {
-            return <div className="consortium-single consortium-single--no-result"></div>;
+            return <div className="consortium-single consortium-single--no-result">Loading consortium...</div>;
         }
         if (consortium && consortium.analyses) {
             consortiumAnalysisNames = consortium.analyses.map(anal => {
-                return <li>
+                return <li key={anal.label}>
                     <span>{anal.label}</span>
                     <a bsStyle="error" className="pull-right">Delete</a>
                     <span className="pull-right"    style={{marginRight: '4px', fontFamily: 'monospace'}}>
@@ -201,9 +192,9 @@ export default class ConsortiumSingle extends React.Component {
                 <div className="row">
                     <div className="col-xs-12 col-sm-6">
                         <h5>Tags:</h5>
-                        {consortium.tags.map(tag => {
+                        {consortium.tags.map((tag, ndx) => {
                             return (
-                                <span className="label label-default">
+                                <span key={ndx} className="label label-default">
                                     {tag}
                                 </span>
                             );
@@ -212,8 +203,8 @@ export default class ConsortiumSingle extends React.Component {
                     <div className="col-xs-12 col-sm-6">
                         <h5>Users:</h5>
                         <ul className="list-inline">
-                            {consortium.users.map(user => {
-                                return <li>{user.username}</li>;
+                            {consortium.users.map((user, ndx) => {
+                                return <li key={ndx}>{user.username}</li>;
                             })}
                         </ul>
                     </div>
@@ -228,8 +219,8 @@ export default class ConsortiumSingle extends React.Component {
                         <h6>Analyses Data</h6>
                         <Button onClick={this.testingAddToAnalysis.bind(this)}>Test add to analysis</Button>
                         <ul className="list">
-                            {analysesLight.map(data => {
-                                return <li>{JSON.stringify(data, null, 2)}</li>;
+                            {analysesLight.map((data, ndx) => {
+                                return <li key={ndx}>{JSON.stringify(data, null, 2)}</li>;
                             })}
                         </ul>
                     </div>

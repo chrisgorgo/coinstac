@@ -1,41 +1,62 @@
 'use strict';
-
 import React from 'react';
 import Router from '../routes';
 import run from '../services/analyze';
 import { Input, ButtonToolbar, Button } from 'react-bootstrap';
-import request from 'browser-request';
-import projects from '../services/projects';
+import FormAddFile from './form-add-file.js';
+import ProjectFiles from './project-files.js';
+import axios from 'axios';
+import dbs from '../services/db-registry.js';
 import consortia from '../services/consortia';
 import fileService from '../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
 import stores from '../stores/store';
 const consortiaStore = stores.consortiaStore; // ToDo why cant i import directly
 
 export default class ProjectsForm extends React.Component {
+
     static propTypes: {
         projectId: React.PropTypes.string
     }
+
+    assignState(patch, setState) {
+        this.state = Object.assign({}, this.state, patch);
+        if (setState) {
+            this.setState(this.state);
+        }
+    }
+
     constructor(props) {
         super(props);
-
+        if (!props.projectId) {
+            throw new ReferenceError('projectId required to open projects-form');
+        }
         this.state = {
             consortia: [],
             errors: {},
             files: [],
             project: {}
         };
-    }
 
-    componentWillMount() {
-        if (this.props.projectId) {
-            projects.find(this.props.projectId)
-                .then(project => this.setState({ project }))
-                .catch(err => console.error(err));
-        }
-
-        consortia.getAll()
-            .then(consortia => this.setState({ consortia }))
+        // fetch current project, all consortia, then re-render
+        let projectAndFilesStaged = dbs.get('projects').get(this.props.projectId)
+            .then(project => { this.assignState({ project }); }.bind(this))
+            .then(() => {
+                // stage file database for this project
+                this.filesDb = dbs.get('project-files-' + this.state.project._id);
+                return this.filesDb.all().then(files => { this.assignState({ files }); }.bind(this));
+            }.bind(this))
             .catch(err => console.error(err));
+
+        let consortiaFetched = consortia.all()
+            .then(consortia => { this.assignState({ consortia }); }.bind(this))
+            .catch(err => console.error(err));
+
+        Promise.all([projectAndFilesStaged, consortiaFetched]).then(() => {
+            this.setState(this.state);
+        }.bind(this)).catch(function(err) {
+            console.dir(err);
+            throw err;
+        });
     }
 
     handleNameChange(event) {
@@ -49,6 +70,7 @@ export default class ProjectsForm extends React.Component {
         project.name = value;
         this.setState({ project, errors });
     }
+
     handleConsortiumChange(event) {
         const errors = this.state.errors;
 
@@ -57,12 +79,11 @@ export default class ProjectsForm extends React.Component {
         }
         this.setState({ errors });
     }
+
     handleSave(e) {
         e.preventDefault();
 
         const name = this.refs.name.getValue().trim();
-        const consortium = this.refs.consortium.getValue();
-        const files = this.refs.files.getValue();
         const { errors } = this.state;
 
         if (!name) {
@@ -71,64 +92,55 @@ export default class ProjectsForm extends React.Component {
             delete errors.name;
         }
 
-        if (!consortium) {
-            errors.consortium = 'Pick a consortium';
-        } else {
-            delete errors.consortium;
-        }
-
         // Show errors if they exist. Otherwise, submit changes.
         if (Object.keys(errors).length) {
-            this.setState({ errors });
-        } else {
-            // TODO: Enforce project schema somewhere. Not here.
-            if (this.props.projectId) {
-                let { project } = this.state;
-
-                // Update project
-                project.name = name;
-                project.consortium = consortium;
-                project.files = files;
-
-                projects.update(project)
-                    .then(() => Router.transitionTo('projects'))
-                    .catch(err => console.error(err));
-            } else {
-                // Add new
-                projects.add({ name, consortium, files })
-                    .then(project => {
-                        console.log(this, project);
-                        debugger;
-                        Router.transitionTo('projects');
-                    })
-                    .catch(err => console.error(err));
-                }
+            return this.setState({ errors });
         }
+
+        // Update project
+        let { project } = this.state;
+        project.name = name;
+        project.files = files;
+
+        projects.update(project)
+        .then(() => { app.notification.push({ message: 'Project saved', level: 'success'}); })
+        .catch(err => console.error(err));
     }
+
     handleSubmitAnalyze() {
-        const submitToConsortium = consortiaStore.getBy('_id', this.refs.consortium.getInputDOMNode().value);
-        const submitToFileShas = this.refs.files.getSelectedOptions();
-        const files = (fileService.getSavedFiles() || []).filter((file) => {
-            return !!_.contains(submitToFileShas, file.sha);
-        });
-        // ToDo setup some async notificatin of processing
-        run({
-            files: files,
-            consortium: submitToConsortium,
-            db: submitToConsortium.db // ToDo remove db arg from analyze.run. pull db frmo consortium
-        });
+        console.log('ToDo'); // TODO
+        // const submitToConsortium = consortiaStore.getBy('_id', this.refs.consortium.getInputDOMNode().value);
+        // const submitToFileShas = this.refs.files.getSelectedOptions();
+        // const files = (this.filesDb().filter((file) => {
+        //     return !!_.contains(submitToFileShas, file.sha);
+        // });
+        // // ToDo setup some async notification of processing
+        // run({
+        //     files: files,
+        //     consortium: submitToConsortium,
+        //     db: submitToConsortium.db // ToDo remove db arg from analyze.run. pull db frmo consortium
+        // });
     }
+
+    refreshFiles() {
+        this.filesDb.all().then(files => {
+            this.assignState({ files }, true)
+        }.bind(this));
+    }
+
     render() {
         const { consortia, files, project } = this.state;
-        const projectName = project.name || '';
         const projectConsortium = project.consortium || [];
-        const projectFiles = fileService.getSavedFiles();
 
         let nameErrors;
         let consortiumErrors;
 
+        if (!project.name) {
+            return <span>Loading project...</span>;
+        }
+
         // Is the form for a new project? Change button text
-        const buttonText = projectName ? 'Update' : 'Save';
+        const buttonText = project.name ? 'Update' : 'Save';
 
         if (Object.keys(this.state.errors).length) {
             if (this.state.errors.name) {
@@ -153,7 +165,7 @@ export default class ProjectsForm extends React.Component {
                     ref="name"
                     type="text"
                     label="Name:"
-                    value={projectName}
+                    value={project.name}
                     onChange={this.handleNameChange.bind(this)}
                     {...nameErrors} />
                 <Input
@@ -176,21 +188,10 @@ export default class ProjectsForm extends React.Component {
                         );
                     })}
                 </Input>
-                <Input
-                    ref="files"
-                    type="select"
-                    label="Files:"
-                    help="Choose some files to share."
-                    multiple>
-                    {projectFiles.map((file, ndx) => {
-                        const isSelected = projectFiles.indexOf(file) > -1;
-                        return (
-                            <option value={file.sha} selected={isSelected}>
-                                {file.filename}
-                            </option>
-                        );
-                    })}
-                </Input>
+
+                <FormAddFile onAdd={this.refreshFiles.bind(this)} db={this.filesDb} />
+                <ProjectFiles files={files} project={project} />
+
                 <ButtonToolbar className="pull-right">
                     <Button bsStyle="link">
                         <span className="glyphicon glyphicon-remove" aria-hidden="true">&nbsp;</span>

@@ -4,26 +4,28 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router';
 import _ from 'lodash';
-import projects from '../services/projects';
+import dbs from '../services/db-registry';
+const projectsDb = dbs.get('projects');
 
 export default class ProjectsList extends React.Component {
+
     componentWillMount() {
-        projects.all().then(projects => {
+        projectsDb.all().then(projects => {
             this.setState({ projects });
         });
     }
+
     deleteProject(project) {
-        projects.delete(project._id)
+        projectsDb.delete(project)
             .then(() => {
-                let { projects } = this.state;
-
-                // TODO: This mutates `projects`! Find a better way.
-                _.remove(projects, item => item._id === project._id);
-
+                return projectsDb.all();
+            })
+            .then((projects) => {
                 this.setState({ projects });
             })
             .catch(err => console.error(err));
     }
+
     render() {
         const projects = (this.state || {}).projects || [];
         return (

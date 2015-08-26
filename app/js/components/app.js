@@ -8,10 +8,7 @@ import url from 'url';
 import thenify from 'thenify'; // jshint ignore:line
 import PouchWrapper from 'pouchdb-wrapper';
 import Notify from './notification'
-
 // PouchWrapper.PouchDB.debug.enable('pouchdb:http');
-var request = require('browser-request'); // non es6 s.t. import is mutable
-request = thenify(request);
 
 window.app = app;
 

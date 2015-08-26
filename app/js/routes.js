@@ -12,7 +12,6 @@ import App from './components/app';
 import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
 import DashboardConsortia from './components/dashboard-consortia';
-import DashboardFiles from './components/dashboard-files';
 import Home from './components/home';
 import Login from './components/login';
 import Signup from './components/signup';
@@ -20,7 +19,7 @@ import ConsortiumSingle from './components/consortium-single';
 import Projects from './components/projects';
 import ProjectsList from './components/projects-list';
 import ProjectsSingle from './components/projects-single';
-import ProjectsNew from './components/projects-new';
+import FormAddProject from './components/form-add-project';
 
 const routes = (
     <Route handler={App}>
@@ -30,13 +29,12 @@ const routes = (
                 <DefaultRoute handler={DashboardHome} />
                 <Route name="consortia" handler={DashboardConsortia} />
                 <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingle} />
-                <Route name="files" handler={DashboardFiles} />
                 <Route name="projects" handler={Projects}>
                     <DefaultRoute name="projects-list" handler={ProjectsList} />
                     <Route
                         name="projects-new"
                         path="/projects/new"
-                        handler={ProjectsNew} />
+                        handler={FormAddProject} />
                     <Route
                         name="projects-single"
                         path="/projects/:projectId"

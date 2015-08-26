@@ -5,10 +5,11 @@ import { Link } from 'react-router';
 import { ButtonToolbar } from 'react-bootstrap';
 import { ButtonLink } from 'react-router-bootstrap';
 
-export default class Consortium extends React.Component {
+export default class ConsortiumCard extends React.Component {
     render() {
         return (
             <div className="consortium panel panel-default">
+
                 <div className="panel-heading">
 
                     <h2 className="panel-title">
@@ -20,6 +21,7 @@ export default class Consortium extends React.Component {
                         </Link>
                     </h2>
                 </div>
+
                 <div className="panel-body">
                     <p>{this.props.description}</p>
                     <ButtonToolbar>
@@ -34,32 +36,44 @@ export default class Consortium extends React.Component {
                             </span>
                             View
                         </ButtonLink>
-                        <span className="btn btn-default btn-sm">
-                            <span
-                                className="glyphicon glyphicon-pencil"
-                                aria-hidden="true">
-                            </span>
-                            Edit
-                        </span>
                     </ButtonToolbar>
+
                     <div className="row">
                         <div className="consortium__tags col-xs-12 col-sm-6">
                             <h5>Tags:</h5>
                             {this.props.tags.map(function (tag) {
-                                return <span className="label label-default">{tag.id}</span>;
+                                return <span
+                                    key={tag.id}
+                                    className="label label-default">
+                                    {tag.id}
+                                </span>;
                             })}
                         </div>
                         <div className="consortium__users col-xs-12 col-sm-6">
                             <h5>Users:</h5>
                             <ul className="list-inline">
-                                {this.props.users.map(function (user) {
-                                    return <li>{user.username}</li>;
+                                {this.props.users.map(function(user, ndx) {
+                                    return (
+                                        <li
+                                            key={user.username + '_' + ndx}>
+                                            {user.username}
+                                        </li>
+                                    );
                                 })}
                             </ul>
                         </div>
                     </div>
+
                 </div>
             </div>
         );
     }
 };
+
+                        // <span className="btn btn-default btn-sm">
+                        //     <span
+                        //         className="glyphicon glyphicon-pencil"
+                        //         aria-hidden="true">
+                        //     </span>
+                        //     Edit
+                        // </span>

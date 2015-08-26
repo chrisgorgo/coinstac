@@ -6,7 +6,7 @@ import {Input, Button} from 'react-bootstrap';
 import FieldPassword from './field-password';
 // import FieldEmail from './field-email' // TODO debug `Input` not being extended
 import _ from 'lodash';
-import request from 'browser-request'
+import axios from 'axios'
 import auth from '../services/auth';
 import config from 'config';
 
@@ -23,7 +23,7 @@ export default class FormSignup extends React.Component {
         let userData = {
             encoded: btoa(JSON.stringify(this.data()))
         };
-        request.post({
+        axios.post({
             url: config.api.url + '/users',
             json: userData
         }, function(err, response, body) {

@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import Consortium from './consortium';
+import ConsortiumCard from './consortium-card';
 import consortia from '../services/consortia';
 
 export default class DashboardConsortia extends React.Component {
@@ -10,9 +10,12 @@ export default class DashboardConsortia extends React.Component {
         this.state = { consortia: [] };
     }
     componentDidMount() {
-        consortia.getAll()
+        consortia.all()
             .then(consortia => this.setState({ consortia }))
-            .catch(err => console.error(err));
+            .catch((err) => {
+                debugger;
+                console.error(err);
+            });
     }
     render() {
         return (
@@ -23,8 +26,10 @@ export default class DashboardConsortia extends React.Component {
                 <div className="row">
                     {this.state.consortia.map(function (consortium) {
                         return (
-                            <div className="col-xs-12 col-sm-6">
-                                <Consortium
+                            <div
+                                className="col-xs-12 col-sm-6"
+                                key={consortium._id}>
+                                <ConsortiumCard
                                     _id={consortium._id}
                                     label={consortium.label}
                                     users={consortium.users}

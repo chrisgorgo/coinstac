@@ -1,17 +1,20 @@
 'use strict';
-
 import _ from 'lodash';
+import dbs from '../services/db-registry.js'
 import EventEmitter from 'event-emitter';
 import sha from 'sha';
 import path from 'path';
-var ipc = require('ipc');
-
-const STORAGE_KEY = 'coinstac-files';
+import app from 'ampersand-app';
 const emitter = EventEmitter(); // jshint ignore:line
 
-ipc.on('files-added', function (files) {
+var ipc = require('ipc');
+
+ipc.on('files-added', function(event) {
+    const { files, dbName } = event;
     if (files) {
-        files.forEach(FileStore.saveFile.bind(FileStore));
+        files.forEach(file => {
+            FileStore.saveFile(file, dbName);
+        });
     }
 });
 
@@ -22,28 +25,35 @@ const FileStore = { // jshint ignore:line
     removeChangeListener: function (callback) {
         emitter.off('change', callback);
     },
-    getFilesFromUser: function() {
-        ipc.send('add-file');
-    },
-    getSavedFiles: function() {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY));
-    },
-    saveFile: function(file) {
-        let files = this.getSavedFiles();
-
-        // Don't save if file is already saved
-        if (_.find(files, savedFile => savedFile.filename === file.filename)) {
-            // TODO: Implement app-level notifications for this
-            throw new Error(`File already saved: ${file.filename}`);
+    getFilesFromUser: function(db) {
+        if (!db || !db.name) {
+            throw new ReferenceError('db for storing file meta missing');
         }
-        // convert web file api naming conventions to node naming conventions
-        file.path = file.filename;
-        file.filename = path.basename(file.path);
-        file.dirname = path.dirname(file.path);
-        file.sha = sha.getSync(file.path);
-        files.push(file);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
-        emitter.emit('change');
+        ipc.send('add-file', {dbName: db.name});
+    },
+    saveFile: function(file, dbName) {
+        dbs.get(dbName).all()
+        .then(files => {
+            file.path = file.filename;
+            file.filename = path.basename(file.path);
+            file.dirname = path.dirname(file.path);
+            file.sha = sha.getSync(file.path);
+
+            // Don't save if file is already saved
+            if (files.some(savedFile => savedFile.sha === file.sha)) {
+                const errMsg = `File already saved: ${file.filename}`;
+                app.notifications.push({
+                    message: errMsg,
+                    level: 'error'
+                });
+                throw new Error(errMsg);
+            }
+            // convert web file api naming conventions to node naming conventions
+            dbs.get(dbName).add(file)
+            .then(rslt => { emitter.emit('change'); })
+            .catch(err => { console.dir(err); });
+        })
+
     },
     removeFileByPath: function(path) {
         const files = this.getSavedFiles();
@@ -61,10 +71,5 @@ const FileStore = { // jshint ignore:line
         }
     }
 };
-
-// Initialize
-if (!FileStore.getSavedFiles()) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-}
 
 export default FileStore;

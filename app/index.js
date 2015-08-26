@@ -4,7 +4,6 @@ var BrowserWindow = require('browser-window');
 var ipc = require('ipc');
 var dialog = require('dialog');
 var fs = require('fs');
-var RSVP = require('rsvp');
 var spawn = require('child_process').spawn;
 var opts = require("nomnom")
    .option('development', {
@@ -75,18 +74,17 @@ app.on('ready', function() {
     });
 
     // Listen for `add-file` event and respond with files
-    ipc.on('add-file', function (event) {
+    ipc.on('add-file', function (event, arg) {
         dialog.showOpenDialog(
             mainWindow,
-            { properties: ['openFile'] },
+            { properties: [ 'openFile', 'multiSelections' ] },
             function (files) {
+                console.dir(arguments);
                 files = files || [];
-
                 var promises = files.map(function (file) {
-                    return new RSVP.Promise(function (resolve, reject) {
+                    return new Promise(function (resolve, reject) {
                         fs.stat(file, function (err, stat) {
                             console.log('Reading file: ' + file, stat);
-
                             if (err) {
                                 reject(err);
                             }
@@ -99,8 +97,11 @@ app.on('ready', function() {
                     });
                 });
 
-                RSVP.all(promises).then(function (files) {
-                    event.sender.send('files-added', files);
+                Promise.all(promises).then(function (files) {
+                    event.sender.send('files-added', {
+                        dbName: arg.dbName,
+                        files: files
+                    });
                 }).catch(function (err) {
                     console.error(err);
                 });
