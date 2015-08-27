@@ -23,10 +23,6 @@ Object.defineProperty(dbs, 'names', { get: () => {
 // TODO remove window global and live reporting
 window.dbs = dbs;
 window.log = function() {console.dir(_.toArray(arguments));};
-let windowDbLog = (dbWrapper) => {
-    dbWrapper.changes.on('change', window.log);
-};
-
 
 /**
  * gets an existing or new instance of a db
@@ -66,7 +62,6 @@ dbs.register = function(opts) {
     let db = new PouchWrapper(opts);
     dbs.registery[opts.name] = db;
     dbs.push(db);
-    windowDbLog(db);
     return db;
 };
 

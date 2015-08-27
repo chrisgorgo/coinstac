@@ -1,24 +1,19 @@
-'use strict';
+/**
+ * @package FileBus
+ * Provide a filesytem interface between renderer thread and main electron thread.
+ * This service can be used to trigger OS Native file actions and return meta
+ * back to the UI
+ */
+import app from 'ampersand-app';
 import _ from 'lodash';
 import dbs from '../services/db-registry.js'
 import EventEmitter from 'event-emitter';
 import sha from 'sha';
 import path from 'path';
-import app from 'ampersand-app';
-const emitter = EventEmitter(); // jshint ignore:line
-
 var ipc = require('ipc');
+const emitter = EventEmitter();
 
-ipc.on('files-added', function(event) {
-    const { files, dbName } = event;
-    if (files) {
-        files.forEach(file => {
-            FileStore.saveFile(file, dbName);
-        });
-    }
-});
-
-const FileStore = { // jshint ignore:line
+const FileBus = { // jshint ignore:line
     addChangeListener: function (callback) {
         emitter.on('change', callback);
     },
@@ -29,15 +24,22 @@ const FileStore = { // jshint ignore:line
         if (!db || !db.name) {
             throw new ReferenceError('db for storing file meta missing');
         }
-        ipc.send('add-file', {dbName: db.name});
+        ipc.send('select-files', {dbName: db.name});
     },
-    saveFile: function(file, dbName) {
+    _processFileSelections: function(event) {
+        const { files, dbName } = event;
+        files.forEach(file => {
+            this.cacheFileReference(file, dbName);
+        });
+    },
+    cacheFileReference: function(file, dbName) {
         dbs.get(dbName).all()
         .then(files => {
             file.path = file.filename;
             file.filename = path.basename(file.path);
             file.dirname = path.dirname(file.path);
             file.sha = sha.getSync(file.path);
+            file._id = path.join(file.dirname, file.filename);
 
             // Don't save if file is already saved
             if (files.some(savedFile => savedFile.sha === file.sha)) {
@@ -51,7 +53,10 @@ const FileStore = { // jshint ignore:line
             // convert web file api naming conventions to node naming conventions
             dbs.get(dbName).add(file)
             .then(rslt => { emitter.emit('change'); })
-            .catch(err => { console.dir(err); });
+            .catch(err => {
+                emitter.emit('error', err);
+                console.dir(err);
+            });
         })
 
     },
@@ -72,4 +77,6 @@ const FileStore = { // jshint ignore:line
     }
 };
 
-export default FileStore;
+ipc.on('files-selected', FileBus._processFileSelections);
+
+export default FileBus;

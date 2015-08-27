@@ -1,13 +1,19 @@
 'use strict';
 var PouchDocument = require('./pouch-document');
 var config = require('config');
+var dbs = require('../services/db-registry.js')
 
 module.exports = PouchDocument.extend({
     apiRoot: config.api.url,
-    props: {
-        name: ['string', true]
+    derived: {
+        db: {
+            fn: () => {
+                return dbs.get(this.name);
+            }
+        }
     },
-    session: {
-        db: 'object' // pouch-wrapper instance
+    props: {
+        name: ['string', true],
+        defaultConsortiumId: ['string', false]
     }
 });

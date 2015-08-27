@@ -74,7 +74,7 @@ app.on('ready', function() {
     });
 
     // Listen for `add-file` event and respond with files
-    ipc.on('add-file', function (event, arg) {
+    ipc.on('select-files', function (event, arg) {
         dialog.showOpenDialog(
             mainWindow,
             { properties: [ 'openFile', 'multiSelections' ] },
@@ -98,7 +98,7 @@ app.on('ready', function() {
                 });
 
                 Promise.all(promises).then(function (files) {
-                    event.sender.send('files-added', {
+                    event.sender.send('files-selected', {
                         dbName: arg.dbName,
                         files: files
                     });

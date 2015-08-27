@@ -35,7 +35,6 @@ export default class ConsortiumSingle extends React.Component {
                 throw new ReferenceError(`consortium ${this.props.query._id} not found in registry`);
             }
             this.state.consortium = new Consortium(consortium);
-            this.db = dbs.get(consortium.label);
             this.setState(this.state);
         }.bind(this)).catch(function(err) {
             debugger; // handle case when consortium not found, which is innnsannnne!!!
@@ -50,9 +49,7 @@ export default class ConsortiumSingle extends React.Component {
         let userIds;
         if (consortium) {
             userIds = consortium.users.map(user => { return user.id; });
-            if (_.contains(userIds, user.id)) {
-                return true;
-            }
+            return _.contains(userIds, user.id);
         }
         return false;
     }
@@ -60,9 +57,9 @@ export default class ConsortiumSingle extends React.Component {
     joinConsortium() {
         let user = auth.getUser();
         this.state.consortium.users.push(auth.getUser());
-        let tConsortium = _.clone(this.state.consortium);
-        delete tConsortium.db; // ToDo replace consortium with Model, serialize
-        axios.put({
+        let tConsortium = this.state.consortium.serialize();;
+        axios({
+            method: 'put',
             url: config.api.url + '/consortia',
             data: tConsortium
         }).then(function(response) {
@@ -87,27 +84,27 @@ export default class ConsortiumSingle extends React.Component {
         this.setState(this.state);
     }
 
-    submitAnalysisType(newAnalysis, cb) {
+    submitAnalysisType(newAnalysis) {
         let tConsortium;
         this.state.consortium.analyses = this.state.consortium.analyses || [];
-        tConsortium = _.clone(this.state.consortium);
-        delete tConsortium.db; // ToDo make consortium a REST API Model w/ ampersand model, and use .serialize() here
         this.state.consortium.analyses.push(newAnalysis);
-        axios.put({
+        tConsortium = this.state.consortium.serialize();
+        return axios({
+            method: 'put',
             url: config.api.url + '/consortia',
             data: tConsortium
         }).then(function(response) {
-            debugger; // assert response makes it to its destination!
-            this.state.consortium._rev = body.rev;
+            this.state.consortium = response.data.data[0];  // maybe override the consortium here, actually
             this.cancelNewAnalysisType(); // ~reset and close add form
-            cb(null, body);
             this.setState(this.state);
         }.bind(this)).catch(function(err) {
-            throw new Error(err);  // ToDo - post user friendly error instead
-            this.state.consortium.analyses = _.remove(this.state.consortium.analyses, (a) => {
-                return a.label === newAnalysis.label;
-            });
-            cb(err);
+            app.notifications.push({ message: 'Failed to add analysis', level: 'error'});
+            console.err(err.message);
+            this.state.consortium.analyses = _.remove(
+                this.state.consortium.analyses,
+                a => a.label === newAnalysis.label
+            );
+            this.setState(this.state);
         });
     }
 

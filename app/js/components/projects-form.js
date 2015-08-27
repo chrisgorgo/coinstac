@@ -1,16 +1,14 @@
-'use strict';
 import React from 'react';
 import Router from '../routes';
 import run from '../services/analyze';
 import { Input, ButtonToolbar, Button } from 'react-bootstrap';
 import FormAddFile from './form-add-file.js';
 import ProjectFiles from './project-files.js';
+import Project from '../models/project.js';
 import axios from 'axios';
 import dbs from '../services/db-registry.js';
 import consortia from '../services/consortia';
 import fileService from '../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
-import stores from '../stores/store';
-const consortiaStore = stores.consortiaStore; // ToDo why cant i import directly
 
 export default class ProjectsForm extends React.Component {
 
@@ -39,7 +37,7 @@ export default class ProjectsForm extends React.Component {
 
         // fetch current project, all consortia, then re-render
         let projectAndFilesStaged = dbs.get('projects').get(this.props.projectId)
-            .then(project => { this.assignState({ project }); }.bind(this))
+            .then(p => { this.assignState({ project: new Project(p) }); }.bind(this))
             .then(() => {
                 // stage file database for this project
                 this.filesDb = dbs.get('project-files-' + this.state.project._id);
@@ -128,9 +126,39 @@ export default class ProjectsForm extends React.Component {
         }.bind(this));
     }
 
+    setDefaultConsortium() {
+        const prevDefault = this.state.project.defaultConsortiumId;
+        let consortiumId = this.refs.consortium.getValue();
+        let consortiumName;
+        this.state.project.defaultConsortiumId = consortiumId;
+        consortiumName = _.result(_.find(this.state.consortia, { '_id': consortiumId }), 'label');
+
+        dbs.get('projects').save(this.state.project.serialize())
+        .then(p => {
+            let updatedMsg = `Default consortium set to ${consortiumName}`;
+            if (!consortiumId) {
+                updatedMsg = 'Default consortium cleared';
+            }
+            this.state.project.set(p);
+            this.setState(this.state);
+            app.notifications.push({
+                message: updatedMsg,
+                level: 'success'
+            });
+        })
+        .catch(err => {
+            this.state.project.defaultConsortiumId = prevDefault;
+            this.setState(this.state);
+            app.notifications.push({
+                message: `Unable to set default consortium, ${consortiumName}`,
+                level: 'error'
+            });
+        });
+    }
+
     render() {
         const { consortia, files, project } = this.state;
-        const projectConsortium = project.consortium || [];
+        const consortium = _.find(consortia, {_id: project.defaultConsortiumId });
 
         let nameErrors;
         let consortiumErrors;
@@ -176,21 +204,24 @@ export default class ProjectsForm extends React.Component {
                     {...consortiumErrors}>
                     <option selected disabled value="">Choose…</option>
                     {consortia.map(consortium => {
-                        // TODO: Implement multiple consortia select
-                        const isSelected = projectConsortium === consortium._id;
                         const hasAnalyses = consortium.analyses && consortium.analyses.length;
+                        const isSelected = hasAnalyses && project.defaultConsortiumId === consortium._id;
                         return (
                             <option value={consortium._id} selected={isSelected}
                                 disabled={!hasAnalyses}
                                 title={!hasAnalyses ? 'Please add analyses to consortium' : ''}>
-                                {consortium.label}
+                                {consortium.label + (hasAnalyses ? '' : ' (no analyses available)')}
                             </option>
                         );
                     })}
                 </Input>
+                <Button onClick={this.setDefaultConsortium.bind(this)} bsSize="xsmall">
+                    <span className="glyphicon glyphicon-floppy-save" aria-hidden="true">&nbsp;</span>
+                    Set as default consortium
+                </Button>
 
                 <FormAddFile onAdd={this.refreshFiles.bind(this)} db={this.filesDb} />
-                <ProjectFiles files={files} project={project} />
+                <ProjectFiles files={files} project={project} consortium={consortium} />)
 
                 <ButtonToolbar className="pull-right">
                     <Button bsStyle="link">

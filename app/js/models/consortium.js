@@ -9,8 +9,8 @@ module.exports = PouchDocument.extend({
         description: ['string', true],
         label: ['string', true],
         tags: ['array', true],
-        users: ['collection', true],
-        analyses: ['collection', true]
+        users: ['array', true],
+        analyses: ['array', true]
     },
     session: {
         db: 'object' // pouch-wrapper instance
