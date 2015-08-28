@@ -8,9 +8,8 @@ import url from 'url';
 import thenify from 'thenify'; // jshint ignore:line
 import PouchWrapper from 'pouchdb-wrapper';
 import Notify from './notification'
+import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 // PouchWrapper.PouchDB.debug.enable('pouchdb:http');
-
-window.app = app;
 
 config.api.url = url.format({
     protocol: config.api.protocol,
@@ -27,9 +26,14 @@ config.db.remote.url = url.format({
 export default class App extends React.Component {
     render() {
         return (
-            <div className="app">
-                <Notify />
-                <RouteHandler />
+            <div>
+                <div className="app">
+                    <Notify />
+                    <RouteHandler />
+                </div>
+                <DebugPanel top right bottom>
+                    <DevTools store={app.store} monitor={LogMonitor} />
+                </DebugPanel>
             </div>
         );
     }

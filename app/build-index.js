@@ -4,7 +4,8 @@ var _ = require('lodash');
 var locals;
 
 locals = {
-    pageTitle: 'COINSTAC'
+    pageTitle: 'COINSTAC',
+    coinsEnv: process.env.COINS_ENV
 };
 
 if (process.env.COINS_ENV === 'development') {
