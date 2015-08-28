@@ -9,15 +9,14 @@ import { devTools, persistState } from 'redux-devtools';
 import thunk from 'redux-thunk';
 import rootReducer from './reducers';
 app.isDev = window.COINS_ENV === 'development';
-const finalCreateStore = compose(
-    // Enables your middleware:
-    applyMiddleware(thunk),
-    // Provides support for DevTools:
-    devTools(),
+let storeComponents = [applyMiddleware(thunk)];
+if (app.isDev) {
+    storeComponents.push(devTools());
     // Lets you write ?debug_session=<name> in address bar to persist debug sessions
-    persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/)),
-    createStore
-);
+    storeComponents.push(persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/)));
+}
+storeComponents.push(createStore);
+const finalCreateStore = compose.apply(this, storeComponents);
 app.store = finalCreateStore(rootReducer);
 
 // Load application stylesheets
