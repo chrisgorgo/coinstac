@@ -22,7 +22,7 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
     margin: 0 0 2rem;
 
     &:before {
-        background: url(/images/logo.png) no-repeat;
+        background: url(../images/logo.png) no-repeat;
         background-size: contain;
         content: '';
         display: inline-block;

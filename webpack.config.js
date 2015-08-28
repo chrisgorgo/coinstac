@@ -47,7 +47,11 @@ module.exports = {
             { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&minetype=application/octet-stream' },
             { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&minetype=application/font-woff' },
             { test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&minetype=application/font-woff' },
-            { test: /\.md$/, loader: "html!markdown" }
+            { test: /\.md$/, loader: "html!markdown" },
+            {
+                test: /\.png/,
+                loader: 'file-loader'
+            }
         ]
     }
 };
