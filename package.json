@@ -38,7 +38,7 @@
   "devDependencies": {
     "babel-loader": "^5.3.1",
     "css-loader": "^0.15.3",
-    "electron-prebuilt": "^0.29.2",
+    "electron-prebuilt": "^0.30.6",
     "electron-rebuild": "^0.2.5",
     "file-loader": "^0.8.4",
     "grunt": "^0.4.5",
