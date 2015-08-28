@@ -8,6 +8,7 @@ import { compose, createStore, applyMiddleware } from 'redux';
 import { devTools, persistState } from 'redux-devtools';
 import thunk from 'redux-thunk';
 import rootReducer from './reducers';
+app.isDev = window.COINS_ENV === 'development';
 const finalCreateStore = compose(
     // Enables your middleware:
     applyMiddleware(thunk),
@@ -23,7 +24,6 @@ app.store = finalCreateStore(rootReducer);
 require('../styles/app.scss');
 require('reactabular/style.css')
 
-debugger;
 app.router = Router.create({
     routes: routes,
     location: Router.HashLocation
@@ -37,3 +37,5 @@ app.router.run((Handler, routerState) => { // note "routerState" here
         document.getElementById('app')
     );
 });
+
+window.app = app;

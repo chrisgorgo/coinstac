@@ -25,15 +25,21 @@ config.db.remote.url = url.format({
 
 export default class App extends React.Component {
     render() {
+        let devPanel;
+        if (app.isDev) {
+            devPanel = (
+                <DebugPanel top right bottom>
+                    <DevTools store={app.store} monitor={LogMonitor} />
+                </DebugPanel>
+            );
+        }
         return (
             <div>
                 <div className="app">
                     <Notify />
                     <RouteHandler />
                 </div>
-                <DebugPanel top right bottom>
-                    <DevTools store={app.store} monitor={LogMonitor} />
-                </DebugPanel>
+                {devPanel}
             </div>
         );
     }
