@@ -20,12 +20,13 @@ class Auth {
         this.isAuthenticated = false;
     }
     getUser() {
-        let user;
-        try {
-            return JSON.parse(localStorage.getItem('auth')).user;
-        } catch (err) {
-            throw new Error('unable to find user information in localStorage');
+        const auth = JSON.parse(localStorage.getItem('auth'));
+
+        if (!auth || !('user' in auth)) {
+            throw new Error('Unable to find saved user');
         }
+
+        return auth.user;
     }
     toString() {
         let user = _.assign({}, this.user);

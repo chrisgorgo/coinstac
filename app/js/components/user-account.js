@@ -3,15 +3,37 @@
 import React from 'react';
 import { ButtonLink } from 'react-router-bootstrap';
 import Auth from '../services/auth';
+import app from 'ampersand-app';
 
-export default class UserAccount extends React.Component {
-    componentWillMount() {
-        const user = Auth.getUser();
+class UserAccount extends React.Component {
+    constructor() {
+        super();
+
+        this.state = {
+            name: '',
+            email: ''
+        };
+    }
+    componentDidMount() {
+        let user;
+        try {
+            user = Auth.getUser();
+        } catch (err) {
+            app.notifications.push({
+                level: 'error',
+                message: err.message
+            });
+        }
 
         if (user) {
             this.setState({
                 name: user.name,
                 email: user.email
+            });
+        } else {
+            this.setState({
+                name: true,
+                email: true
             });
         }
     }
@@ -34,3 +56,10 @@ export default class UserAccount extends React.Component {
         )
     }
 }
+
+UserAccount.propTypes = {
+    name: React.PropTypes.string.isRequired,
+    email: React.PropTypes.string.isRequired
+};
+
+export default UserAccount;
