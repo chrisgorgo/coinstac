@@ -1,13 +1,12 @@
 'use strict';
-
+import app from 'ampersand-app';
 import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { NavItemLink } from 'react-router-bootstrap';
-import Router from '../routes';
 
 export default class DashboardNav extends React.Component {
     render() {
-        const isHome = Router.getCurrentPath() === '/';
+        const isHome = app.router.getCurrentPath() === '/';
 
         return (
             <Nav bsStyle="pills" stacked>

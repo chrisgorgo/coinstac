@@ -21,9 +21,10 @@ import ProjectsList from './components/projects-list';
 import ProjectsSingle from './components/projects-single';
 import FormAddProject from './components/form-add-project';
 
-const routes = (
+export default (
     <Route handler={App}>
         <Route name="login" path="/" handler={Login} />
+        <Route name="signup" handler={Signup} />
         <Route name="home" path="/home" handler={Home}>
             <Route name="dashboard" path="/home" handler={Dashboard}>
                 <DefaultRoute handler={DashboardHome} />
@@ -42,11 +43,5 @@ const routes = (
                 </Route>
             </Route>
         </Route>
-        <Route name="signup" handler={Signup} />
     </Route>
 );
-
-export default Router.create({
-    routes: routes,
-    location: Router.HashLocation
-});

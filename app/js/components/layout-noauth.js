@@ -6,7 +6,6 @@ import { NavItemLink } from 'react-router-bootstrap';
 import FormLogin from './form-login';
 import FormSignup from './form-signup';
 
-
 export default class App extends React.Component {
     constructor(props) {
         super(props);

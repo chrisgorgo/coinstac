@@ -1,6 +1,4 @@
-// TODO add validation styles to <Input>s
-'use strict';
-
+import app from 'ampersand-app';
 import React from 'react';
 import {Input, Button} from 'react-bootstrap';
 import FieldPassword from './field-password';
@@ -23,13 +21,18 @@ export default class FormSignup extends React.Component {
         let userData = {
             encoded: btoa(JSON.stringify(this.data()))
         };
-        axios.post({
+        return axios({
+            method: 'post',
             url: config.api.url + '/users',
-            json: userData
-        }, function(err, response, body) {
-            // TODO API response not standard
-            _.assign(userData, {id: body});
+            data: userData
+        })
+        .then(response => {
+            const userData = response.data.data[0];
             auth.setUser(userData);
+            app.notifications.push({
+                message: 'Registration successful',
+                level: 'success'
+            })
         });
     }
     data() {

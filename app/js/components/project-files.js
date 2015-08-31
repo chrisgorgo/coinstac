@@ -96,7 +96,12 @@ export default class ProjectsForm extends React.Component {
         );
 
         return (
-            <RTable columns={columns} data={files} />
+            <div>
+                <div className='search-container'>
+                    Search <Search columns={columns} data={this.state.data} onChange={this.onSearch.bind(this)}></Search>
+                </div>
+                <RTable columns={columns} data={files} />
+            </div>
         );
     }
 };

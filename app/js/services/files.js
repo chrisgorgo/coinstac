@@ -30,7 +30,7 @@ const FileBus = { // jshint ignore:line
         const { files, dbName } = event;
         files.forEach(file => {
             this.cacheFileReference(file, dbName);
-        });
+        }.bind(this));
     },
     cacheFileReference: function(file, dbName) {
         dbs.get(dbName).all()
@@ -77,6 +77,8 @@ const FileBus = { // jshint ignore:line
     }
 };
 
-ipc.on('files-selected', FileBus._processFileSelections);
+ipc.on('files-selected',(evt) => {
+    FileBus._processFileSelections.call(FileBus, evt);
+});
 
 export default FileBus;

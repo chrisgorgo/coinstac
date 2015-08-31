@@ -5,5 +5,7 @@ html(lang="en")
         title=pageTitle
     body
         #app
+        script(type='text/javascript').
+            window.COINS_ENV = '#{coinsEnv}';
         script(type='text/javascript', src="js/babel-browser-polyfill.js")
         script(type='text/javascript', src=entryUrl)
