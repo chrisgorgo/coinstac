@@ -1,11 +1,11 @@
 /*
  * action types
  */
-export const SIGN_UP = 'SIGN_UP';
+export const SET_SIGNUP_USER = 'SET_SIGNUP_USER';
 
 /*
  * action creators
  */
-export function signUp(user) {
-  return { type: SIGN_UP, user };
+export function setSignupUser(user) {
+    return { type: SET_SIGNUP_USER, user };
 }
