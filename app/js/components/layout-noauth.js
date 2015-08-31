@@ -2,30 +2,15 @@
 
 import React from 'react';
 import {Nav, NavItem} from 'react-bootstrap';
+import { RouteHandler } from 'react-router';
 import { NavItemLink } from 'react-router-bootstrap';
-import FormLogin from './form-login';
-import FormSignup from './form-signup';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as allActions from '../actions/index';
 
-export default class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            formType: 'login'
-        };
-    }
-    handleFormChange(formType) {
-        this.setState({formType: formType});
-    }
+class LayoutNoAuth extends React.Component {
     render() {
-        let authForm;
-
-        if (this.props.formType === 'login') {
-            authForm = <FormLogin />;
-        } else {
-            authForm = <FormSignup />;
-        }
-
+        const actions = bindActionCreators(allActions, this.props.dispatch);
         return (
             <div className="screen account">
                 <div className="container-fluid">
@@ -39,7 +24,7 @@ export default class App extends React.Component {
                                     <NavItemLink to="login">Log In</NavItemLink>
                                     <NavItemLink to="signup">Sign Up</NavItemLink>
                                 </Nav>
-                                {authForm}
+                                <RouteHandler {...actions} {...this.props} />
                             </div>
                         </div>
                     </div>
@@ -48,3 +33,6 @@ export default class App extends React.Component {
         );
     }
 };
+
+function select(state) { return state; };
+export default connect(select)(LayoutNoAuth);

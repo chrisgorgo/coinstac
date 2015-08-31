@@ -13,8 +13,9 @@ import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
 import DashboardConsortia from './components/dashboard-consortia';
 import Home from './components/home';
-import Login from './components/login';
-import Signup from './components/signup';
+import LayoutNoAuth from './components/layout-noauth'
+import Login from './components/form-login-controller';
+import Signup from './components/form-signup-controller';
 import ConsortiumSingle from './components/consortium-single';
 import Projects from './components/projects';
 import ProjectsList from './components/projects-list';
@@ -23,8 +24,11 @@ import FormAddProject from './components/form-add-project';
 
 export default (
     <Route handler={App}>
-        <Route name="login" path="/" handler={Login} />
-        <Route name="signup" handler={Signup} />
+        <Route name="noauth" path="/" handler={LayoutNoAuth}>
+            <DefaultRoute handler={Login} />
+            <Route name="login" handler={Login} />
+            <Route name="signup" handler={Signup} />
+        </Route>
         <Route name="home" path="/home" handler={Home}>
             <Route name="dashboard" path="/home" handler={Dashboard}>
                 <DefaultRoute handler={DashboardHome} />
