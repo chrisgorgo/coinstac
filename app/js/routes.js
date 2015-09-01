@@ -8,6 +8,7 @@
  */
 import React from 'react';
 import Router, { Route, DefaultRoute, RouteHandler } from 'react-router';
+import Analysis from './components/analysis/index';
 import App from './components/app';
 import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
@@ -45,6 +46,10 @@ export default (
                         path="/projects/:projectId"
                         handler={ProjectsSingle} />
                 </Route>
+                <Route
+                    name="analysis"
+                    handler={Analysis}
+                    path="/analysis/" />
             </Route>
         </Route>
     </Route>
