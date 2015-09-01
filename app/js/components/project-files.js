@@ -8,6 +8,7 @@ import dbs from '../services/db-registry.js';
 // import fileService from '../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
 const Search = Reactabular.Search;
 const RTable = Reactabular.Table;
+const sortColumn = Reactabular.sortColumn;
 
 export default class ProjectsForm extends React.Component {
 
@@ -78,6 +79,7 @@ export default class ProjectsForm extends React.Component {
             // dirname: ['string', true],
             // sha: ['string', true]
         ];
+
         if (consortium && consortium.analyses.length) {
             consortium.analyses.forEach((a) => {
                 columns.push({
@@ -97,10 +99,18 @@ export default class ProjectsForm extends React.Component {
 
         return (
             <div>
-                <div className='search-container'>
-                    Search <Search columns={columns} data={this.state.data} onChange={this.onSearch.bind(this)}></Search>
+                <div className='well search-container'>
+                    Search:
+                    <Search
+                        columns={columns}
+                        data={this.state.data}
+                        onChange={this.onSearch.bind(this)}>
+                    </Search>
                 </div>
-                <RTable columns={columns} data={files} />
+                <RTable
+                    className="table"
+                    columns={columns}
+                    data={files} />
             </div>
         );
     }
