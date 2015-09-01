@@ -1,14 +1,11 @@
-'use strict';
-
 import React from 'react';
-import { ButtonLink } from 'react-router-bootstrap';
+import { Button } from 'react-bootstrap';
 import Auth from '../services/auth';
 import app from 'ampersand-app';
 
 class UserAccount extends React.Component {
-
     render() {
-        let { user } = this.props.login;
+        let { user } = this.props;
         user = user || {};
         return (
             <div className="user-account">
@@ -21,17 +18,16 @@ class UserAccount extends React.Component {
                         <br />
                         <em className="h6">{user.email}</em>
                         <br />
-                        <ButtonLink bsSize="xsmall" to="login">Log In</ButtonLink>
+                        <Button bsSize="xsmall" to="login">Log Out</Button>
                     </div>
                 </div>
             </div>
         )
     }
-}
+};
 
 UserAccount.propTypes = {
-    name: React.PropTypes.string.isRequired,
-    email: React.PropTypes.string.isRequired
+    user: React.PropTypes.object.isRequired
 };
 
 export default UserAccount;

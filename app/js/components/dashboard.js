@@ -3,7 +3,7 @@
 import React from 'react';
 import { RouteHandler } from 'react-router';
 import DashboardNav from './dashboard-nav';
-import UserAccount from './user-account'
+import UserAccountController from './user-account-controller'
 
 export default class Dashboard extends React.Component {
     render() {
@@ -16,7 +16,7 @@ export default class Dashboard extends React.Component {
                                 <abbr title="Collaborative Informatics and Neuroimaging Suite Toolkit for Anonymous Computation">COINSTAC</abbr>
                             </h1>
                             <DashboardNav />
-                            <UserAccount {...this.props} />
+                            <UserAccountController {...this.props} />
                         </nav>
                     </div>
                     <div className="col-xs-12 col-sm-8">
