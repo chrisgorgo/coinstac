@@ -8,9 +8,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as allActions from '../actions/index';
 
+let cachedActions;
 class LayoutNoAuth extends React.Component {
     render() {
-        const actions = bindActionCreators(allActions, this.props.dispatch);
+        const actions = cachedActions || bindActionCreators(allActions, this.props.dispatch);
         return (
             <div className="screen account">
                 <div className="container-fluid">

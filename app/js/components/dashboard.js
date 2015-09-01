@@ -16,7 +16,7 @@ export default class Dashboard extends React.Component {
                                 <abbr title="Collaborative Informatics and Neuroimaging Suite Toolkit for Anonymous Computation">COINSTAC</abbr>
                             </h1>
                             <DashboardNav />
-                            <UserAccount />
+                            <UserAccount {...this.props} />
                         </nav>
                     </div>
                     <div className="col-xs-12 col-sm-8">

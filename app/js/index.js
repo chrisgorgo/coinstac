@@ -6,10 +6,17 @@ import routes from './routes';
 import { Provider } from 'react-redux';
 import { compose, createStore, applyMiddleware } from 'redux';
 import { devTools, persistState } from 'redux-devtools';
+import * as coinstacMiddleware from './services/redux-middleware'
 import thunk from 'redux-thunk';
 import rootReducer from './reducers';
 app.isDev = window.COINS_ENV === 'development';
-let storeComponents = [applyMiddleware(thunk)];
+
+// configure redux middleware
+let middleware = [thunk];
+middleware.push(coinstacMiddleware.logger);
+middleware.push(coinstacMiddleware.authentication);
+
+let storeComponents = [applyMiddleware.apply(this, middleware)];
 if (app.isDev) {
     storeComponents.push(devTools());
     // Lets you write ?debug_session=<name> in address bar to persist debug sessions
