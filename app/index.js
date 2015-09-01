@@ -55,9 +55,18 @@ app.on('window-all-closed', function() {
 // This method will be called when Electron has done everything
 // initialization and ready for creating browser windows.
 app.on('ready', function() {
+    var atomScreen = require('screen');
+    var size = atomScreen.getPrimaryDisplay().workAreaSize;
 
-    // Create the browser window.
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    /**
+     * Create the browser window, set to fill user's screen.
+     *
+     * @{@link  http://electron.atom.io/docs/v0.31.0/api/screen/}
+     */
+    mainWindow = new BrowserWindow({
+        width: size.width,
+        height: size.height
+    });
 
     // and load the index.html of the app.
     mainWindow.loadUrl('file://' + __dirname + '/index.html');
