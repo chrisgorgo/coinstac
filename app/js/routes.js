@@ -17,10 +17,10 @@ import LayoutNoAuth from './components/layout-noauth'
 import Login from './components/form-login-controller';
 import Signup from './components/form-signup-controller';
 import ConsortiumSingle from './components/consortium-single';
-import Projects from './components/projects';
-import ProjectsList from './components/projects-list';
-import ProjectsSingle from './components/projects-single';
-import FormAddProject from './components/form-add-project';
+import DashboardProjects from './components/projects/dashboard-projects';
+import ProjectsList from './components/projects/projects-list';
+import PageProject from './components/projects/page-project';
+import FormAddProjectController from './components/projects/form-add-project-controller';
 
 export default (
     <Route handler={App}>
@@ -34,16 +34,16 @@ export default (
                 <DefaultRoute handler={DashboardHome} />
                 <Route name="consortia" handler={DashboardConsortia} />
                 <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingle} />
-                <Route name="projects" handler={Projects}>
+                <Route name="projects" handler={DashboardProjects}>
                     <DefaultRoute name="projects-list" handler={ProjectsList} />
                     <Route
                         name="projects-new"
                         path="/projects/new"
-                        handler={FormAddProject} />
+                        handler={FormAddProjectController} />
                     <Route
                         name="projects-single"
                         path="/projects/:projectId"
-                        handler={ProjectsSingle} />
+                        handler={PageProject} />
                 </Route>
             </Route>
         </Route>

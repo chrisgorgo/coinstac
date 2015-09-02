@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import files from '../services/files';
+import files from '../../services/files';
 import FileItem from './file-item';
 
 export default class FormAddFile extends React.Component {

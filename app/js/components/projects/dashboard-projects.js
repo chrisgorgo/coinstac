@@ -4,7 +4,7 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { ButtonLink } from 'react-router-bootstrap';
 
-export default class Projects extends React.Component {
+export default class DashboardProjects extends React.Component {
     render() {
         return (
             <div className="projects">
@@ -22,4 +22,4 @@ export default class Projects extends React.Component {
             </div>
         );
     }
-}
+};

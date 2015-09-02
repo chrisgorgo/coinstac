@@ -13,7 +13,7 @@ app.isDev = window.COINS_ENV === 'development';
 
 // configure redux middleware
 let middleware = [thunk];
-middleware.push(coinstacMiddleware.logger);
+// middleware.push(coinstacMiddleware.logger);
 middleware.push(coinstacMiddleware.authentication);
 
 let storeComponents = [applyMiddleware.apply(this, middleware)];
