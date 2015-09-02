@@ -29,7 +29,7 @@ export const authentication = store => next => action => {
     // are doing actions that do not require auth
     if (action.type === allActions.SET_USER ||
         action.type === allActions.SET_SIGNUP_USER ||
-        store.getState().login.username) {
+        store.getState().login.user.username) {
         result = next(action);
         return result;
     }
