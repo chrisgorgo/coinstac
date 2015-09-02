@@ -1,6 +1,6 @@
 'use strict';
-import Router from '../routes';
-import Project from '../models/project.js'
+import Router from '../../routes';
+import Project from '../../models/project.js'
 import React from 'react';
 import { Input, ButtonToolbar, Button } from 'react-bootstrap';
 export default class FormAddProject extends React.Component {

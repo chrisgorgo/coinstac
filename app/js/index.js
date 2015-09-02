@@ -1,4 +1,5 @@
 'use strict';
+require('./services/promise-uncaught-polyfill')(window);
 import app from 'ampersand-app';
 import React from 'react';
 import Router, { Route } from 'react-router';
@@ -13,7 +14,7 @@ app.isDev = window.COINS_ENV === 'development';
 
 // configure redux middleware
 let middleware = [thunk];
-middleware.push(coinstacMiddleware.logger);
+// middleware.push(coinstacMiddleware.logger);
 middleware.push(coinstacMiddleware.authentication);
 
 let storeComponents = [applyMiddleware.apply(this, middleware)];

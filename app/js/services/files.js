@@ -4,7 +4,6 @@
  * This service can be used to trigger OS Native file actions and return meta
  * back to the UI
  */
-import app from 'ampersand-app';
 import _ from 'lodash';
 import dbs from '../services/db-registry.js'
 import EventEmitter from 'event-emitter';
@@ -20,45 +19,21 @@ const FileBus = { // jshint ignore:line
     removeChangeListener: function (callback) {
         emitter.off('change', callback);
     },
-    getFilesFromUser: function(db) {
-        if (!db || !db.name) {
-            throw new ReferenceError('db for storing file meta missing');
+    getFilesFromUser: function(requestId) {
+        if (!requestId) {
+            throw new ReferenceError('requestId for storing file meta missing');
         }
-        ipc.send('select-files', {dbName: db.name});
+        ipc.send('select-files', {requestId});
     },
     _processFileSelections: function(event) {
-        const { files, dbName } = event;
+        const { files, requestId } = event;
         files.forEach(file => {
-            this.cacheFileReference(file, dbName);
-        }.bind(this));
-    },
-    cacheFileReference: function(file, dbName) {
-        dbs.get(dbName).all()
-        .then(files => {
             file.path = file.filename;
             file.filename = path.basename(file.path);
             file.dirname = path.dirname(file.path);
             file.sha = sha.getSync(file.path);
-            file._id = path.join(file.dirname, file.filename);
-
-            // Don't save if file is already saved
-            if (files.some(savedFile => savedFile.sha === file.sha)) {
-                const errMsg = `File already saved: ${file.filename}`;
-                app.notifications.push({
-                    message: errMsg,
-                    level: 'error'
-                });
-                throw new Error(errMsg);
-            }
-            // convert web file api naming conventions to node naming conventions
-            dbs.get(dbName).add(file)
-            .then(rslt => { emitter.emit('change'); })
-            .catch(err => {
-                emitter.emit('error', err);
-                console.dir(err);
-            });
-        })
-
+            emitter.emit('change', { file, requestId });
+        }.bind(this));
     },
     removeFileByPath: function(path) {
         const files = this.getSavedFiles();

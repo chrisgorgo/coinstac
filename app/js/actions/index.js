@@ -2,6 +2,9 @@
  * action types
  */
 export const INIT = 'init';
+export const SET_CONSORTIA = 'SET_CONSORTIA';
+export const SET_PROJECT = 'SET_PROJECT';
+export const SET_PROJECT_CONSORTIUM_CTX = 'SET_PROJECT_CONSORTIUM_CTX';
 export const SET_USER = 'SET_USER';
 export const SET_SIGNUP_USER = 'SET_SIGNUP_USER';
 
@@ -10,6 +13,18 @@ export const SET_SIGNUP_USER = 'SET_SIGNUP_USER';
  */
 export function init() {
     return {type: INIT};
+};
+
+export function setConsortia(consortia) {
+    return { type: SET_CONSORTIA, consortia };
+};
+
+export function setProject(project) {
+    return { type: SET_PROJECT, project };
+};
+
+export function setProjectConsortiumCtx(consortium) {
+    return { type: SET_PROJECT_CONSORTIUM_CTX, consortium };
 };
 
 export function setUser(user) {

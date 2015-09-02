@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import files from '../services/files';
+import files from '../../services/files';
 import FileItem from './file-item';
 
 export default class FormAddFile extends React.Component {
     constructor(props) {
         super();
-        if (!props.db) {
-            throw new ReferenceError('`db` prop required to add files');
+        if (!props.projectModel) {
+            throw new ReferenceError('`projectModel` prop required to add files');
         }
         if (!props.onAdd) {
             throw new ReferenceError('`onAdd` prop required to add files');
@@ -26,7 +26,7 @@ export default class FormAddFile extends React.Component {
 
     addFiles(e) {
         e.preventDefault();
-        files.getFilesFromUser(this.props.db);
+        files.getFilesFromUser({projectId: this.props.projectModel._id});
     }
 
     render() {

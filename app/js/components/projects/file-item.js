@@ -4,7 +4,7 @@ import React from 'react';
 import { ButtonToolbar, Button } from 'react-bootstrap';
 import prettysize from 'prettysize';
 import moment from 'moment';
-import files from '../services/files';
+import files from '../../services/files';
 
 const changeListeners = [];
 

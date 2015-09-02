@@ -1,13 +1,14 @@
-import { combineReducers } from 'redux';
+import consortia from './consortia';
 import signup from './signup';
+import project from './project';
 import login from './login'
 
-const rootReducer = combineReducers({
-    signup,
-    login,
-    noop: function(state) {
-        return state || {};
-    }
-});
-
-export default rootReducer;
+export default function reduceAppState(state = {}, action) {
+    return {
+        consortia: consortia(state.consortia, action),
+        signup: signup(state.signup, action),
+        login: login(state.login, action),
+        project: project(state.project, action),
+        noop: function(state) { return state || {}; }
+    };
+};

@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router';
 import _ from 'lodash';
-import dbs from '../services/db-registry';
+import dbs from '../../services/db-registry';
 const projectsDb = dbs.get('projects');
 
 export default class ProjectsList extends React.Component {
@@ -32,7 +32,7 @@ export default class ProjectsList extends React.Component {
             <div className="projects-list">
                 {projects.map(project => {
                     return (
-                        <div className="project panel panel-default">
+                        <div key={project._id } className="project panel panel-default">
                             <div className="panel-body">
                                 <h4>
                                     <Link

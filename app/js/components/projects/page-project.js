@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { ButtonLink } from 'react-router-bootstrap';
-import ProjectsForm from './projects-form';
+import FormManageProjectController from './form-manage-project-controller';
 
-export default class ProjectsSingle extends React.Component {
+export default class PageProject extends React.Component {
     static propTypes: {
         projectId: React.propTypes.string
     }
@@ -18,7 +18,7 @@ export default class ProjectsSingle extends React.Component {
                     Back
                 </ButtonLink>
                 <h3>Edit Project</h3>
-                <ProjectsForm projectId={projectId} />
+                <FormManageProjectController projectId={projectId} />
             </div>
         );
     }

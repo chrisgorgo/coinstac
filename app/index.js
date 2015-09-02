@@ -1,4 +1,5 @@
 'use strict';
+require('./js/services/promise-uncaught-polyfill')(global);
 var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');
 var ipc = require('ipc');
@@ -108,7 +109,7 @@ app.on('ready', function() {
 
                 Promise.all(promises).then(function (files) {
                     event.sender.send('files-selected', {
-                        dbName: arg.dbName,
+                        requestId: arg.requestId,
                         files: files
                     });
                 }).catch(function (err) {
