@@ -1,16 +1,15 @@
-import { SET_PROJECT } from '../actions/';
+import { SET_PROJECT, SET_PROJECT_CONSORTIUM_CTX } from '../actions/';
 
-const initialState = {
-
-};
-
+const initialState = {};
 
 export default function reduce(state = initialState, action) {
     switch (action.type) {
 
         case SET_PROJECT:
-            debugger;
-            return Object.assign({}, ...state, action.project);
+            return Object.assign({}, state, action.project);
+
+        case SET_PROJECT_CONSORTIUM_CTX:
+            return Object.assign({}, state, { consortium: action.consortium });
 
         default:
             return state;

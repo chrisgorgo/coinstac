@@ -1,4 +1,5 @@
 'use strict';
+require('./services/promise-uncaught-polyfill')(window);
 import app from 'ampersand-app';
 import React from 'react';
 import Router, { Route } from 'react-router';
