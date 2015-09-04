@@ -1,29 +1,16 @@
 import app from 'ampersand-app';
-import React from 'react';
-import {Input, Button} from 'react-bootstrap';
-import FieldPassword from './field-password';
-import _ from 'lodash';
-import axios from 'axios'
+import React, { Component } from 'react';
+import { Input, Button } from 'react-bootstrap';
+
 import auth from '../services/auth';
-import config from 'config';
+import FormSignup from './form-signup';
 import User from '../models/user';
 
-import FormSignup from './form-signup';
-
-export default class FormSignupController extends React.Component {
-
+export default class FormSignupController extends Component {
     submit(e) {
         e.preventDefault();
-        let refs = _.assign(this.refs);
-        let userData = {
-            encoded: btoa(JSON.stringify(this.refs.signup.data()))
-        };
-        return axios({
-            method: 'post',
-            url: config.api.url + '/users',
-            data: userData
-        })
-        .then(response => {
+
+        auth.createUser(this.refs.signup.data()).then(response => {
             const userData = response.data.data[0];
             app.notifications.push({
                 message: 'Registration successful',
@@ -31,7 +18,12 @@ export default class FormSignupController extends React.Component {
             });
             app.router.transitionTo('login');
             this.props.setSignupUser(null);
-        }.bind(this));
+        }).catch(error => {
+            app.notifications.push({
+                message: error.message,
+                level: 'error',
+            });
+        });
     }
 
     handleFieldChange(evt) {
