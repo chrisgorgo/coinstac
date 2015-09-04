@@ -7,6 +7,12 @@ import FormSignup from './form-signup';
 import User from '../models/user';
 
 export default class FormSignupController extends Component {
+    constructor(props) {
+        super(props);
+
+        this.submit = this.submit.bind(this);
+        this.handleFieldChange = this.handleFieldChange.bind(this);
+    }
     submit(e) {
         e.preventDefault();
 
@@ -44,8 +50,8 @@ export default class FormSignupController extends Component {
         return (
             <FormSignup ref="signup"
                 user={signup.user}
-                handleFieldChange={this.handleFieldChange.bind(this)}
-                submit={this.submit.bind(this)} />
+                handleFieldChange={this.handleFieldChange}
+                submit={this.submit} />
         );
     }
 }
