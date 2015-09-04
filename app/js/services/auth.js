@@ -1,5 +1,12 @@
+import _ from 'lodash';
+import url from 'url';
+
 import axios from 'axios'
 import config from 'config';
+
+function getApiUrl(endpoint) {
+    return url.format(config.api) + endpoint;
+}
 
 class Auth {
     /**
@@ -11,11 +18,19 @@ class Auth {
      * @param  {Object}  data          Information to create a new user
      * @param  {string}  data.username
      * @param  {string}  data.email
-     * @param  {string}  data.label    New user's first name _and_ last name
+     * @param  {string}  data.name     New user's first name and last name
      * @param  {string}  data.password
      * @return {Promise}               Axios's response
      */
-    createUser(data) {
+    createUser({ email, name, password, username }) {
+        // The API requires a `label` key instead of `name`
+        const data = {
+            email,
+            label: name,
+            password,
+            username,
+        };
+
         return axios({
             method: 'post',
             url: config.api.url + '/users',
