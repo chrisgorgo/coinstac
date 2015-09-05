@@ -18,7 +18,7 @@ class UserAccount extends React.Component {
                         <br />
                         <em className="h6">{user.email}</em>
                         <br />
-                        <Button bsSize="xsmall" to="login">Log Out</Button>
+                        <Button onClick={this.props.logout} bsSize="xsmall" to="login">Log Out</Button>
                     </div>
                 </div>
             </div>
