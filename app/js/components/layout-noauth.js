@@ -35,5 +35,10 @@ class LayoutNoAuth extends React.Component {
     }
 };
 
-function select(state) { return state; };
+function select(state) {
+    return {
+        signup: state.signup,
+        login: state.login
+    };
+};
 export default connect(select)(LayoutNoAuth);
