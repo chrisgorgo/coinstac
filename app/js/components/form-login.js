@@ -1,16 +1,13 @@
-import React from 'react';
-import {Input, Button} from 'react-bootstrap';
-import _ from 'lodash';
+import { Button, Input } from 'react-bootstrap';
+import React, { Component, PropTypes } from 'react';
 
-export default class FormLogin extends React.Component {
-
+class FormLogin extends Component {
     data() {
         return {
-            username: this.refs.username,
-            password: this.refs.password
+            username: this.refs.username.getValue(),
+            password: this.refs.password.getValue(),
         };
     }
-
     render() {
         return (
             <div>
@@ -40,3 +37,10 @@ export default class FormLogin extends React.Component {
         );
     }
 };
+
+FormLogin.propTypes = {
+    hotRoute: PropTypes.func.isRequired,
+    submit: PropTypes.func.isRequired,
+};
+
+export default FormLogin;
