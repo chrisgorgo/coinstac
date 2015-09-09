@@ -1,19 +1,39 @@
-import _ from 'lodash';
+/**
+ * Authentication service.
+ *
+ * Make authentication requests to the COINS and COINSTAC API. This enables user
+ * login/logout and the creation of new users.
+ *
+ * @todo  Integrate with Redux in the form of middleware.
+ */
+
 import url from 'url';
 
 import axios from 'axios'
 import config from 'config';
 import User from '../models/user';
 
+/** Storage key used with `localStorage` for storing authentication headers */
 const STORAGE_KEY = 'COINSTAC_AUTH_USER';
 
 /** Hold a private reference to the user model */
 let user;
 
+/**
+ * API URL format helper.
+ *
+ * @param  {string} endpoint
+ * @return {string}
+ */
 function getApiUrl(endpoint) {
     return url.format(config.api) + endpoint;
 }
 
+/**
+ * Auth.
+ *
+ * @todo  Document object.
+ */
 const Auth = {
     /**
      * Create a new user.
@@ -104,7 +124,7 @@ const Auth = {
     /**
      * Get saved user.
      *
-     * @return {Object}
+     * @return {Object|undefined}
      */
     getUser: function() {
         if (user) {
@@ -117,21 +137,44 @@ const Auth = {
         }
     },
 
+    /**
+     * Remove stored user
+     *
+     * @return {undefined}
+     */
     clearUser: function() {
         if (user) {
             user.clear();
         }
     },
 
+    /**
+     * Set authentication response.
+     *
+     * @see Auth.getAuthResponse()
+     *
+     * @param  {Object}           auth
+     * @return {Object|undefined} Stored auth response
+     */
     setAuthResponse: function(auth) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(auth));
         return Auth.getAuthResponse();
     },
 
+    /**
+     * Get authentication response.
+     *
+     * @return {Object|undefined} Stored auth response
+     */
     getAuthResponse: function() {
         return JSON.parse(localStorage.getItem(STORAGE_KEY));
     },
 
+    /**
+     * Clear stored authentication response.
+     *
+     * @return {undefined}
+     */
     clearAuthResponse: function() {
         localStorage.removeItem(STORAGE_KEY);
     },
