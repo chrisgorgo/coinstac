@@ -4,5 +4,6 @@ var File = require('./file');
 
 module.exports = Collection.extend({
     model: File,
-    indexes: ['sha']
+    mainIndex: 'path',
+    indexes: ['sha', 'path']
 });

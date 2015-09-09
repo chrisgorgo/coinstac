@@ -13,17 +13,6 @@ var Project = PouchDocument.extend({
     collections: {
         files: FileCollection
     },
-    derived: {
-        db: {
-            deps: ['_id'],
-            fn: function() {
-                if (!this._id) {
-                    throw new ReferenceError('project must be saved prior to accessing it\'s db');
-                }
-                return dbs.get('project-files-' + this._id);
-            }
-        }
-    },
     handleNameChange: function() {
         // assert that project `name` has content
         if (this.name) {

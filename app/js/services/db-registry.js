@@ -3,8 +3,9 @@ import PouchWrapper from 'pouchdb-wrapper';
 import config from 'config';
 import _ from 'lodash';
 
-const LOCAL_STORES = ['projects', 'project-files-'];
-const REMOTE_STORES = ['coinstac-users', 'coinstac-consortia'];
+const LOCAL_STORES = ['projects'];
+const REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
+const REMOTE_STORES_SYNC_OUT = ['consortium-'];
 
 const REMOTE_CONNECTION_DEFAULTS = {
     protocol: config.db.remote.protocol,
@@ -22,7 +23,12 @@ Object.defineProperty(dbs, 'names', { get: () => {
 
 // TODO remove window global and live reporting
 window.dbs = dbs;
-window.log = function() {console.dir(_.toArray(arguments));};
+window.log = function() {
+    return _.toArray(arguments).forEach((arg, ndx) => {
+        console.info('log ndx: ', ndx);
+        console.dir(arg);
+    });
+};
 
 /**
  * gets an existing or new instance of a db
@@ -51,9 +57,14 @@ dbs.register = function(opts) {
     // assert db can register, and configure its domain
     if (LOCAL_STORES.some(store => { return _.contains(opts.name, store); })) {
         // pass. `name` only shall yield local database
-    } else if (REMOTE_STORES.some(store => { return _.contains(opts.name, store); })) {
+    } else if (REMOTE_STORES_SYNC_OUT.some(store => { return _.contains(opts.name, store); })) {
         opts.conn = _.clone(REMOTE_CONNECTION_DEFAULTS);
         opts.conn.pathname = opts.name;
+        // opts.replicate = 'out'; // outbound replications to happen manually using `replicate.to()`
+    } else if (REMOTE_STORES_SYNC_IN.some(store => { return _.contains(opts.name, store); })) {
+        opts.conn = _.clone(REMOTE_CONNECTION_DEFAULTS);
+        opts.conn.pathname = opts.name;
+        opts.replicate = 'in';
     } else {
         throw new ReferenceError(`database ${name} does not fit LOCAL or REMOTE database constraints`);
     }

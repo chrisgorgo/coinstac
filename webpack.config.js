@@ -23,7 +23,8 @@ module.exports = {
             ipc: 'commonjs ipc',
             config: 'commonjs config',
             sha: 'commonjs sha',
-            path: 'commonjs path'
+            path: 'commonjs path',
+            remote: 'commonjs remote'
         }
     ],
     plugins: [

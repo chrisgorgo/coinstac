@@ -1,27 +1,28 @@
-'use strict';
-import Router from '../../routes';
+import app from 'ampersand-app';
 import Project from '../../models/project.js'
 import React from 'react';
-import { Input, ButtonToolbar, Button } from 'react-bootstrap';
-export default class FormAddProject extends React.Component {
+import FormAddProject from './form-add-project';
+export default class FormAddProjectController extends React.Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            consortia: [],
-            errors: {},
-            files: [],
-            project: {}
+            errors: {}
         };
     }
 
-    handleSave(evt) {
+    handleClickCancel() {
+        app.router.transitionTo('projects');
+    }
+
+    handleClickSave(evt) {
         evt.preventDefault();
-        const name = this.refs.name.getValue().trim();
+        const data = this.refs.add.data();
+        const name = data.name;
         const { errors } = this.state;
 
         if (!name) {
-            errors.name = 'Name required.';
+            errors.name = 'Name required';
         } else {
             delete errors.name;
         }
@@ -32,11 +33,10 @@ export default class FormAddProject extends React.Component {
         }
 
         let project = new Project({ name });
-        console.dir(project.serialize()); // TODO debuggins only
         dbs.get('projects')
         .all()
         .then(projects => {
-            let duplicateName = projects.some((project) => { return project.name === name; });
+            let duplicateName = projects.some(project => project.name === name);
             if (duplicateName) {
                 throw {status: 409};
             }
@@ -48,13 +48,13 @@ export default class FormAddProject extends React.Component {
                     message: `Project '${name}' created`,
                     level: 'success'
                 });
-                Router.transitionTo('projects');
+                app.router.transitionTo('projects');
             });
         })
-        .catch((err) => {
-            if (err.status === 409) {
+        .catch(err => {
+            if (err && err.status === 409) {
                 return app.notifications.push({
-                    message: `Project already exists with name: ${name}`,
+                    message: `Project "${name}" already exists`,
                     level: 'error'
                 });
             }
@@ -63,9 +63,7 @@ export default class FormAddProject extends React.Component {
     }
 
     render() {
-        let nameErrors;
-        let consortiumErrors;
-
+        let nameErrors = {};
         if (Object.keys(this.state.errors).length) {
             if (this.state.errors.name) {
                 nameErrors = {
@@ -73,34 +71,15 @@ export default class FormAddProject extends React.Component {
                     help: this.state.errors.name,
                     hasFeedback: true
                 };
-           }
+            }
         };
 
         return (
-            <div className="projects-new">
-                <h3>New Project</h3>
-                <form onSubmit={this.handleSave.bind(this)} className="clearfix">
-                    <Input
-                        ref="name"
-                        type="text"
-                        label="Name:"
-                        {...nameErrors} />
-                    <ButtonToolbar className="pull-right">
-                        <Button
-                            onClick={() => Router.transitionTo('projects')}
-                            bsStyle="link">
-                            <span className="glyphicon glyphicon-remove" aria-hidden="true">&nbsp;</span>
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={this.handleSave.bind(this)}
-                            bsStyle="primary">
-                            <span className="glyphicon glyphicon-ok" aria-hidden="true">&nbsp;</span>
-                            Add
-                        </Button>
-                    </ButtonToolbar>
-                </form>
-            </div>
+            <FormAddProject
+                ref="add"
+                errors={{ name: nameErrors }}
+                handleClickCancel={this.handleClickCancel.bind(this)}
+                handleClickSave={this.handleClickSave.bind(this)} />
         );
     }
 };

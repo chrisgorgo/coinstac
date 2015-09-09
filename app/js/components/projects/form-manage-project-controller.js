@@ -2,14 +2,16 @@ import React from 'react';
 import run from '../../services/analyze';
 import Project from '../../models/project.js';
 import dbs from '../../services/db-registry.js';
+import filesService from '../../services/files';
 import consortia from '../../services/consortia';
 import fileService from '../../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as allActions from '../../actions/index';
 import FormManageProject from './form-manage-project'
-
+let requestId = 0;
 let actions;
+let projectAsyncQueue = Promise.resolve();
 
 /**
  * @class FormManageProjectContoller
@@ -23,51 +25,121 @@ class FormManageProjectController extends React.Component {
     constructor(props) {
         super(props);
         actions = bindActionCreators(allActions, props.dispatch);
-        this.assestsReady = null;
+    }
+
+    componentDidMount() {
+        this.saveFile = this.saveFile.bind(this); // prebind for easy listener removal
+        filesService.addChangeListener(this.saveFile);
     }
 
     componentWillMount() {
-        // fetch current project, all consortia, then re-render
+        // fetch current project, all consortia, then patch state
         let projectRefreshed = dbs.get('projects').get(this.props.projectId)
-        .then(p => {
+        .then((p) => {
             this.project = window.project = new Project(p);
             /** UPDATE STATE ON MODEL CHANGES  **/
-            this.setConsortiumContext(this.project.defaultConsortiumId);
-            this.project.on('all', () => actions.setProject(this.project.serialize()));
-            return this.project;
-        })
-        .then(p => {
-            // stage file database for this project
-            return this.project.db.all().then(files => {
-                this.project.files.set(files);  // collections don't auto-trigger ... (see continuation)
-            });
+            this.project.on('all', () => actions.setProject(this.project.serialize())); // @note: [1]
+            this.project.trigger('change');
         })
         .catch(err => console.error(err));
 
         let consortiaRefreshed = consortia.all()
-        .then(consortia => { actions.setConsortia(consortia); })
+        .then(consortia => actions.setConsortia(consortia))
         .catch(err => console.error(err));
 
         Promise.all([projectRefreshed, consortiaRefreshed])
-        .then(r => {
-            this.assestsReady = true;
-            this.project.trigger('change'); // ... (resume) model updates, so update state!
-        });
+        .then((r) => this.setConsortiumContext(this.project.defaultConsortiumId))
+        .then((r) => this.indexConsortiumAnalysesBySha());
     }
 
     compentWillUnmount() {
-        actions.setProject(null); // clear active project
+        files.removeChangeListener(this.saveFile);
+        actions.setProject(null); // clear active project, reduce store mem/complexity
     }
 
     handleConsortiumChange(event) {
         const selectedConsortiumId = event.target.value;
-        return this.setConsortiumContext(selectedConsortiumId);
+        this.setConsortiumContext(selectedConsortiumId);
+        return this.indexConsortiumAnalysesBySha();
+    }
+
+    handleFileDelete(file, data, rowIndex, property) {
+        // queue all updates to the project to happen one at a time
+        projectAsyncQueue = projectAsyncQueue.then(() => {
+            this.project.files.remove(file.path); // will ignore duplicates where _id or sha already exist
+            return dbs.get('projects').save(this.project.serialize())
+            .then(() => dbs.get('projects').get(project._id))
+            .then(p => {
+                app.notifications.push({message: `File "${file.filename}" removed`, level: 'info'});
+                this.project.set(p);
+            });
+        })
+        .catch(err => {
+            console.error(err.message);
+            throw err;
+        });
+    }
+
+    handleFileSearch(evt) {
+        console.info('@TODO dispatch new action to set project._search');
     }
 
     handleProjectModelChange(event, component) {
         this.project.set(event.target.name, component.getValue());
 
     }
+
+    handleSubmitAnalyze() {
+        console.log('ToDo'); // TODO
+        // const submitToConsortium = consortiaStore.getBy('_id', this.refs.consortium.getInputDOMNode().value);
+        // const submitToFileShas = this.refs.files.getSelectedOptions();
+        // const files = (this.filesDb().filter((file) => {
+        //     return !!_.contains(submitToFileShas, file.sha);
+        // });
+        // // ToDo setup some async notification of processing
+        // run({
+        //     files: files,
+        //     consortium: submitToConsortium,
+        //     db: submitToConsortium.db // ToDo remove db arg from analyze.run. pull db frmo consortium
+        // });
+    }
+
+    indexConsortiumAnalysesBySha() {
+        actions.setProjectAnalysesBySha(null);
+        return dbs.get('consortium-' + this.props.project.consortium._id).all()
+        .then(docs => {
+            console.info('@TODO - determine if _doc_ is an analyses result or not');
+            actions.setProjectAnalysesBySha(_.indexBy(docs, 'sha'));
+        });
+    }
+
+    saveFile(meta) {
+        // queue all updates to the project to happen one at a time
+        projectAsyncQueue = projectAsyncQueue.then(() => {
+            const { file, requestId } = meta;
+            const oldLen = this.project.files.length;
+            this.project.files.add(file, {merge: true}); // will ignore duplicates where _id or sha already exist
+            const newLen = this.project.files.length;
+            return dbs.get('projects').save(this.project.serialize())
+            .then(() => dbs.get('projects').get(project._id))
+            .then(p => {
+                // the same filepath may now have a different sha, or vice versa, or no change, but regardless
+                // is now merged into the file collection set
+                if (newLen > oldLen) {
+                    app.notifications.push({message: `New file added ${file.filename}`, level: 'success'});
+                } else {
+                    app.notifications.push({message: `Project files updated`, level: 'info'});
+                }
+                // only triggers UI update if project Model has actually changed!
+                this.project.set(p);
+            });
+        })
+        .catch(err => {
+            console.error(err.message);
+            throw err;
+        });
+    }
+
 
     saveProject(event) {
         event.preventDefault();
@@ -96,65 +168,33 @@ class FormManageProjectController extends React.Component {
 
     setConsortiumContext(consortiumId) {
         const consortium = _.find(this.props.consortia, {_id: consortiumId });
-        actions.setProjectConsortiumCtx(consortium || {});
-    }
-
-    handleSubmitAnalyze() {
-        console.log('ToDo'); // TODO
-        // const submitToConsortium = consortiaStore.getBy('_id', this.refs.consortium.getInputDOMNode().value);
-        // const submitToFileShas = this.refs.files.getSelectedOptions();
-        // const files = (this.filesDb().filter((file) => {
-        //     return !!_.contains(submitToFileShas, file.sha);
-        // });
-        // // ToDo setup some async notification of processing
-        // run({
-        //     files: files,
-        //     consortium: submitToConsortium,
-        //     db: submitToConsortium.db // ToDo remove db arg from analyze.run. pull db frmo consortium
-        // });
-    }
-
-    saveFile(meta) {
-        const {file, requestId} = meta;
-        const oldLen = this.project.files.length;
-        this.project.files.add(file, {merge: true}); // will ignore duplicates where _id or sha already exist
-        const newLen = this.project.files.length;
-        dbs.get('projects').save(this.project.serialize())
-        .then(p => {
-            if (newLen > oldLen) {
-                app.notifications.push({message: `New file added ${file.filename}`, level: 'success'});
-            } else {
-                // the same filepath may now have a different sha, or vice versa, or no change, but regardless
-                // is now merged into the file collection set
-                app.notifications.push({message: `Project files updated`, level: 'info'});
-            }
-            this.project.set(p);
-        }); // only triggers UI update if project Model has actually changed!
+        actions.setProjectConsortiumCtx(consortium || {empty: true});
     }
 
     setDefaultConsortium() {
-        const prevDefault = this.props.project.defaultConsortiumId;
         const form = this.refs['form-manage-project'];
         let consortiumId = form.refs.consortium.getValue();
-        this.project.defaultConsortiumId = consortiumId;
+        let consortiumName  = _.result(_.find(this.props.consortia, { '_id': consortiumId }), 'label');
+        projectAsyncQueue = projectAsyncQueue.then(() => {
+            const prevDefault = this.props.project.defaultConsortiumId;
+            let project = this.project.serialize();
+            project.defaultConsortiumId = consortiumId;
 
-        dbs.get('projects').save(this.project.serialize())
-        .then(p => {
-            let consortiumName  = _.result(_.find(this.state.consortia, { '_id': consortiumId }), 'label');
-            let updatedMsg = `Default consortium set to ${consortiumName}`;
-            if (!consortiumId) {
-                updatedMsg = 'Default consortium cleared';
-            }
-            this.state.project.set(p);
-            this.setState(this.state);
-            app.notifications.push({
-                message: updatedMsg,
-                level: 'success'
+            dbs.get('projects').save(project)
+            .then(p => {
+                let updatedMsg = `Default consortium set to ${consortiumName}`;
+                if (!consortiumId) {
+                    updatedMsg = 'Default consortium cleared';
+                }
+                this.project.set(p); // update _rev and defaultConsortiumId!
+                app.notifications.push({
+                    message: updatedMsg,
+                    level: 'success'
+                });
             });
         })
         .catch(err => {
-            this.state.project.defaultConsortiumId = prevDefault;
-            this.setState(this.state);
+            console.error(err.message);
             app.notifications.push({
                 message: `Unable to set default consortium, ${consortiumName}`,
                 level: 'error'
@@ -162,8 +202,16 @@ class FormManageProjectController extends React.Component {
         });
     }
 
+    triggerAddFiles() {
+        filesService.getFilesFromUser(++requestId);
+    }
+
     render() {
-        if (!this.assestsReady || !this.props.project || !this.props.project._id) { // empty state === project as {}, so test _id too
+        if (!this.props.project ||
+            !this.props.project._id ||
+            !this.props.project.consortium ||
+            !this.props.project.consortium.analysesBySha ||
+            !this.props.consortia) { // empty state === project as {}, so test _id too
             return <span>Loading project...</span>;
         }
         return (
@@ -172,10 +220,13 @@ class FormManageProjectController extends React.Component {
                 {...this.props}
                 projectModel={this.project}
                 handleConsortiumChange={this.handleConsortiumChange.bind(this)}
+                handleFileDelete={this.handleFileDelete.bind(this)}
+                handleFileSearch={this.handleFileSearch.bind(this)}
                 handleProjectModelChange={this.handleProjectModelChange.bind(this)}
                 saveFile={this.saveFile.bind(this)}
                 saveProject={this.saveProject.bind(this)}
-                setDefaultConsortium={this.setDefaultConsortium.bind(this)} />
+                setDefaultConsortium={this.setDefaultConsortium.bind(this)}
+                triggerAddFiles={this.triggerAddFiles.bind(this)}  />
         );
     }
 };
@@ -184,5 +235,10 @@ class FormManageProjectController extends React.Component {
 //     projectId: React.PropTypes.string.isRequired
 // };
 
-function select(state) { return state; };
+function select(state) {
+    return {
+        consortia: state.consortia,
+        project: state.project
+    };
+};
 export default connect(select)(FormManageProjectController);

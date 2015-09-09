@@ -3,8 +3,17 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import Auth from '../services/auth';
 import UserAccount from './user-account';
+import { bindActionCreators } from 'redux';
+import * as allActions from '../actions/index';
+import { connect } from 'react-redux';
+let cachedActions;
 
 class UserAccountController extends React.Component {
+    constructor(props) {
+        super(props)
+        cachedActions = bindActionCreators(allActions, props.dispatch);
+    }
+
     logout() {
         console.info(['@TODO `connect` in higher level actions to dispatch',
             '`setUser(null)` action for logout.  Alternatively, consider ',
@@ -23,4 +32,5 @@ class UserAccountController extends React.Component {
     }
 }
 
-export default UserAccountController;
+function select(state) { return { login: state.login }; };
+export default connect(select)(UserAccountController);

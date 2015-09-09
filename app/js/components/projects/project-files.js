@@ -1,16 +1,11 @@
-'use strict';
 import React from 'react';
 import Reactabular from 'reactabular';
-// import { Input, ButtonToolbar, Button } from 'react-bootstrap';
-// import axios from 'axios';
-// import consortia from '../services/consortia';
 import dbs from '../../services/db-registry.js';
-// import fileService from '../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
 const Search = Reactabular.Search;
 const RTable = Reactabular.Table;
 const sortColumn = Reactabular.sortColumn;
 
-export default class ProjectsForm extends React.Component {
+export default class ProjectFiles extends React.Component {
 
     static propTypes: {
         projectId: React.PropTypes.string
@@ -18,55 +13,26 @@ export default class ProjectsForm extends React.Component {
 
     constructor(props) {
         super(props);
-        if (!props.project || !props.project.name) {
+        if (!props.project || !props.project._id) {
             throw new ReferenceError('project prop is required to render project files');
         }
         if (!props.project.files) {
             throw new ReferenceError('project.files attr is required to render project files');
         }
-        this.state = {
-            files: this.props.files,
-
-            // Reactabular.Search state
-            search: {
-                column: '',
-                query: ''
-            }
-        };
-
-        // fetch all project files and update table
-        this.filesDb = dbs.get('project-files-' + props.project._id);
-        this.refreshFiles();
-    }
-
-
-    componentWillReceiveProps() {
-        this.refreshFiles();
-    }
-
-    onSearch(search) {
-        this.setState({
-            search: search
-        });
-    }
-
-    refreshFiles() {
-        this.filesDb.all().then((files) => {
-            this.state = Object.assign({}, this.state, { files });
-            this.setState(this.state);
-        });
     }
 
     render() {
-        const { project, consortium } = this.props;
+        let { project, consortium, _search } = this.props;
         let files = project.files;
+        _search = _search || {};
+
         if (!files) {
             return <span>Loading files...</span>
         } else if (!files.length) {
             return <span>No project files.  Add some!</span>
         }
 
-        const columns = [
+        let columns = [
             {
                 property: 'filename',
                 header: 'File'
@@ -74,27 +40,41 @@ export default class ProjectsForm extends React.Component {
             {
                 property: 'dirname',
                 header: 'Directory'
-            }
-            // path: ['string', true],
-            // dirname: ['string', true],
-            // sha: ['string', true]
+            },
         ];
 
-        if (consortium && consortium.analyses.length) {
-            consortium.analyses.forEach((a) => {
-                columns.push({
-                    property: '_id',
-                    header: a.label
-                });
-            })
+        if (this.props.consortium && this.props.consortium.analysesBySha) {
+            columns.push({
+                header: 'Stage For Analysis',
+                cell: (value, data, rowIndex, property) => {
+                    value = data[rowIndex];
+                    return {
+                        value: this.props.consortium.analysesBySha[value.sha] ?
+                            <span className="glyphicon glyphicon-ok" aria-hidden="true"></span> :
+                            <input ref={value.sha} title={value.sha} type="checkbox"></input>
+                    }
+                }
+            });
         }
+
+        columns.push({
+            header: 'Delete',
+            cell: (value, data, rowIndex, property) => {
+                value = data[rowIndex];
+                return {
+                    value: <span>
+                        <span onClick={() => this.props.handleFileDelete(value, data, rowIndex, property)} style={{cursor: 'pointer', padding: '10px'}}>&#10007;</span>
+                    </span>
+                };
+            },
+        });
 
         // apply search reduction
         files = Search.search(
             files,
             columns,
-            this.state.search.column,
-            this.state.search.query
+            _search.column,
+            _search.query
         );
 
         return (
@@ -103,14 +83,14 @@ export default class ProjectsForm extends React.Component {
                     Search:
                     <Search
                         columns={columns}
-                        data={this.state.data}
-                        onChange={this.onSearch.bind(this)}>
+                        data={files.models}
+                        onChange={this.props.handleFileSearch}>
                     </Search>
                 </div>
                 <RTable
                     className="table"
                     columns={columns}
-                    data={files} />
+                    data={files.models} />
             </div>
         );
     }

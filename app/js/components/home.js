@@ -17,11 +17,11 @@ class Home extends React.Component {
     render() {
         return (
             <div className="home">
-                <RouteHandler {...cachedActions} {...this.props} />
+                <RouteHandler />
             </div>
         );
     }
 };
 
-function select(state) { return state; };
+function select(state) { return {}; };
 export default connect(select)(Home);

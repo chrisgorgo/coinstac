@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from 'react-router';
@@ -32,7 +30,7 @@ export default class ProjectsList extends React.Component {
             <div className="projects-list">
                 {projects.map(project => {
                     return (
-                        <div key={project._id } className="project panel panel-default">
+                        <div key={project._id} className="project panel panel-default">
                             <div className="panel-body">
                                 <h4>
                                     <Link

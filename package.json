@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "babel-loader": "^5.3.1",
+    "chalk": "^1.1.1",
     "css-loader": "^0.15.3",
     "electron-prebuilt": "^0.30.6",
     "electron-rebuild": "^0.2.5",
@@ -78,7 +79,8 @@
     "test": "grunt test",
     "webpack": "node webpack-server.js",
     "debug": "electron --debug-brk=5858 . --development",
-    "start": "electron . --development",
+    "start": "npm run shownotes && electron . --development",
+    "shownotes": "node ./dev-notes.js",
     "postinstall": "./node_modules/.bin/electron-rebuild"
   },
   "repository": {

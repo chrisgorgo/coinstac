@@ -58,7 +58,6 @@ export default class FormLoginController extends React.Component {
                         institution: 'BillBraskeyLTD',
                         email: 'heyo'
                     });
-                    debugger;
                     auth.setUser(user.serialize());
                     this.props.setUser(user.serialize());
                     app.router.transitionTo('home');

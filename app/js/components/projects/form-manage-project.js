@@ -1,25 +1,12 @@
 import React from 'react';
 import { Input, ButtonToolbar, Button } from 'react-bootstrap';
-import FormAddFile from './form-add-file.js';
-import ProjectFiles from './project-files'
+import ProjectFiles from './project-files';
 import _ from 'lodash';
 
 export default class FormManageProject extends React.Component {
     render() {
         const { consortia, project, projectModel } = this.props;
-
-        let nameErrors;
-        let consortiumErrors;
-
-        // if (Object.keys(this.state.errors).length) {
-        //     if (this.state.errors.name) {
-        //         nameErrors = {
-        //             bsStyle: 'error',
-        //             help: this.state.errors.name,
-        //             hasFeedback: true
-        //         };
-        //     }
-
+        const consortium = project && project.consortium;
         return (
             <form onSubmit={this.props.saveProject} className="clearfix">
                 <Input
@@ -28,14 +15,12 @@ export default class FormManageProject extends React.Component {
                     label="Name:"
                     name="name"
                     value={this.props.project.name}
-                    onChange={(evt) => this.props.handleProjectModelChange(evt, this.refs.name)}
-                    {...nameErrors} />
+                    onChange={(evt) => this.props.handleProjectModelChange(evt, this.refs.name)} />
                 <Input
                     ref="consortium"
                     type="select"
                     label="Consortia:"
-                    onChange={this.props.handleConsortiumChange}
-                    {...consortiumErrors}>
+                    onChange={this.props.handleConsortiumChange} >
                     <option disabled key="0">Choose consortium…</option>
                     {consortia.map(consortium => {
                         const hasAnalyses = consortium.analyses && consortium.analyses.length;
@@ -60,8 +45,22 @@ export default class FormManageProject extends React.Component {
                     Set as default consortium
                 </Button>
 
-                <FormAddFile onAdd={this.props.saveFile} projectModel={projectModel} />
-                <ProjectFiles project={project} consortium={this.props.consortium} />
+                <div className="page-header clearfix">
+                    <Button
+                        type="button"
+                        onClick={this.props.triggerAddFiles}
+                        bsStyle="primary"
+                        className="pull-right">
+                        <strong>+</strong>
+                        Add File
+                    </Button>
+                </div>
+
+                <ProjectFiles
+                    project={projectModel}
+                    consortium={consortium}
+                    handleFileSearch={this.props.handleFileSearch}
+                    handleFileDelete={this.props.handleFileDelete} />
 
                 <ButtonToolbar className="pull-right">
                     <Button bsStyle="link">
