@@ -73,6 +73,24 @@ const Auth = {
     },
 
     /**
+     * Log out.
+     *
+     * @return {Promise} Axios's response
+     */
+    logout: function() {
+        const { user = { id } } = Auth.getAuthResponse();
+        axiox({
+            method: 'delete',
+            url: getApiUrl(`/auth/keys/${id}`),
+        })
+            .then(response => {
+                Auth.clearAuthResponse();
+                Auth.clearUser();
+                return response;
+            });
+    },
+
+    /**
      * Save user.
      *
      * @param  {Object} userAttributes
@@ -89,21 +107,33 @@ const Auth = {
      * @return {Object}
      */
     getUser: function() {
-        return {
-            email: user.get('email'),
-            institution: user.get('institution'),
-            name: user.get('name'),
-            username: user.get('username'),
-        };
+        if (user) {
+            return {
+                email: user.get('email'),
+                institution: user.get('institution'),
+                name: user.get('name'),
+                username: user.get('username'),
+            };
+        }
     },
 
-    setAuthResponse(auth) {
+    clearUser: function() {
+        if (user) {
+            user.clear();
+        }
+    },
+
+    setAuthResponse: function(auth) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(auth));
         return Auth.getAuthResponse();
     },
 
-    getAuthResponse() {
+    getAuthResponse: function() {
         return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    },
+
+    clearAuthResponse: function() {
+        localStorage.removeItem(STORAGE_KEY);
     },
 };
 
