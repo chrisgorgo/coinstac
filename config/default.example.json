@@ -1,0 +1,15 @@
+{
+    "api": {
+        "protocol": "http",
+        "hostname": "localhost",
+        "port": 9000,
+        "pathname": "/api/v1.3.0"
+    },
+    "db": {
+        "remote": {
+            "protocol": "http",
+            "hostname": "localhost",
+            "port": 5984
+        }
+    }
+}
