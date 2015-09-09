@@ -3,12 +3,18 @@ import url from 'url';
 
 import axios from 'axios'
 import config from 'config';
+import User from '../models/user';
+
+const STORAGE_KEY = 'COINSTAC_AUTH_USER';
+
+/** Hold a private reference to the user model */
+let user;
 
 function getApiUrl(endpoint) {
     return url.format(config.api) + endpoint;
 }
 
-class Auth {
+const Auth = {
     /**
      * Create a new user.
      *
@@ -22,7 +28,7 @@ class Auth {
      * @param  {string}  data.password
      * @return {Promise}               Axios's response
      */
-    createUser({ email, name, password, username }) {
+    createUser: function({ email, name, password, username }) {
         // The API requires a `label` key instead of `name`
         const data = {
             email,
@@ -33,30 +39,72 @@ class Auth {
 
         return axios({
             method: 'post',
-            url: config.api.url + '/users',
+            url: getApiUrl('/users'),
             data,
-        });
-    }
+        })
+            .then(Auth.login({ password, username }));
+    },
 
-    setUser(user) {
-        delete user.password;
-        localStorage.setItem('auth', JSON.stringify({user}));
-    }
+    /**
+     * Log in.
+     *
+     * @param  {Object}  data          User login credentials
+     * @param  {string}  data.password
+     * @param  {string}  data.username
+     * @return {Promise}               Axios's response
+     */
+    login: function({ password, username }) {
+        const data = {
+            password: btoa(password),
+            username: btoa(username),
+        };
 
-    getUser() {
-        const auth = JSON.parse(localStorage.getItem('auth'));
-        if (auth) {
-            if (!('user' in auth)) {
-                throw new ReferenceError('Unable to find saved user.');
-            }
-        }
-        if (!auth) {
-            return;
-        }
+        return axios({
+            method: 'post',
+            url: getApiUrl('/auth/keys'),
+            data,
+        })
+            .then(response => {
+                debugger;
+                return response.data.data[0]
+            })
+            .then(Auth.setAuthResponse)
+            .then(Auth.setUser);
+    },
 
-        return auth.user;
-    }
+    /**
+     * Save user.
+     *
+     * @param  {Object} userAttributes
+     * @return {Object}
+     */
+    setUser: function(userAttributes) {
+        user = new User(userAttributes);
+        return Auth.getUser();
+    },
 
-}
+    /**
+     * Get saved user.
+     *
+     * @return {Object}
+     */
+    getUser: function() {
+        return {
+            email: user.get('email'),
+            institution: user.get('institution'),
+            name: user.get('name'),
+            username: user.get('username'),
+        };
+    },
 
-export default new Auth();
+    setAuthResponse(auth) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(auth));
+        return Auth.getAuthResponse();
+    },
+
+    getAuthResponse() {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    },
+};
+
+export default Auth;
