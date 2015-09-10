@@ -1,14 +1,16 @@
 {
     "api": {
         "protocol": "https",
-        "hostname": "localcoin.mrn.org",
-        "port": 8443,
+        "hostname": "localhost",
+        "port": 443,
         "pathname": "/api/v1.3.0"
     },
     "db": {
         "remote": {
-            "protocol": "https",
-            "hostname": "mrndwood.cloudant.com"
+            "protocol": "http",
+            "hostname": "localhost",
+            "port": 5984,
+            "url": "generated-by-app"
         }
     }
 }

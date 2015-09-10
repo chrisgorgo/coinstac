@@ -1,0 +1,8 @@
+{
+    "db": {
+        "remote": {
+            "protocol": "https",
+            "hostname": "mrndwood.cloudant.com"
+        }
+    }
+}
