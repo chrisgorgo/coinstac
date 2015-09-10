@@ -9,8 +9,7 @@
         "remote": {
             "protocol": "http",
             "hostname": "localhost",
-            "port": 5984,
-            "url": "generated-by-app"
+            "port": 5984
         }
     }
 }

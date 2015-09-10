@@ -31,3 +31,7 @@ electron
 app/build
 app/index.html
 npm-debug*
+
+# Configuration files
+config/*
+!config/default.example.json
