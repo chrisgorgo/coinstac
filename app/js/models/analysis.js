@@ -16,7 +16,7 @@ var Analysis = PouchDocument.extend(isoDateMixin, {
         },
         fileSha: ['string', true],
         complete: ['iso-date', true], // forces dates in ISO 8601 long string
-        result: ['any', true]
+        result: ['array', true]
     },
     derived: {
         _id: {

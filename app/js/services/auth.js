@@ -134,6 +134,9 @@ const Auth = {
                 name: user.get('name'),
                 username: user.get('username'),
             };
+        } else if (this.getAuthResponse()) {
+            this.setUser(this.getAuthResponse());
+            return this.getUser();
         }
     },
 

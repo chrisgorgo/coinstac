@@ -211,7 +211,7 @@ class FormManageProjectController extends React.Component {
             !this.props.project._id ||
             !this.props.project.consortium ||
             !this.props.project.consortium.analysesBySha ||
-            !this.props.consortia) { // empty state === project as {}, so test _id too
+            !Array.isArray(this.props.consortia)) { // empty state === project as {}, so test _id too
             return <span>Loading project...</span>;
         }
         return (

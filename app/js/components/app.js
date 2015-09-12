@@ -14,7 +14,8 @@ import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 config.api.url = url.format({
     protocol: config.api.protocol,
     hostname: config.api.hostname,
-    port: config.api.port
+    port: config.api.port,
+    pathname: config.api.pathname
 });
 
 config.db.remote.url = url.format({

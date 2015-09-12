@@ -42,10 +42,9 @@ export const authentication = store => next => action => {
             });
         }
         app.router.transitionTo('/login');
-        result = next(null);
     } else {
-        result = next(action);
         actions.setUser(storedUser);
     }
+    result = next(action);
     return result;
 };

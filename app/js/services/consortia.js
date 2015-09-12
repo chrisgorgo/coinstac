@@ -11,7 +11,7 @@ class ConsortiaService {
     }
 
     all() {
-        return axios.get(config.api.url + '/consortia')
+        return axios.get(config.api.url + '/coinstac/consortia')
         .then((res) => { return res.data.data; });
     }
 
