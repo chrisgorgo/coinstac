@@ -1,15 +1,16 @@
 {
     "api": {
-        "protocol": "https",
+        "protocol": "http",
         "hostname": "localhost",
-        "port": 443,
+        "port": 8800,
         "pathname": "/api/v1.3.0"
     },
     "db": {
         "remote": {
             "protocol": "http",
             "hostname": "localhost",
-            "port": 5984
+            "port": 5984,
+            "url": "generated-by-app"
         }
     }
 }
