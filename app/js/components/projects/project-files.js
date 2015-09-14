@@ -43,20 +43,6 @@ export default class ProjectFiles extends React.Component {
             },
         ];
 
-        if (this.props.consortium && this.props.consortium.analysesBySha) {
-            columns.push({
-                header: 'Stage For Analysis',
-                cell: (value, data, rowIndex, property) => {
-                    value = data[rowIndex];
-                    return {
-                        value: this.props.consortium.analysesBySha[value.sha] ?
-                            <span className="glyphicon glyphicon-ok" aria-hidden="true"></span> :
-                            <input ref={value.sha} title={value.sha} type="checkbox"></input>
-                    }
-                }
-            });
-        }
-
         columns.push({
             header: 'Delete',
             cell: (value, data, rowIndex, property) => {
