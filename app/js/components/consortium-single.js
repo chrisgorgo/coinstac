@@ -60,7 +60,7 @@ export default class ConsortiumSingle extends React.Component {
         let tConsortium = this.state.consortium.serialize();;
         axios({
             method: 'put',
-            url: config.api.url + '/consortia',
+            url: config.api.url + '/coinstac/consortia',
             data: tConsortium
         }).then(function(response) {
             debugger; // test for rev?

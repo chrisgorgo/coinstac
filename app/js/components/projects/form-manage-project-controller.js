@@ -57,6 +57,10 @@ class FormManageProjectController extends React.Component {
         actions.setProject(null); // clear active project, reduce store mem/complexity
     }
 
+    handleAnalysisChange(evt) {
+        return actions.setProjectConsortiumAnalysisCtx(event.target.value);
+    }
+
     handleConsortiumChange(event) {
         const selectedConsortiumId = event.target.value;
         this.setConsortiumContext(selectedConsortiumId);
@@ -96,7 +100,7 @@ class FormManageProjectController extends React.Component {
             {_id: this.props.project.consortium._id}
         );
         const files = this.props.project.files;
-        
+
         // // ToDo setup some async notification of processing
         // run({
         //     files: files,
@@ -107,6 +111,9 @@ class FormManageProjectController extends React.Component {
 
     indexConsortiumAnalysesBySha() {
         actions.setProjectAnalysesBySha(null);
+        if (!this.props.project.consortium) {
+            return actions.setProjectAnalysesBySha({}); // only index when a consortium selected
+        }
         return dbs.get('consortium-' + this.props.project.consortium._id).all()
         .then(docs => {
             console.info('@TODO - determine if _doc_ is an analyses result or not');
@@ -169,7 +176,9 @@ class FormManageProjectController extends React.Component {
 
     setConsortiumContext(consortiumId) {
         const consortium = _.find(this.props.consortia, {_id: consortiumId });
-        actions.setProjectConsortiumCtx(consortium || {empty: true});
+        if (consortium) {
+            actions.setProjectConsortiumCtx(consortium);
+        }
     }
 
     setDefaultConsortium() {
@@ -210,8 +219,6 @@ class FormManageProjectController extends React.Component {
     render() {
         if (!this.props.project ||
             !this.props.project._id ||
-            !this.props.project.consortium ||
-            !this.props.project.consortium.analysesBySha ||
             !Array.isArray(this.props.consortia)) { // empty state === project as {}, so test _id too
             return <span>Loading project...</span>;
         }
@@ -221,6 +228,7 @@ class FormManageProjectController extends React.Component {
                 {...this.props}
                 projectModel={this.project}
                 handleConsortiumChange={this.handleConsortiumChange.bind(this)}
+                handleAnalysisChange={this.handleAnalysisChange.bind(this)}
                 handleFileDelete={this.handleFileDelete.bind(this)}
                 handleFileSearch={this.handleFileSearch.bind(this)}
                 handleSubmitAnalyze={this.handleSubmitAnalyze.bind(this)}
