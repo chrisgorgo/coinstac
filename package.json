@@ -29,6 +29,7 @@
     "react-bootstrap": "^0.23.7",
     "react-marked": "^0.3.1",
     "react-notification-system": "^0.1.14",
+    "react-redux": "^1.0.1",
     "react-router": "^0.13.3",
     "react-router-bootstrap": "^0.17.2",
     "reactabular": "^0.6.6",
