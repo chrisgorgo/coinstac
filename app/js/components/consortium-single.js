@@ -91,7 +91,7 @@ export default class ConsortiumSingle extends React.Component {
         tConsortium = this.state.consortium.serialize();
         return axios({
             method: 'put',
-            url: config.api.url + '/consortia',
+            url: config.api.url + '/coinstac/consortia/' + tConsortium._id,
             data: tConsortium
         }).then(function(response) {
             this.state.consortium = response.data.data[0];  // maybe override the consortium here, actually
@@ -99,7 +99,7 @@ export default class ConsortiumSingle extends React.Component {
             this.setState(this.state);
         }.bind(this)).catch(function(err) {
             app.notifications.push({ message: 'Failed to add analysis', level: 'error'});
-            console.err(err.message);
+            console.error(err.message);
             this.state.consortium.analyses = _.remove(
                 this.state.consortium.analyses,
                 a => a.label === newAnalysis.label

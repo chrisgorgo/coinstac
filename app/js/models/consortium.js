@@ -10,10 +10,10 @@ module.exports = PouchDocument.extend({
         label: ['string', true],
         tags: ['array', true],
         users: ['array', true],
-        analyses: ['array', true]
+        analyses: ['array', true],
+        dbUrl: ['string', true]
     },
     session: {
         db: 'object' // pouch-wrapper instance
     }
 });
-

@@ -52,7 +52,7 @@ class FormManageProjectController extends React.Component {
         .then((r) => this.indexConsortiumAnalysesBySha());
     }
 
-    compentWillUnmount() {
+    componentWillUnmount() {
         files.removeChangeListener(this.saveFile);
         actions.setProject(null); // clear active project, reduce store mem/complexity
     }
