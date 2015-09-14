@@ -14,7 +14,10 @@ import config from 'config';
 import User from '../models/user';
 
 /** Storage key used with `localStorage` for storing authentication headers */
-const STORAGE_KEY = 'COINSTAC_AUTH_USER';
+const AUTH_RESPONSE_KEY = 'COINSTAC_AUTH_RESPONSE';
+
+/** Storage key used with `localStorage` for storing user */
+const USER_KEY = 'COINSTAC_USER';
 
 /** Hold a private reference to the user model */
 let user;
@@ -118,6 +121,7 @@ const Auth = {
      */
     setUser: function(userAttributes) {
         user = new User(userAttributes);
+        localStorage.setItem(USER_KEY, JSON.stringify(user.serialize()));
         return Auth.getUser();
     },
 
@@ -127,16 +131,18 @@ const Auth = {
      * @return {Object|undefined}
      */
     getUser: function() {
-        if (user) {
+        // Get stored user if needed
+        if (!user && localStorage[USER_KEY]) {
+            user = new User(JSON.parse(localStorage.getItem(USER_KEY)));
+        }
+
+        if (user && user.isValid()) {
             return {
                 email: user.get('email'),
                 institution: user.get('institution'),
                 name: user.get('name'),
                 username: user.get('username'),
             };
-        } else if (localStorage[STORAGE_KEY]) {
-            this.setUser(JSON.parse(localStorage.getItem(STORAGE_KEY)));
-            return this.getUser();
         }
     },
 
@@ -160,7 +166,7 @@ const Auth = {
      * @return {Object|undefined} Stored auth response
      */
     setAuthResponse: function(auth) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(auth));
+        localStorage.setItem(AUTH_RESPONSE_KEY, JSON.stringify(auth));
         return Auth.getUser();
     },
 
@@ -170,7 +176,7 @@ const Auth = {
      * @return {undefined}
      */
     clearAuthResponse: function() {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(AUTH_RESPONSE_KEY);
     },
 };
 
