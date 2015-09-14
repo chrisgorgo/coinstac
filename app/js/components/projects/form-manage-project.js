@@ -5,8 +5,12 @@ import _ from 'lodash';
 
 export default class FormManageProject extends React.Component {
     render() {
-        const { consortia, project, projectModel } = this.props;
+        const { analysis, consortia, project, projectModel } = this.props;
         const consortium = project && project.consortium;
+
+        if (consortium && !consortium.analysesBySha) {
+            return <span>Loading existing consortium analyses</span>;
+        }
         return (
             <form onSubmit={this.props.saveProject} className="clearfix">
                 <Input
@@ -38,6 +42,25 @@ export default class FormManageProject extends React.Component {
                         );
                     })}
                 </Input>
+                <Input
+                    ref="analysis"
+                    type="select"
+                    label="Analysis:"
+                    onChange={this.props.handleAnalysisChange} >
+                    <option disabled key="0">Choose analysis…</option>
+                    {analyses.map(analysis => {
+                        const isSelected = project.defaultAnalysisId === analysis._id;
+                        const optionText = consortium.label + (hasAnalyses ? '' : ' (no analyses available)');
+                        return (
+                            <option
+                                key={analysis._id}
+                                value={analysis._id}
+                                selected={isSelected ? 'selected': ''}>
+                                {optionText}
+                            </option>
+                        );
+                    })}
+                </Input>
                 <Button
                     onClick={this.props.setDefaultConsortium}
                     bsSize="xsmall">
@@ -50,17 +73,27 @@ export default class FormManageProject extends React.Component {
                         type="button"
                         onClick={this.props.triggerAddFiles}
                         bsStyle="primary"
-                        className="pull-right">
+                        className="pull-right"
+                        disabled={!consortium}>
                         <strong>+</strong>
                         Add File
                     </Button>
                 </div>
 
-                <ProjectFiles
-                    project={projectModel}
-                    consortium={consortium}
-                    handleFileSearch={this.props.handleFileSearch}
-                    handleFileDelete={this.props.handleFileDelete} />
+                {(() => {
+                    if (!consortium) {
+                        return <span>Please select a consortium</span>;
+                    } else if (!analysis) {
+                        return <span>Please select an analysis</span>;
+                    }
+                    return (
+                        <ProjectFiles
+                            project={projectModel}
+                            consortium={consortium}
+                            handleFileSearch={this.props.handleFileSearch}
+                            handleFileDelete={this.props.handleFileDelete} />
+                    );
+                })()}
 
                 <ButtonToolbar className="pull-right">
                     <Button bsStyle="link">
