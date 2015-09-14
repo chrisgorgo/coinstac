@@ -5,11 +5,34 @@ import _ from 'lodash';
 
 export default class FormManageProject extends React.Component {
     render() {
-        const { analysis, consortia, project, projectModel } = this.props;
+        const { consortia, project, projectModel } = this.props;
         const consortium = project && project.consortium;
+        let analysisInput;
 
         if (consortium && !consortium.analysesBySha) {
             return <span>Loading existing consortium analyses</span>;
+        }
+
+        if (consortium) {
+            analysisInput = (
+                <Input
+                    ref="analysis"
+                    type="select"
+                    label="Analysis:"
+                    onChange={this.props.handleAnalysisChange} >
+                    <option key="0">Choose analysis…</option>
+                    {consortium.analyses.map(analysis => {
+                        const isSelected = project.defaultAnalysisId === analysis._id;
+                        return (
+                            <option
+                                key={analysis._id}
+                                value={analysis._id}>
+                                {analysis.label}
+                            </option>
+                        );
+                    })}
+                </Input>
+            );
         }
         return (
             <form onSubmit={this.props.saveProject} className="clearfix">
@@ -42,25 +65,7 @@ export default class FormManageProject extends React.Component {
                         );
                     })}
                 </Input>
-                <Input
-                    ref="analysis"
-                    type="select"
-                    label="Analysis:"
-                    onChange={this.props.handleAnalysisChange} >
-                    <option disabled key="0">Choose analysis…</option>
-                    {analyses.map(analysis => {
-                        const isSelected = project.defaultAnalysisId === analysis._id;
-                        const optionText = consortium.label + (hasAnalyses ? '' : ' (no analyses available)');
-                        return (
-                            <option
-                                key={analysis._id}
-                                value={analysis._id}
-                                selected={isSelected ? 'selected': ''}>
-                                {optionText}
-                            </option>
-                        );
-                    })}
-                </Input>
+                {analysisInput}
                 <Button
                     onClick={this.props.setDefaultConsortium}
                     bsSize="xsmall">
@@ -83,7 +88,7 @@ export default class FormManageProject extends React.Component {
                 {(() => {
                     if (!consortium) {
                         return <span>Please select a consortium</span>;
-                    } else if (!analysis) {
+                    } else if (!consortium.ui_selectedAnalysis) {
                         return <span>Please select an analysis</span>;
                     }
                     return (

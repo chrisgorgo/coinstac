@@ -9,7 +9,6 @@ import _ from 'lodash';
 import axios from 'axios';
 import config from 'config';
 import moment from 'moment'; // ToDo moment can be removed, but is here for testing
-import run from '../services/analyze';
 import dbs from '../services/db-registry';
 import Consortium from '../models/consortium.js'
 
@@ -108,29 +107,6 @@ export default class ConsortiumSingle extends React.Component {
         });
     }
 
-    /**
-     * TODO remove function, add to projects pane
-     * @return {[type]} [description]
-     */
-    testingAddToAnalysis() {
-        run({
-            files: [
-                {
-                    // _id: 'file_process_test_' + (moment().format()),
-                    sha: 'asdfasdw'
-                },
-                {
-                    // _id: 'file_process_test_' + (moment().format()),
-                    sha: 'asdfasdw'
-                }
-            ],
-            consortium: this.state.consortium,
-            db: this.db
-        }).then(() => {
-            return this.refreshDbViewMeta();
-        }.bind(this));
-    }
-
     render() {
         const consortium = this.state.consortium || null;
         const isMember = this.isMember(consortium);
@@ -214,7 +190,6 @@ export default class ConsortiumSingle extends React.Component {
                             <li>Record count: {analysesLight.length}</li>
                         </ul>
                         <h6>Analyses Data</h6>
-                        <Button onClick={this.testingAddToAnalysis.bind(this)}>Test add to analysis</Button>
                         <ul className="list">
                             {analysesLight.map((data, ndx) => {
                                 return <li key={ndx}>{JSON.stringify(data, null, 2)}</li>;

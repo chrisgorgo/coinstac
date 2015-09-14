@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from 'lodash';
-import run from '../../services/analyze';
 import Project from '../../models/project.js';
 import dbs from '../../services/db-registry.js';
 import consortia from '../../services/consortia';
@@ -100,13 +99,6 @@ class FormManageProjectController extends React.Component {
             {_id: this.props.project.consortium._id}
         );
         const files = this.props.project.files;
-
-        // // ToDo setup some async notification of processing
-        // run({
-        //     files: files,
-        //     consortium: submitToConsortium,
-        //     db: submitToConsortium.db // ToDo remove db arg from analyze.run. pull db frmo consortium
-        // });
     }
 
     indexConsortiumAnalysesBySha() {
