@@ -29,9 +29,9 @@ export default class ConsortiumSingle extends React.Component {
     }
 
     componentWillMount() {
-        consortia.getBy('_id', this.props.query._id).then((consortium) => {
+        consortia.getBy('_id', this.props._id).then((consortium) => {
             if (!consortium) {
-                throw new ReferenceError(`consortium ${this.props.query._id} not found in registry`);
+                throw new ReferenceError(`consortium ${this.props._id} not found in registry`);
             }
             this.state.consortium = new Consortium(consortium);
             this.setState(this.state);
