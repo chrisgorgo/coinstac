@@ -1,14 +1,14 @@
 import React from 'react';
+import _ from 'lodash';
 import run from '../../services/analyze';
 import Project from '../../models/project.js';
 import dbs from '../../services/db-registry.js';
-import filesService from '../../services/files';
 import consortia from '../../services/consortia';
 import fileService from '../../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as allActions from '../../actions/index';
-import FormManageProject from './form-manage-project'
+import FormManageProject from './form-manage-project';
 let requestId = 0;
 let actions;
 let projectAsyncQueue = Promise.resolve();
@@ -29,7 +29,7 @@ class FormManageProjectController extends React.Component {
 
     componentDidMount() {
         this.saveFile = this.saveFile.bind(this); // prebind for easy listener removal
-        filesService.addChangeListener(this.saveFile);
+        fileService.addChangeListener(this.saveFile);
     }
 
     componentWillMount() {
@@ -53,7 +53,7 @@ class FormManageProjectController extends React.Component {
     }
 
     componentWillUnmount() {
-        files.removeChangeListener(this.saveFile);
+        fileService.removeChangeListener(this.saveFile);
         actions.setProject(null); // clear active project, reduce store mem/complexity
     }
 
@@ -90,12 +90,13 @@ class FormManageProjectController extends React.Component {
     }
 
     handleSubmitAnalyze() {
-        console.log('ToDo'); // TODO
-        // const submitToConsortium = consortiaStore.getBy('_id', this.refs.consortium.getInputDOMNode().value);
-        // const submitToFileShas = this.refs.files.getSelectedOptions();
-        // const files = (this.filesDb().filter((file) => {
-        //     return !!_.contains(submitToFileShas, file.sha);
-        // });
+        debugger;
+        const submitToConsortium = _.find(
+            this.props.consortia,
+            {_id: this.props.project.consortium._id}
+        );
+        const files = this.props.project.files;
+        
         // // ToDo setup some async notification of processing
         // run({
         //     files: files,
@@ -203,7 +204,7 @@ class FormManageProjectController extends React.Component {
     }
 
     triggerAddFiles() {
-        filesService.getFilesFromUser(++requestId);
+        fileService.getFilesFromUser(++requestId);
     }
 
     render() {
@@ -222,6 +223,7 @@ class FormManageProjectController extends React.Component {
                 handleConsortiumChange={this.handleConsortiumChange.bind(this)}
                 handleFileDelete={this.handleFileDelete.bind(this)}
                 handleFileSearch={this.handleFileSearch.bind(this)}
+                handleSubmitAnalyze={this.handleSubmitAnalyze.bind(this)}
                 handleProjectModelChange={this.handleProjectModelChange.bind(this)}
                 saveFile={this.saveFile.bind(this)}
                 saveProject={this.saveProject.bind(this)}
