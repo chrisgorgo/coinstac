@@ -98,7 +98,7 @@ const Auth = {
      * @return {Promise} Axios's response
      */
     logout: function() {
-        const { user = { id } } = Auth.getAuthResponse();
+        const { user = { id } } = Auth.getUser();
         axiox({
             method: 'delete',
             url: getApiUrl(`/auth/keys/${id}`),
@@ -134,8 +134,8 @@ const Auth = {
                 name: user.get('name'),
                 username: user.get('username'),
             };
-        } else if (this.getAuthResponse()) {
-            this.setUser(this.getAuthResponse());
+        } else if (localStorage[STORAGE_KEY]) {
+            this.setUser(JSON.parse(localStorage.getItem(STORAGE_KEY)));
             return this.getUser();
         }
     },
@@ -154,23 +154,14 @@ const Auth = {
     /**
      * Set authentication response.
      *
-     * @see Auth.getAuthResponse()
+     * @see Auth.getUser()
      *
      * @param  {Object}           auth
      * @return {Object|undefined} Stored auth response
      */
     setAuthResponse: function(auth) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(auth));
-        return Auth.getAuthResponse();
-    },
-
-    /**
-     * Get authentication response.
-     *
-     * @return {Object|undefined} Stored auth response
-     */
-    getAuthResponse: function() {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Auth.getUser();
     },
 
     /**

@@ -4,6 +4,13 @@ import * as allActions from '../actions/'
 import { bindActionCreators } from 'redux';
 let cachedActions;
 
+const notifyAuthRequired = _.debounce(() => {
+    return app.notifications.push({
+        message: 'Please authenticate prior to using COINSTAC',
+        level: 'error'
+    });
+}, 500);
+
 /**
  * Logs all actions and states after they are dispatched.
  */
@@ -36,10 +43,7 @@ export const authentication = store => next => action => {
     let storedUser = auth.getUser();
     if (!storedUser) {
         if (app && app.notifications) {
-            app.notifications.push({
-                message: 'Please authenticate prior to using COINSTAC',
-                level: 'error'
-            });
+            notifyAuthRequired();
         }
         app.router.transitionTo('/login');
     } else {
