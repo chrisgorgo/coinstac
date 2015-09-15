@@ -19,7 +19,7 @@ export default class FormManageProject extends React.Component {
                     ref="analysis"
                     type="select"
                     label="Analysis:"
-                    onChange={this.props.handleAnalysisChange} >
+                    onChange={this.props.handleAnalysisCtxChange} >
                     <option key="0">Choose analysis…</option>
                     {consortium.analyses.map(analysis => {
                         const isSelected = project.defaultAnalysisId === analysis._id;
@@ -47,7 +47,7 @@ export default class FormManageProject extends React.Component {
                     ref="consortium"
                     type="select"
                     label="Consortia:"
-                    onChange={this.props.handleConsortiumChange} >
+                    onChange={this.props.handleConsortiumCtxChange} >
                     <option disabled key="0">Choose consortium…</option>
                     {consortia.map(consortium => {
                         const hasAnalyses = consortium.analyses && consortium.analyses.length;

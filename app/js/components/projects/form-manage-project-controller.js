@@ -1,9 +1,11 @@
-import React from 'react';
 import _ from 'lodash';
+import app from 'ampersand-app';
+import React from 'react';
 import Project from '../../models/project.js';
 import dbs from '../../services/db-registry.js';
-import consortia from '../../services/consortia';
-import fileService from '../../services/files'; // ToDo -- this reprsents ALL files, not simply those uploaded to this project
+import consortia from '../../services/consortia.js';
+import fileService from '../../services/files.js';
+import analyzeService from '../../services/analyze.js';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as allActions from '../../actions/index';
@@ -32,6 +34,8 @@ class FormManageProjectController extends React.Component {
     }
 
     componentWillMount() {
+        app.analysisRequestId = app.analysisRequestId || 0;
+
         // fetch current project, all consortia, then patch state
         let projectRefreshed = dbs.get('projects').get(this.props.projectId)
         .then((p) => {
@@ -56,11 +60,11 @@ class FormManageProjectController extends React.Component {
         actions.setProject(null); // clear active project, reduce store mem/complexity
     }
 
-    handleAnalysisChange(evt) {
+    handleAnalysisCtxChange(evt) {
         return actions.setProjectConsortiumAnalysisCtx(event.target.value);
     }
 
-    handleConsortiumChange(event) {
+    handleConsortiumCtxChange(event) {
         const selectedConsortiumId = event.target.value;
         this.setConsortiumContext(selectedConsortiumId);
         return this.indexConsortiumAnalysesBySha();
@@ -99,6 +103,10 @@ class FormManageProjectController extends React.Component {
             {_id: this.props.project.consortium._id}
         );
         const files = this.props.project.files;
+        analyzeService.analyze({
+            requestId: ++app.analysisRequestId,
+            files
+        });
     }
 
     indexConsortiumAnalysesBySha() {
@@ -219,8 +227,8 @@ class FormManageProjectController extends React.Component {
                 ref="form-manage-project"
                 {...this.props}
                 projectModel={this.project}
-                handleConsortiumChange={this.handleConsortiumChange.bind(this)}
-                handleAnalysisChange={this.handleAnalysisChange.bind(this)}
+                handleConsortiumCtxChange={this.handleConsortiumCtxChange.bind(this)}
+                handleAnalysisCtxChange={this.handleAnalysisCtxChange.bind(this)}
                 handleFileDelete={this.handleFileDelete.bind(this)}
                 handleFileSearch={this.handleFileSearch.bind(this)}
                 handleSubmitAnalyze={this.handleSubmitAnalyze.bind(this)}

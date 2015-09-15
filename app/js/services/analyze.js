@@ -1,90 +1,66 @@
-var fs = require('fs');
-var ipc = require('ipc');
-var path = require('path');
-var _ = require('lodash');
-var FreeSurfer = require('freesurfer-parser');
-var osr = require('coinstac-distributed-algorithm-set').oneShotRegression;
+/**
+ * @package analysis
+ * render process i/o interface for analysis requests requests
+ * between main & render process
+ *
+ * @property {array} inprocess set of inprocess requests
+ *
+ */
 
-ipc.on('analyze-files', function(event, request) {
-    var result;
-    var roiPromises;
-    var analysisMeta = {
-        predictors: ['CortexVol'],
-        getDependentVars: function(file) {
-            // return true if file is for a control
-            return !!file.tags.control;
-        }
-    };
+import ipc from 'ipc';
+import _ from 'lodash';
+import EventEmitter from 'event-emitter';
 
-    /**
-     * get input to oneShotRegression analysis from roi values and files
-     * @param  {object} rois object of ROIs and volumes parsed from file
-     * @param  {object} fileMeta metadata about the file
-     * @return {object} object with predictors and dependentVar props
-     */
-    var getAnalysisInputs = function(rois, file) {
-        var predictorKeys = analysisMeta.predictors;
-        var predictors = _.map(predictorKeys, function(res, roiName) {
-            if (_.undefined(res[roiName])) {
-                throw new ReferenceError(['Could not locate',
-                    roiName,
-                    'in data for file',
-                    path.join(file.dirname, file.filename)
-                ].join(' '));
-            }
+class Analyze {
 
-            return rois[roiName];
-        });
-
-        return {
-            predictors: predictors,
-            dependentVars: analysisMeta.getDependentVars(file)
-        };
-    };
-
-    /**
-     * send result over ipc
-     * @param  {any} result the result object to send
-     * @return {none}        none
-     */
-    var sendResult = function(result) {
-        event.sender.send('files-analyzed', {
-            requestId: request.requestId,
-            result: result
-        });
-    };
-
-    if (!request.filePaths) {
-        result.error = new Error('No files received via IPC');
-        console.log(result.error.message);
-        sendResult(result);
-        return;
+    constructor() {
+        this.inprocess = [];
+        this.emitter = EventEmitter();
+        ipc.on('files-analyzed', this.handleAnalyzed.bind(this));
     }
 
-    roiPromises = request.files.map(function readAndParseFiles(file) {
-        var filePath = path.join(file.dirname, file.filename);
-        return fs.readFileAsync(filePath)
-            .then(function parseFile(data) {
-                var str = data.toString();
-                return new FreeSurfer({string: string});
-            })
-            .then(_.partialRight(getAnalysisInputs, file));
-    });
+    /**
+     * listen to files-analyzed events
+     * @param {function} callback receives a single `results` object.
+     *     See ./main/services/analyze.js for object format
+     */
+    addChangeListener(callback) {
+        this.emitter.on('change', callback);
+    }
 
-    Promise.all(roiPromises)
-        .then(function computeRegression(analysisInputs) {
-            var predictors = _.pluck(analysisInputs, 'predictors');
-            var response = _.pluck(analysisInputs, 'dependentVars');
-            var regressor = _.range(1, predictors[0].length, 0);
-            var osrResult = osr.objective(regressor, predictors, response);
-            result = {
-                fileShas: _.pluck(files, 'sha'),
-                result: osrResult
-            };
-        })
-        .catch(function(err) {
-            result.error = err;
-            console.log('Error reading and parsing file: ', error.message);
-            sendResult(result);
+    removeChangeListener(callback) {
+        this.emitter.off('change', callback);
+    }
+
+    /**
+     * send request to analyze files
+     * @param  {object} request
+     * @option {array}  files array of files of form `file`.  See models/file.js
+     * @option {number} requestId recommended requestId so that render process
+     *     may easily identify analyze requests from one another
+     * @return {undefined}
+     */
+    analyze(request) {
+        if (!request.files || !Array.isArray(request.files)) {
+            throw new ReferenceError('`files` set required');
+        }
+        if (!request.requestId) {
+            throw new ReferenceError('use `requestId` to identify async analyze requests');
+        }
+        this.inprocess.push(request);
+        ipc.send('analyze-files', request);
+    }
+
+    handleAnalyzed(results) {
+        if (!results.hasOwnProperty('requestId')) {
+            throw new ReferenceError('analyzed response missing `requestId`');
+        }
+        this.inprocess = _.filter(this.inprocess, (req) => {
+            return req !== results.requestId;
         });
-});
+        this.emitter.emit('change', results);
+    }
+
+};
+
+export default new Analyze();

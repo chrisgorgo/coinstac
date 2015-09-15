@@ -5,8 +5,23 @@ var _ = require('lodash');
 var FreeSurfer = require('freesurfer-parser');
 var osr = require('coinstac-distributed-algorithm-set').oneShotRegression;
 
+/**
+ * analyze files requested from render process
+ * post-analysis, emits event with results of object of form
+ *     {
+ *         requestId: {number},
+ *         results: {
+ *             result: {output, from, analysis, routine}
+ *             fileShas: [array, of, shas]
+ *         },
+ *         error: { ... serialized error, if applicable ... }
+ *     }
+ * @param  {event} event
+ * @param  {object} request object of form {requestId: number, files: [set, of, files (ref models/file.js)]}
+ * @return {undefined}
+ */
 ipc.on('analyze-files', function(event, request) {
-    var result;
+    var result = {};
     var roiPromises;
     var analysisMeta = {
         predictors: ['CortexVol'],
@@ -54,7 +69,7 @@ ipc.on('analyze-files', function(event, request) {
         });
     };
 
-    if (!request.filePaths) {
+    if (!request.files) {
         result.error = new Error('No files received via IPC');
         console.log(result.error.message);
         sendResult(result);
@@ -66,7 +81,7 @@ ipc.on('analyze-files', function(event, request) {
         return fs.readFileAsync(filePath)
             .then(function parseFile(data) {
                 var str = data.toString();
-                return new FreeSurfer({string: string});
+                return new FreeSurfer({string: str});
             })
             .then(_.partialRight(getAnalysisInputs, file));
     });
@@ -83,8 +98,12 @@ ipc.on('analyze-files', function(event, request) {
             };
         })
         .catch(function(err) {
-            result.error = err;
-            console.log('Error reading and parsing file: ', error.message);
+            result.error = {
+                message: err.message,
+                trace: err.trace
+            };;
+            console.error('Error reading and parsing file: ', err.message);
+            console.error(err.trace);
             sendResult(result);
         });
 });
