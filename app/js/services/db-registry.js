@@ -8,13 +8,13 @@ var app = require('ampersand-app');
 
 var appDirectory = require('../../common/utils/app-directory');
 
+var LOCAL_STORES = ['projects'];
+var REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
+var REMOTE_STORES_SYNC_OUT = ['consortium-', 'consortiameta'];
+
 Pouchy.PouchDB.defaults({
     prefix: appDirectory
 });
-
-var LOCAL_STORES = ['projects'];
-var REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
-var REMOTE_STORES_SYNC_OUT = ['consortium-'];
 
 var REMOTE_CONNECTION_DEFAULTS = {
     protocol: config.db.remote.protocol,
