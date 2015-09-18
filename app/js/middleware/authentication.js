@@ -1,7 +1,10 @@
+import _ from 'lodash';
 import app from 'ampersand-app';
-import auth from './auth';
-import * as allActions from '../actions/'
 import { bindActionCreators } from 'redux';
+
+import * as allActions from '../actions/'
+import auth from '../services/auth';
+
 let cachedActions;
 
 const notifyAuthRequired = _.debounce(() => {
@@ -11,25 +14,12 @@ const notifyAuthRequired = _.debounce(() => {
     });
 }, 500);
 
-/**
- * Logs all actions and states after they are dispatched.
- */
-export const logger = store => next => action => {
-    console.group(action.type);
-    console.info('dispatching', action);
-    let result = next(action);
-    console.log('next state', store.getState());
-    console.groupEnd(action.type);
-    return result;
-};
-
-
 /*
  * asserts that user is logged in or has auth in persistent storage in order
  * to use application. if app is just booting and auth is not yet in state,
  * set the auth
  */
-export const authentication = store => next => action => {
+const authentication = store => next => action => {
     const actions = cachedActions || bindActionCreators(allActions, store.dispatch);
     let result;
     // proceed on as usual if we are already logged on, or if we
@@ -52,3 +42,5 @@ export const authentication = store => next => action => {
     result = next(action);
     return result;
 };
+
+export default authentication;
