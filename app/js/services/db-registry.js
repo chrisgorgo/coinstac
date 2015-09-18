@@ -2,6 +2,7 @@
 import PouchWrapper from 'pouchdb-wrapper';
 import config from 'config';
 import _ from 'lodash';
+import url from 'url';
 
 const LOCAL_STORES = ['projects'];
 const REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
@@ -32,15 +33,20 @@ window.log = function() {
 
 /**
  * gets an existing or new instance of a db
- * @param  {string} name
+ * @param  {string} nameOrUrl name of db or url to remote db
  * @return {PouchW}
  */
-dbs.get = function(name) {
-    name = _.kebabCase(name);
-    if (dbs.registery[name]) {
-        return dbs.registery[name];
+dbs.get = function(nameOrUrl) {
+    let config = {};
+    if (nameOrUrl.match(/^http/) || nameOrUrl.match(/^\//)) {
+        config = { url: nameOrUrl };
+    } else {
+        config = { name: nameOrUrl };
     }
-    return dbs.register({ name });
+    if (dbs.registery[nameOrUrl]) {
+        return dbs.registery[nameOrUrl];
+    }
+    return dbs.register(config);
 }
 
 /**
@@ -50,20 +56,13 @@ dbs.get = function(name) {
  * @return {PouchWrapper} database instance
  */
 dbs.register = function(opts) {
-    if (!opts.name) {
-        throw new ReferenceError('database registration requires `name` property');
-    }
-
+    var dbConnStr = opts.name || opts.url;
     // assert db can register, and configure its domain
-    if (LOCAL_STORES.some(store => { return _.contains(opts.name, store); })) {
+    if (LOCAL_STORES.some(format => { return _.contains(dbConnStr, format); })) {
         // pass. `name` only shall yield local database
-    } else if (REMOTE_STORES_SYNC_OUT.some(store => { return _.contains(opts.name, store); })) {
-        opts.conn = _.clone(REMOTE_CONNECTION_DEFAULTS);
-        opts.conn.pathname = opts.name;
+    } else if (REMOTE_STORES_SYNC_OUT.some(format => { return _.contains(dbConnStr, format); })) {
         opts.replicate = 'both'; // @TODO outbound replications to happen manually using `replicate.to()`
-    } else if (REMOTE_STORES_SYNC_IN.some(store => { return _.contains(opts.name, store); })) {
-        opts.conn = _.clone(REMOTE_CONNECTION_DEFAULTS);
-        opts.conn.pathname = opts.name;
+    } else if (REMOTE_STORES_SYNC_IN.some(format => { return _.contains(dbConnStr, format); })) {
         opts.replicate = 'in';
     } else {
         throw new ReferenceError(`database ${name} does not fit LOCAL or REMOTE database constraints`);

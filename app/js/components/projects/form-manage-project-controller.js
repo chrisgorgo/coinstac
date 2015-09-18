@@ -79,7 +79,7 @@ class FormManageProjectController extends React.Component {
             });
         }
         const fileShas = result.data.fileShas;
-        const cDb = dbs.get('consortium-' + this.props.project.consortium._id);
+        const cDb = dbs.get(this.props.project.consortium.dbUrl);
         result._id = sha1(fileShas.sort().join(''));
         return cDb.all().then(docs => {
             // @TODO test if docs submitted are a subset of existing analysis
