@@ -9,7 +9,7 @@ export default class DashboardConsortia extends React.Component {
         super(props);
         this.state = { consortia: [] };
     }
-    componentDidMount() {
+    componentWillMount() {
         Consortium.all()
             .then(consortia => this.setState({ consortia }))
             .catch(err => console.error(err));
