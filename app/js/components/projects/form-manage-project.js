@@ -48,7 +48,7 @@ export default class FormManageProject extends React.Component {
                     type="select"
                     label="Consortia:"
                     onChange={this.props.handleConsortiumCtxChange} >
-                    <option disabled key="0">Choose consortium…</option>
+                    <option key="0">Choose consortium…</option>
                     {consortia.map(consortium => {
                         const hasAnalyses = consortium.analyses && consortium.analyses.length;
                         const isSelected = project.defaultConsortiumId === consortium._id;

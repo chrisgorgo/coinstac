@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import app from 'ampersand-app';
+import sha1 from 'sha-1';
+import Errio from 'errio';
 import React from 'react';
 import Project from '../../models/project.js';
 import dbs from '../../services/db-registry.js';
@@ -30,7 +32,9 @@ class FormManageProjectController extends React.Component {
 
     componentDidMount() {
         this.saveFile = this.saveFile.bind(this); // prebind for easy listener removal
+        this.handleAnalyzed = this.handleAnalyzed.bind(this);
         fileService.addChangeListener(this.saveFile);
+        analyzeService.addChangeListener(this.handleAnalyzed);
     }
 
     componentWillMount() {
@@ -56,8 +60,49 @@ class FormManageProjectController extends React.Component {
     }
 
     componentWillUnmount() {
+        analyzeService.removeChangeListener(this.handleAnalyzed);
         fileService.removeChangeListener(this.saveFile);
         actions.setProject(null); // clear active project, reduce store mem/complexity
+    }
+
+    handleAnalyzed(result) {
+        let { error, data } = result;
+        if (error) {
+            error = Errio.parse(error);
+            let msg = error.message;
+            if (error.data && error.data.file) {
+                msg = msg + ` (file: ${error.data.file.filename})`;
+            }
+            return app.notifications.push({
+                message: `Failed to analyze files: ${msg}`,
+                level: 'error'
+            });
+        }
+        const fileShas = result.data.fileShas;
+        const cDb = dbs.get('consortium-' + this.props.project.consortium._id);
+        result._id = sha1(fileShas.sort().join(''));
+        return cDb.all().then(docs => {
+            // @TODO test if docs submitted are a subset of existing analysis
+            // @TODO test if docs submitted are a superset of existing analysis
+            // @TODO test if focs are sameset/diffset
+        }).then(() => {
+            return cDb.save(result).then(d => {
+                return app.notifications.push({
+                    message: `Analysis request ${result.requestId} complete!`,
+                    level: 'success'
+                });
+            });
+        }).catch(err => {
+            let msg = 'Unable to store completed analysis';
+            if (err.status === 409) {
+                msg = 'Analysis over this fileset already submitted';
+            }
+            return app.notifications.push({
+                message: msg,
+                level: 'error'
+            });
+        });
+
     }
 
     handleAnalysisCtxChange(evt) {
@@ -97,7 +142,6 @@ class FormManageProjectController extends React.Component {
     }
 
     handleSubmitAnalyze() {
-        debugger;
         const submitToConsortium = _.find(
             this.props.consortia,
             {_id: this.props.project.consortium._id}
@@ -105,7 +149,12 @@ class FormManageProjectController extends React.Component {
         const files = this.props.project.files;
         analyzeService.analyze({
             requestId: ++app.analysisRequestId,
+            predictors: ['CortexVol'], // @TODO make part of analysis definition
             files
+        });
+        app.notifications.push({
+            message: `Analysis request ${app.analysisRequestId} dispatched!`,
+            level: 'info'
         });
     }
 

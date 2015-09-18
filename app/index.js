@@ -1,9 +1,7 @@
 'use strict';
-require('./js/services/promise-uncaught-polyfill')(global);
+require('./main/bootstrap.js')
 var app = require('app');
 var BrowserWindow = require('browser-window');
-var fs = require('fs');
-Promise.promisifyAll(fs);
 
 var opts = require('nomnom')
    .option('development', {

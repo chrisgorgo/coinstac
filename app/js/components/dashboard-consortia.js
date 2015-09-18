@@ -11,11 +11,7 @@ export default class DashboardConsortia extends React.Component {
     }
     componentDidMount() {
         consortia.all()
-            .then(consortia => this.setState({ consortia }))
-            .catch((err) => {
-                debugger;
-                console.error(err);
-            });
+            .then(consortia => this.setState({ consortia }));
     }
     render() {
         return (

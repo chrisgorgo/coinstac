@@ -87,7 +87,6 @@ const Auth = {
             data,
         })
             .then(response => {
-                debugger;
                 return response.data.data[0]
             })
             .then(Auth.setAuthResponse)

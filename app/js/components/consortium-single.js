@@ -35,9 +35,7 @@ export default class ConsortiumSingle extends React.Component {
             }
             this.state.consortium = new Consortium(consortium);
             this.setState(this.state);
-        }.bind(this)).catch(function(err) {
-            debugger; // handle case when consortium not found, which is innnsannnne!!!
-        });
+        }.bind(this));
     }
 
     componentWillUnmount() {
@@ -62,7 +60,6 @@ export default class ConsortiumSingle extends React.Component {
             url: config.api.url + '/coinstac/consortia',
             data: tConsortium
         }).then(function(response) {
-            debugger; // test for rev?
             this.state.consortium._rev = body.rev;
             this.setState(this.state);
         }.bind(this)).catch(function(err) {
