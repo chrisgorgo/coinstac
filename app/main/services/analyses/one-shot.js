@@ -76,10 +76,6 @@ module.exports = function(request) {
             var response = _.pluck(analysisInputs, 'dependentVars');
             var regressor = _.range(1, predictors[0].length + 1, 0);
             var minimizedRegressors = osr.minimize(regressor, predictors, response);
-            result = {
-                fileShas: _.pluck(request.files, 'sha'),
-                result: _.zipObject(analysisMeta.predictors, minimizedRegressors)
-            };
-            return result;
+            return _.zipObject(analysisMeta.predictors, minimizedRegressors);
         });
 };

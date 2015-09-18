@@ -2,6 +2,7 @@
 var ipc = require('ipc');
 var oneShot = require('./analyses/one-shot.js');
 var Errio = require('errio');
+var _ = require('lodash');
 
 /**
  * analyze files requested from render process
@@ -26,13 +27,18 @@ ipc.on('analyze-files', function(event, request) {
             err = Errio.stringify(err);
             console.dir(err);
         }
+        console.log('emitting result: ');
+        console.dir(result);
         event.sender.send('files-analyzed', {
             requestId: request.requestId,
+            fileShas: _.pluck(request.files, 'sha'),
             data: result,
             error: err
         });
     };
 
+    console.log('analyze-files request: ');
+    console.dir(request);
     var result = oneShot(request);
     result.then(function(result) {
         return sendResult(null, result);

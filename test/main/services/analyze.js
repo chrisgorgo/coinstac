@@ -18,7 +18,7 @@ test('main process analyze::one-shot', function(t) {
     });
 
 
-    t.plan(4);
+    t.plan(3);
 
     // test valid one-shot file inputs
     oneShot({
@@ -26,12 +26,7 @@ test('main process analyze::one-shot', function(t) {
         predictors: ['CortexVol'],
         files: [ testFile1.serialize(), testFile2.serialize() ],
     }).then(function(data) {
-        if (data.error) {
-            t.fail('one-shot valid inputs produced error');
-            return console.error(data.error.message);
-        }
-        t.equal(1, Object.keys(data.result).length, 'produces regressor set of proper length');
-        t.equal(testFile1.sha, _.get(data, 'fileShas[0]'), 'fileShas returned');
+        t.equal(1, Object.keys(data).length, 'produces regressor set of proper length');
     })
 
     // test invalid one-shot file inputs

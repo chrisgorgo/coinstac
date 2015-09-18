@@ -78,7 +78,7 @@ class FormManageProjectController extends React.Component {
                 level: 'error'
             });
         }
-        const fileShas = result.data.fileShas;
+        const fileShas = result.fileShas;
         const cDb = dbs.get(this.props.project.consortium.dbUrl);
         result._id = sha1(fileShas.sort().join(''));
         return cDb.all().then(docs => {
