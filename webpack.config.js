@@ -23,6 +23,7 @@ module.exports = {
             ipc: 'commonjs ipc',
             config: 'commonjs config',
             sha: 'commonjs sha',
+            errio: 'commonjs errio',
             path: 'commonjs path',
             remote: 'commonjs remote'
         }

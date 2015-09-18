@@ -1,6 +1,12 @@
 'use strict';
 module.exports = function(root) {
     var app = require('ampersand-app'); // @note - only available in rendering process
+
+    process.on('unhandledRejection', function(reason, p) {
+        console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
+        // application specific logging, throwing an error, or other logic here
+    });
+
     root.Promise = require('bluebird');
     root.Promise.longStackTraces();
 

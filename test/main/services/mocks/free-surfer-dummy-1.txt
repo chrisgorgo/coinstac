@@ -1,5 +1,5 @@
 Measure:volume	M12345678_20151001
-Left-Lateral-Ventricle	4362.5
+Left-Lateral-Ventricle	1
 Left-Inf-Lat-Vent	304.7
 Left-Cerebellum-White-Matter	20325.7
 Left-Cerebellum-Cortex	45281.5
@@ -65,4 +65,4 @@ lhSurfaceHoles	85
 rhSurfaceHoles	68
 SurfaceHoles	153
 EstimatedTotalIntraCranialVol	1.39843e+06
-stripMe	junk
+stripMe	0.0

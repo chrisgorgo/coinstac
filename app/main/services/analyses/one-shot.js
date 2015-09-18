@@ -4,29 +4,28 @@ var _ = require('lodash');
 var FreeSurfer = require('freesurfer-parser');
 var osr = require('coinstac-distributed-algorithm-set').oneShotRegression;
 
-/**
- * analyze files requested from render process
- * post-analysis, emits event with results of object of form
- *     {
- *         requestId: {number},
- *         results: {
- *             result: {output, from, analysis, routine}
- *             fileShas: [array, of, shas]
- *         },
- *         error: { ... serialized error, if applicable ... }
- *     }
- * @param  {event} event
+/*
  * @param  {object} request object of form {requestId: number, files: [set, of, files (ref models/file.js)]}
  * @return {undefined}
  */
-module.exports = function(event, request) {
+module.exports = function(request) {
     var result = {};
     var roiPromises;
+    if (!request) {
+        throw new ReferenceError('no request config provided');
+    }
+    if (!request.predictors || !_.isArray(request.predictors)) {
+        throw new ReferenceError('request must contain array of ROI predictors');
+    }
+    if (!request.files) {
+        throw new ReferenceError('No files received via IPC');
+    }
+
     var analysisMeta = {
-        predictors: ['rhCortexVol', 'CortexVol'],
+        predictors: request.predictors,
         getDependentVars: function(file) {
             // return true if file is for a control
-            return !!_.get(file, 'tags.control');
+            return _.get(file, 'tags.control') ? 0 : 1;
         }
     };
 
@@ -39,7 +38,8 @@ module.exports = function(event, request) {
     var getAnalysisInputs = function(rois, file) {
         var predictors = _.map(analysisMeta.predictors, function(roiName) {
             if (_.isUndefined(rois[roiName])) {
-                throw new ReferenceError(['Could not locate',
+                throw new ReferenceError([
+                    'Could not locate',
                     roiName,
                     'in data for file',
                     path.join(file.dirname, file.filename)
@@ -55,56 +55,31 @@ module.exports = function(event, request) {
         };
     };
 
-    /**
-     * send result over ipc
-     * @param  {any} result the result object to send
-     * @return {none}        none
-     */
-    var sendResult = function(result) {
-        event.sender.send('files-analyzed', {
-            requestId: request.requestId,
-            result: result
-        });
-    };
-
-    if (!request.files) {
-        result.error = new Error('No files received via IPC');
-        console.log(result.error.message);
-        sendResult(result);
-        return;
-    }
-
     roiPromises = request.files.map(function readAndParseFiles(file) {
         var filePath = path.join(file.dirname, file.filename);
         return fs.readFileAsync(filePath)
             .then(function parseFile(data) {
-                debugger;
                 var str = data.toString();
                 return new FreeSurfer({string: str});
             })
-            .then(_.partialRight(getAnalysisInputs, file));
+            .then(_.partialRight(getAnalysisInputs, file))
+            .catch(function addFileMetaToError(err) {
+                err.data = err.data ||  {};
+                _.assign(err.data, {file: file});
+                throw err;
+            });
     });
 
-    Promise.all(roiPromises)
+    return Promise.all(roiPromises)
         .then(function computeRegression(analysisInputs) {
             var predictors = _.pluck(analysisInputs, 'predictors');
             var response = _.pluck(analysisInputs, 'dependentVars');
             var regressor = _.range(1, predictors[0].length + 1, 0);
-            var osrResult = osr.objective(regressor, predictors, response);
-            debugger;
+            var minimizedRegressors = osr.minimize(regressor, predictors, response);
             result = {
                 fileShas: _.pluck(request.files, 'sha'),
-                result: osrResult
+                result: _.zipObject(analysisMeta.predictors, minimizedRegressors)
             };
-            sendResult(result);
-        })
-        .catch(function(err) {
-            result.error = {
-                message: err.message,
-                trace: err.trace
-            };;
-            console.error('Error reading and parsing file: ', err.message);
-            console.error(err.trace);
-            sendResult(result);
+            return result;
         });
 };

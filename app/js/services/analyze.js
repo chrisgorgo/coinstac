@@ -1,6 +1,6 @@
 /**
  * @package analysis
- * render process i/o interface for analysis requests requests
+ * render-process i/o interface to main-process for analysis requests
  * between main & render process
  *
  * @property {array} inprocess set of inprocess requests
