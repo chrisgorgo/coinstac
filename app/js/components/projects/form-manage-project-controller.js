@@ -55,14 +55,12 @@ class FormManageProjectController extends React.Component {
         .catch(err => console.error(err));
 
         Promise.all([projectRefreshed, consortiaRefreshed])
-        .then((r) => this.setConsortiumContext(this.project.defaultConsortiumId))
-        .then((r) => this.indexConsortiumAnalysesBySha());
-    }
+        .then(r => this.setConsortiumContext(this.project.defaultConsortiumId));    }
 
     componentWillUnmount() {
         analyzeService.removeChangeListener(this.handleAnalyzed);
         fileService.removeChangeListener(this.saveFile);
-        actions.setProject(null); // clear active project, reduce store mem/complexity
+        this.props.dispatch(allActions.setProject(null));
     }
 
     handleAnalyzed(result) {
@@ -112,7 +110,6 @@ class FormManageProjectController extends React.Component {
     handleConsortiumCtxChange(event) {
         const selectedConsortiumId = event.target.value;
         this.setConsortiumContext(selectedConsortiumId);
-        return this.indexConsortiumAnalysesBySha();
     }
 
     handleFileDelete(file, data, rowIndex, property) {
@@ -155,18 +152,6 @@ class FormManageProjectController extends React.Component {
         app.notifications.push({
             message: `Analysis request ${app.analysisRequestId} dispatched!`,
             level: 'info'
-        });
-    }
-
-    indexConsortiumAnalysesBySha() {
-        actions.setProjectAnalysesBySha(null);
-        if (!this.props.project.consortium) {
-            return actions.setProjectAnalysesBySha({}); // only index when a consortium selected
-        }
-        return dbs.get('consortium-' + this.props.project.consortium._id).all()
-        .then(docs => {
-            console.info('@TODO - determine if _doc_ is an analyses result or not');
-            actions.setProjectAnalysesBySha(_.indexBy(docs, 'sha'));
         });
     }
 
@@ -225,9 +210,37 @@ class FormManageProjectController extends React.Component {
 
     setConsortiumContext(consortiumId) {
         const consortium = _.find(this.props.consortia, {_id: consortiumId });
-        if (consortium) {
-            actions.setProjectConsortiumCtx(consortium);
-        }
+        actions.setProjectConsortiumCtx(consortium);
+    }
+
+    setDefaultAnalysis() {
+        const form = this.refs['form-manage-project'];
+        let analysisId = form.refs.analysis.getValue();
+        let analysisName  = _.result(_.find(this.props.project.consortium.analyses, { 'id': analysisId }), 'label');
+        projectAsyncQueue = projectAsyncQueue.then(() => {
+            const prevDefault = this.props.project.defaultAnalysisId;
+            let project = this.project.serialize();
+            project.defaultAnalysisId = analysisId;
+            dbs.get('projects').save(project)
+            .then(p => {
+                let updatedMsg = `Default analysis set to ${analysisName}`;
+                if (!analysisId) {
+                    updatedMsg = 'Default analysis cleared';
+                }
+                this.project.set(p); // update _rev and defaultConsortiumId!
+                app.notifications.push({
+                    message: updatedMsg,
+                    level: 'success'
+                });
+            });
+        })
+        .catch(err => {
+            console.error(err.message);
+            app.notifications.push({
+                message: `Unable to set default analysis, ${analysisName}`,
+                level: 'error'
+            });
+        });
     }
 
     setDefaultConsortium() {
@@ -285,6 +298,7 @@ class FormManageProjectController extends React.Component {
                 saveFile={this.saveFile.bind(this)}
                 saveProject={this.saveProject.bind(this)}
                 setDefaultConsortium={this.setDefaultConsortium.bind(this)}
+                setDefaultAnalysis={this.setDefaultAnalysis.bind(this)}
                 triggerAddFiles={this.triggerAddFiles.bind(this)}  />
         );
     }

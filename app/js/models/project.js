@@ -23,7 +23,8 @@ var Project = PouchDocument.extend({
     },
     props: {
         name: ['string', true],
-        defaultConsortiumId: ['string', false]
+        defaultConsortiumId: ['string', false],
+        defaultAnalysisId: ['string', false],
     },
     session: {
         _errorName: 'string'
