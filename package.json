@@ -9,12 +9,12 @@
   "dependencies": {
     "ampersand-app": "^1.0.4",
     "ampersand-collection": "^1.5.0",
-    "ampersand-model": "^5.0.3",
+    "ampersand-model": "^6.0.2",
     "ampersand-state-mixin-datatype-iso-date": "^1.0.0",
     "axios": "^0.5.4",
     "babel-core": "^5.6.20",
     "bluebird": "^2.9.34",
-    "bootstrap": "twbs/bootstrap-sass#v3.3.5",
+    "bootstrap": "github:twbs/bootstrap-sass#v3.3.5",
     "chalk": "^1.1.1",
     "coinstac-distributed-algorithm-set": "git+https://github.com/MRN-Code/coinstac-distributed-algorithm-set.git",
     "config": "^1.14.0",
@@ -87,21 +87,22 @@
     "debug": "electron --debug-brk=5858 . --development",
     "start": "npm run shownotes && electron . --development",
     "shownotes": "node ./dev-notes.js",
-    "postinstall": "./node_modules/.bin/electron-rebuild"
+    "postinstall": "electron-rebuild"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MRN-Code/node_boilerplate.git"
+    "url": "git+https://github.com/MRN-Code/coinstac.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MRN-Code/node_boilerplate/issues"
+    "url": "https://github.com/MRN-Code/coinstac/issues"
   },
   "pre-commit": [
     "lint",
     "validate",
     "test"
   ],
-  "homepage": "https://github.com/MRN-Code/node_boilerplate"
+  "homepage": "https://github.com/MRN-Code/coinstac",
+  "keywords": []
 }
