@@ -7,9 +7,30 @@ module.exports = Model.extend({
     apiRoot: config.api.url,
     idAttribute: 'path',
     props: {
-        filename: ['string', true],
-        dirname: ['string', true],
-        sha: ['string', true]
+        filename: {
+            type: 'string',
+            required: true,
+            allowNull: false
+        },
+        dirname: {
+            type: 'string',
+            required: true,
+            allowNull: false
+        },
+        sha: {
+            type: 'string',
+            required: true,
+            allowNull: false
+        },
+        tags: {
+            type: 'object',
+            required: true,
+            default: function() {
+                return {
+                    control: false
+                };
+            }
+        }
     },
     derived: {
         path: {
@@ -18,8 +39,5 @@ module.exports = Model.extend({
                 return path.join(this.dirname, this.filename);
             }
         }
-    },
-    session: {
-        db: 'object' // pouch-wrapper instance
     }
 });
