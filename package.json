@@ -21,6 +21,7 @@
     "errio": "^1.2.1",
     "event-emitter": "^0.3.3",
     "freesurfer-parser": "git+https://github.com/MRN-Code/freesurfer-parser.git",
+    "glob": "^5.0.14",
     "jade": "^1.11.0",
     "lodash": "^3.10.0",
     "md5": "^2.0.0",
