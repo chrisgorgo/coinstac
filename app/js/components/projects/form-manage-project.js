@@ -8,7 +8,6 @@ export default class FormManageProject extends React.Component {
         const { consortia, project, projectModel } = this.props;
         const consortium = project && project.consortium;
         const selectedAnalysis = consortium && consortium.ui_selectedAnalysis;
-        console.log(consortium, consortium && consortium.ui_selectedAnalysis)
         let analysisInput;
         let addFilesButton;
 
@@ -53,59 +52,55 @@ export default class FormManageProject extends React.Component {
             </div>
         );
 
-        // show analysis selector if consoritum & consortium analysis data present
-        if (consortium) {
-            analysisInput = (
-                <div>
-                    <Button className="pull-right"
-                        onClick={this.props.setDefaultAnalysis}
-                        bsSize="xsmall">
-                        <span className="glyphicon glyphicon-floppy-save" aria-hidden="true">&nbsp;</span>
-                        Set as default analysis
-                    </Button>
-                    <Input
-                        ref="analysis"
-                        type="select"
-                        label="Analysis:"
-                        onChange={this.props.handleAnalysisCtxChange} >
-                        <option key="0" value="">Choose analysis…</option>
-                        {consortium.analyses.map(analysis => {
-                            const isSelected = project.defaultAnalysisId === analysis._id;
-                            return (
-                                <option
-                                    key={analysis.id}
-                                    value={analysis.id}>
-                                    {analysis.label}
-                                </option>
-                            );
-                        })}
-                    </Input>
-                </div>
-            );
-        }
-
-        // show add files button if all file-table contexts are set
-        if (selectedAnalysis) {
-            addFilesButton = (
-                <div className="page-header clearfix">
-                    <Button
-                        type="button"
-                        onClick={this.props.triggerAddFiles}
-                        bsStyle="primary"
-                        className="pull-right"
-                        disabled={!consortium}>
-                        <strong>+</strong>
-                        Add File
-                    </Button>
-                </div>
-            );
-        }
-
         return (
             <form onSubmit={this.props.saveProject} className="clearfix">
                 {formBase}
                 {analysisInput}
-                {addFilesButton}
+
+                {consortium ?
+                    (<div>
+                        <Button className="pull-right"
+                            onClick={this.props.setDefaultAnalysis}
+                            bsSize="xsmall">
+                            <span className="glyphicon glyphicon-floppy-save" aria-hidden="true">&nbsp;</span>
+                            Set as default analysis
+                        </Button>
+                        <Input
+                            ref="analysis"
+                            type="select"
+                            label="Analysis:"
+                            onChange={this.props.handleAnalysisCtxChange} >
+                            <option key="0" value="">Choose analysis…</option>
+                            {consortium.analyses.map(analysis => {
+                                const isSelected = project.defaultAnalysisId === analysis.id;
+                                return (
+                                    <option
+                                        key={analysis.id}
+                                        value={analysis.id}
+                                        selected={isSelected}>
+                                        {analysis.label}
+                                    </option>
+                                );
+                            })}
+                        </Input>
+                    </div>) : ''
+                }
+
+                {selectedAnalysis ?
+                    (
+                        <div className="page-header clearfix">
+                            <Button
+                                type="button"
+                                onClick={this.props.triggerAddFiles}
+                                bsStyle="primary"
+                                className="pull-right"
+                                disabled={!consortium}>
+                                <strong>+</strong>
+                                Add File
+                            </Button>
+                        </div>
+                    ) : ''
+                }
 
                 {selectedAnalysis ?
                     (
@@ -114,8 +109,7 @@ export default class FormManageProject extends React.Component {
                             consortium={consortium}
                             handleFileSearch={this.props.handleFileSearch}
                             handleFileDelete={this.props.handleFileDelete} />
-                    ) :
-                    <span>Please select a consortium & analysis</span>
+                    ) : <span>Please select a consortium & analysis</span>
                 }
 
                 <ButtonToolbar className="pull-right">
