@@ -306,8 +306,7 @@ class FormManageProjectController extends React.Component {
                 saveProject={this.saveProject.bind(this)}
                 setDefaultConsortium={this.setDefaultConsortium.bind(this)}
                 setDefaultAnalysis={this.setDefaultAnalysis.bind(this)}
-                triggerAddFiles={this.triggerAddFiles.bind(this)}
-                ui_selectedAnalysis={this.props.ui_selectedAnalysis} />
+                triggerAddFiles={this.triggerAddFiles.bind(this)} />
         );
     }
 };
