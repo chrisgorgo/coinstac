@@ -72,7 +72,7 @@ export default class FormManageProject extends React.Component {
                             onChange={this.props.handleAnalysisCtxChange} >
                             <option key="0" value="">Choose analysis…</option>
                             {consortium.analyses.map(analysis => {
-                                const isSelected = project.defaultAnalysisId === analysis.id;
+                                const isSelected = consortium.ui_selectedAnalysis === analysis.id;
                                 return (
                                     <option
                                         key={analysis.id}
