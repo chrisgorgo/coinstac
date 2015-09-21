@@ -55,7 +55,11 @@ class FormManageProjectController extends React.Component {
         .catch(err => console.error(err));
 
         Promise.all([projectRefreshed, consortiaRefreshed])
-        .then(r => this.setConsortiumContext(this.project.defaultConsortiumId));    }
+        .then(r => {
+            this.setConsortiumContext(this.project.defaultConsortiumId);
+            this.setAnalysisCtx(this.project.defaultAnalysisId);
+        });
+    }
 
     componentWillUnmount() {
         analyzeService.removeChangeListener(this.handleAnalyzed);
@@ -104,12 +108,11 @@ class FormManageProjectController extends React.Component {
     }
 
     handleAnalysisCtxChange(evt) {
-        return actions.setProjectConsortiumAnalysisCtx(event.target.value);
+        this.setAnalysisCtx(evt.target.value);
     }
 
-    handleConsortiumCtxChange(event) {
-        const selectedConsortiumId = event.target.value;
-        this.setConsortiumContext(selectedConsortiumId);
+    handleConsortiumCtxChange(evt) {
+        return this.setConsortiumContext(evt.target.value);
     }
 
     handleFileDelete(file, data, rowIndex, property) {
@@ -208,9 +211,13 @@ class FormManageProjectController extends React.Component {
         });
     }
 
+    setAnalysisCtx(analysisId, consortium) {
+        return actions.setProjectConsortiumAnalysisCtx(analysisId);
+    }
+
     setConsortiumContext(consortiumId) {
         const consortium = _.find(this.props.consortia, {_id: consortiumId });
-        actions.setProjectConsortiumCtx(consortium);
+        return actions.setProjectConsortiumCtx(consortium);
     }
 
     setDefaultAnalysis() {
@@ -299,7 +306,8 @@ class FormManageProjectController extends React.Component {
                 saveProject={this.saveProject.bind(this)}
                 setDefaultConsortium={this.setDefaultConsortium.bind(this)}
                 setDefaultAnalysis={this.setDefaultAnalysis.bind(this)}
-                triggerAddFiles={this.triggerAddFiles.bind(this)}  />
+                triggerAddFiles={this.triggerAddFiles.bind(this)}
+                ui_selectedAnalysis={this.props.ui_selectedAnalysis} />
         );
     }
 };
