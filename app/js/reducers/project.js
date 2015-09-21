@@ -15,6 +15,10 @@ export default function reduce(state = initialState, action) {
             return Object.assign({}, state, action.project);
 
         case SET_PROJECT_CONSORTIUM_CTX:
+            if (!action.consortium) {
+                delete state.consortium;
+                return Object.assign({}, state);
+            }
             return Object.assign({}, state, { consortium: action.consortium });
 
         case SET_PROJECT_CONSORTIUM_ANALYSIS_CTX:
