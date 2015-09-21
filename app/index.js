@@ -3,42 +3,7 @@ require('./main/bootstrap.js')
 var app = require('app');
 var BrowserWindow = require('browser-window');
 
-var opts = require('nomnom')
-   .option('development', {
-      abbr: 'dev',
-      flag: true,
-      help: 'run in development mode'
-   })
-   .parse();
-
-if (opts.development) {
-    var spawn = require('child_process').spawn;
-    process.env.COINS_ENV = 'development';
-    console.log('> devmode - booting webpack-dev-server');
-    var wpds = spawn('npm', ['run', 'webpack']);
-    wpds.stdout.on('data', function(data) {
-        console.log('coinstac-webpack-server: ' + data);
-    });
-
-    wpds.stderr.on('data', function(data) {
-        console.error('coinstac-webpack-server [error]: ' + data);
-    });
-
-    wpds.on('close', function(code) {
-        if (code !== 0) {
-            console.log('coinstac-webpack-server [fatal] ' + code);
-        }
-    });
-
-    // @TODO why can't we just require in the server. it errors on node-sass?
-    // console.dir(process.cwd());
-    // require('../webpack-server.js');
-
-}
-
 require('./build-index.js'); // generate index.html
-
-// Report crashes to our server.
 require('crash-reporter').start();
 
 // Keep a global reference of the window object, if you don't, the window will
