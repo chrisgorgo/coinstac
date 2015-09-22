@@ -1,11 +1,10 @@
 'use strict';
 var _ = require('lodash');
 var path = require('path');
-var oneShot = require(path.join(process.cwd(), 'app/main/services/analyses/one-shot.js'));
 var File = require(path.join(process.cwd(), 'app/js/models/file.js'));
 var test = require('tape');
 
-test('main process analyze::one-shot', function(t) {
+test('model::project', function(t) {
     var f1 = new File({
         filename: 'free-surfer-dummy-1.txt',
         dirname: path.resolve(__dirname, 'mocks'),
