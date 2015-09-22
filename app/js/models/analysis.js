@@ -12,7 +12,8 @@ var Analysis = PouchDocument.extend(isoDateMixin, {
         // _id & _rev specified from PouchDocument
         consortiumId: {
             type: 'string',
-            required: true
+            required: true,
+            allowNull: false
         },
         fileSha: ['string', true],
         complete: ['iso-date', true], // forces dates in ISO 8601 long string
@@ -32,11 +33,7 @@ var Analysis = PouchDocument.extend(isoDateMixin, {
      * Extend serialize to get derived attrs on the cloned obj
     **/
     serialize: function() {
-        var tempSerialized = Model.prototype.serialize.call(this);
-        _.extend(tempSerialized, {
-            _id: this._id
-        });
-        return tempSerialized;
+        return Model.prototype.serialize.call(this, {derived: true});
     }
 });
 

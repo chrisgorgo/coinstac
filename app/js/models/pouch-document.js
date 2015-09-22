@@ -1,9 +1,15 @@
 'use strict';
-var Model = require('ampersand-model');
+var Model = require('./base.js');
 module.exports = Model.extend({
     idAttribute: '_id',
     props: {
-        _id: 'string',
-        _rev: 'string'
+        _id: {
+            type: 'string',
+            required: true
+        },
+        _rev: {
+            type: 'string',
+            required: true
+        },
     }
 });

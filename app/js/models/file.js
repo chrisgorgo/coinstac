@@ -1,5 +1,5 @@
 'use strict';
-var Model = require('ampersand-model');
+var Model = require('./base.js');
 var config = require('config');
 var path = require('path');
 
