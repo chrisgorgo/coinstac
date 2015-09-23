@@ -10,6 +10,7 @@ var factory = function(opts) {
         return new Analysis(opts);
     };
 };
+
 var validOps = function() {
     return {
         _rev: 'testRev123',
@@ -40,5 +41,15 @@ test('model::analysis - predictable _id', function(t) {
     var testSha = a1.fileSha + a1.consortiumId;
     var cmdLineSha = '2b3f1a4fcc9bb59e653a61129af49f16';
     t.equal(a1._id, cmdLineSha, 'md5 _id match');
+    t.end();
+});
+
+test('model::analysis - serialization includes derived', function(t) {
+    var a1 = factory(validOps())();
+    t.deepLooseEqual(
+        a1.serialize(),
+        _.assign(validOps(), { _id: '2b3f1a4fcc9bb59e653a61129af49f16'}),
+        'predictable serialization'
+    );
     t.end();
 });
