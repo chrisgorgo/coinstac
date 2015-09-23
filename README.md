@@ -1,4 +1,5 @@
 # coinstac
+Hi reader!  Don't look at me.  I'm not pretty yet!  COINSTAC docs will come soon :)
 
 ## install
 - install `couchdb` if developing on a local database
