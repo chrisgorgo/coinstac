@@ -19,6 +19,7 @@ export default class FormManageProject extends React.Component {
                     label="Name:"
                     name="name"
                     value={this.props.project.name}
+                    bsStyle={this.props.fieldNameClass}
                     onChange={evt => this.props.handleProjectModelChange(evt, this.refs.name)} />
 
                 <Button className="pull-right"

@@ -12,6 +12,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as allActions from '../../actions/index';
 import FormManageProject from './form-manage-project';
+import fieldStateToBsClass from '../../utils/field-state-to-bs-class';
 let requestId = 0;
 let actions;
 let projectAsyncQueue = Promise.resolve();
@@ -52,12 +53,26 @@ class FormManageProjectController extends React.Component {
 
         let consortiaRefreshed = consortia.all()
         .then(consortia => actions.setConsortia(consortia))
-        .catch(err => console.error(err));
+        .catch(err => {
+            app.notifications.push({
+                message: 'Failed to download consortia',
+                level: 'error'
+            })
+            console.error(err);
+            throw err;
+        });
 
         Promise.all([projectRefreshed, consortiaRefreshed])
         .then(r => {
             this.setConsortiumContext(this.project.defaultConsortiumId);
             this.setAnalysisCtx(this.project.defaultAnalysisId);
+        })
+        .catch(err => {
+            app.notifications.push({
+                message: 'Failed to load project',
+                level: 'error'
+            })
+            console.error(err);
         });
     }
 
@@ -137,8 +152,14 @@ class FormManageProjectController extends React.Component {
     }
 
     handleProjectModelChange(event, component) {
-        this.project.set(event.target.name, component.getValue());
-
+        const prop = event.target.name;
+        const value = component.getValue();
+        if (prop === 'name') {
+            actions.setProject({
+                ui_fieldNameState: value ? 'valid' : 'invalid'
+            });
+        }
+        this.project.set(prop, value);
     }
 
     handleSubmitAnalyze() {
@@ -190,14 +211,7 @@ class FormManageProjectController extends React.Component {
         event.preventDefault();
 
         if (!this.project.name) {
-            this.project.set('_errorName', 'Name required', {silent: true});;
-        } else {
-            this.project.set('_errorName', null, {silent: true});;
-        }
-
-        // Show errors if they exist. Otherwise, submit changes.
-        if (this.project._errorName) {
-            return this.project.trigger('change'); // sets project state!
+            throw new TypeError('project attempted to save without a name');
         }
 
         dbs.get('projects').update(this.project.serialize())
@@ -306,7 +320,8 @@ class FormManageProjectController extends React.Component {
                 saveProject={this.saveProject.bind(this)}
                 setDefaultConsortium={this.setDefaultConsortium.bind(this)}
                 setDefaultAnalysis={this.setDefaultAnalysis.bind(this)}
-                triggerAddFiles={this.triggerAddFiles.bind(this)} />
+                triggerAddFiles={this.triggerAddFiles.bind(this)}
+                fieldNameClass={fieldStateToBsClass(this.props.project.ui_fieldNameState)} />
         );
     }
 };
