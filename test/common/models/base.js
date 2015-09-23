@@ -28,7 +28,7 @@ test('model::base - constructor', function(t) {
     var bm = factory(validOps())();
     t.ok(bm, 'constructs with valid input');
 
-    t.throws(factory(), Error, 'errors without content');
+    t.throws(factory(), Error, 'custom `intialize()` forces errors without required attrs');
 
     t.throws(
         factory(_.assign({}, validOps(), { key: 0})), // typeof _id === string
