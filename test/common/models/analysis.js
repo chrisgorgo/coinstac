@@ -7,13 +7,11 @@ var moment = require('moment');
 
 var factory = function(opts) {
     return function() {
-        debugger;
         return new Analysis(opts);
     };
 };
 var validOps = function() {
     return {
-        _id: 'testId123',
         _rev: 'testRev123',
         consortiumId: 'testConsortiumId123',
         fileSha: 'testSha123',
@@ -29,9 +27,18 @@ test('model::analysis - constructor', function(t) {
     t.ok(a1, 'constructs with valid input');
 
     t.throws(
-        factory(_.assign({}, validOps(), { _id: 0})), // typeof _id === string
+        factory(_.assign({}, validOps(), { fileSha: 0})), // typeof _id === string
         Error,
-        'errors on incorrectly formatted content - _id'
+        'errors on incorrectly formatted content - sha'
     );
+    t.end();
+});
+
+test('model::analysis - predictable _id', function(t) {
+    // MD5 ("testSha123testConsortiumId123") = 2b3f1a4fcc9bb59e653a61129af49f16
+    var a1 = factory(validOps())();
+    var testSha = a1.fileSha + a1.consortiumId;
+    var cmdLineSha = '2b3f1a4fcc9bb59e653a61129af49f16';
+    t.equal(a1._id, cmdLineSha, 'md5 _id match');
     t.end();
 });
