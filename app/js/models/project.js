@@ -5,29 +5,17 @@ var config = require('config');
 var dbs = require('../services/db-registry.js');
 
 var Project = PouchDocument.extend({
-    apiRoot: config.api.url,
     initialize: function() {
-        PouchDocument.prototype.initialize.call(this);
+        PouchDocument.prototype.initialize.apply(this, arguments);
         this.on('change:name', this.handleNameChange);
     },
     collections: {
         files: FileCollection
     },
-    handleNameChange: function() {
-        // assert that project `name` has content
-        if (this.name) {
-            this.set('_errorName', null);
-        } else {
-            this.set('_errorName', 'Name required');
-        }
-    },
     props: {
         name: ['string', true],
         defaultConsortiumId: ['string', false],
         defaultAnalysisId: ['string', false],
-    },
-    session: {
-        _errorName: 'string'
     },
     /**
      * Serialize, with support for including derived attrs
