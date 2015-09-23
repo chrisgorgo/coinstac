@@ -35,3 +35,4 @@ npm-debug*
 # Configuration files
 config/*
 !config/default.example.json
+.vscode
