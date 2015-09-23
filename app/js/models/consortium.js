@@ -4,7 +4,6 @@ var PouchDocument = require('./pouch-document.js');
 var config = require('config');
 
 module.exports = PouchDocument.extend({
-    apiRoot: config.api.url,
     props: {
         description: ['string', true],
         label: ['string', true],
@@ -12,8 +11,5 @@ module.exports = PouchDocument.extend({
         users: ['array', true],
         analyses: ['array', true],
         dbUrl: ['string', true]
-    },
-    session: {
-        db: 'object' // pouch-wrapper instance
     }
 });

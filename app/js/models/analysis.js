@@ -54,25 +54,3 @@ var Analysis = PouchDocument.extend(isoDateMixin, {
 });
 
 module.exports = Analysis;
-
-// .: sandbox :.
-// var a1;
-// try {
-//     a1 = new Analysis({
-//         _someInvalidProp: 123,
-//         _id: 23 // shouldnt be a number,
-//     });
-//     console.dir(a1.serialize());
-// } catch(err) {
-//     console.error(err.message);
-//     // pass
-// }
-// var a2 = new Analysis({
-//     consortiumId: 'abc',
-//     sha: '123',
-//     // complete: 'Tue Sep 01 2015 14:01:56 GMT-0700', // makes a biiig fuss if not in ISO 8601 format
-//     complete: require('moment')().format(),
-//     result: { bananas: 'oranges' },
-//     _rev: 'asdf923-sd-2'
-// });
-// console.dir(a2.serialize());
