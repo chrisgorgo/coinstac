@@ -1,6 +1,3 @@
-// @package analysis.js - Analysis Model
-
-// note, using es5 for server compatibility (not that it has to run on the server, but we run `node file.js` to debug and test)
 var _ = require('lodash');
 var Model = require('ampersand-model');
 var PouchDocument = require('./pouch-document'); // &-Model with _id & _rev props
@@ -15,18 +12,37 @@ var Analysis = PouchDocument.extend(isoDateMixin, {
             required: true,
             allowNull: false
         },
-        fileSha: ['string', true],
-        complete: ['iso-date', true], // forces dates in ISO 8601 long string
-        result: ['array', true],
-        username: ['string', true]
+        fileSha: {
+            type: 'string',
+            required: true,
+            allowNull: false
+        },
+        complete: {
+            // forces dates in ISO 8601 long string
+            type: 'iso-date',
+            required: true,
+            allowNull: false
+        },
+        result: {
+            type: 'array',
+            required: true,
+            allowNull: false
+        },
+        username: {
+            type: 'string',
+            required: true,
+            allowNull: false
+        },
     },
     derived: {
         _id: {
             // id should be a unique value representing this file in this consoritum
-            deps: ['sha', 'consortiumId'],
+            deps: ['fileSha', 'consortiumId'],
             fn: function() {
-                return md5(this.sha + this.consortiumId)
-            }
+                return md5(this.fileSha + this.consortiumId)
+            },
+            squash: true,
+            cache: false // remove post https://github.com/AmpersandJS/ampersand-state/pull/196 closure
         }
     },
     /**
