@@ -34,10 +34,3 @@ var Project = PouchDocument.extend({
 });
 
 module.exports = Project;
-
-// .: sandbox :.
-// var p1 = new Project({
-//     _id: 'abc',
-//     files: [{a: 'a'}, {b: 'b'}]
-// });
-// console.log(p1.serialize());
