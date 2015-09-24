@@ -1,5 +1,6 @@
 'use strict';
 import PouchWrapper from 'pouchdb-wrapper';
+import app from 'ampersand-app';
 import config from 'config';
 import _ from 'lodash';
 import url from 'url';
@@ -17,19 +18,24 @@ const REMOTE_CONNECTION_DEFAULTS = {
 let dbs = [];
 dbs.registery = {};
 
+/**
+ * @property {array} names returns an array of db names from the registry
+ */
 Object.defineProperty(dbs, 'names', { get: () => {
     return dbs.map(db => db.name);
 }});
 
 
-// TODO remove window global and live reporting
-window.dbs = dbs;
-window.log = function() {
-    return _.toArray(arguments).forEach((arg, ndx) => {
-        console.info('log ndx: ', ndx);
-        console.dir(arg);
-    });
-};
+// Load db registry helper services onto window in dev
+if (app.isDev) {
+    window.dbs = dbs;
+    window.log = function() {
+        return _.toArray(arguments).forEach((arg, ndx) => {
+            console.info('log ndx: ', ndx);
+            console.dir(arg);
+        });
+    };
+}
 
 /**
  * gets an existing or new instance of a db
