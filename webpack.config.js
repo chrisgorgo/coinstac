@@ -26,7 +26,8 @@ module.exports = {
             sha: 'commonjs sha',
             errio: 'commonjs errio',
             path: 'commonjs path',
-            remote: 'commonjs remote'
+            remote: 'commonjs remote',
+            pouchy: 'commonjs pouchy'
         }
     ],
     plugins: [
