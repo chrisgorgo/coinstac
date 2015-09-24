@@ -3,7 +3,6 @@ var Model = require('./base.js');
 var config = require('config');
 
 module.exports = Model.extend({
-    apiRoot: config.api.url,
     props: {
         username: ['string', true],
         email: ['string', true],
