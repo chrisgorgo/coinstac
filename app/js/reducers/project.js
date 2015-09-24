@@ -1,8 +1,7 @@
 import {
     SET_PROJECT,
     SET_PROJECT_CONSORTIUM_CTX,
-    SET_PROJECT_CONSORTIUM_ANALYSIS_CTX,
-    SET_PROJECT_ANALYSES_BY_SHA
+    SET_PROJECT_CONSORTIUM_ANALYSIS_CTX
 } from '../actions/';
 
 const initialState = {};
@@ -10,9 +9,16 @@ const initialState = {};
 export default function reduce(state = initialState, action) {
     switch (action.type) {
         case SET_PROJECT:
+            if (!action.project) {
+                return; // clear project state
+            }
             return Object.assign({}, state, action.project);
 
         case SET_PROJECT_CONSORTIUM_CTX:
+            if (!action.consortium) {
+                delete state.consortium;
+                return Object.assign({}, state);
+            }
             return Object.assign({}, state, { consortium: action.consortium });
 
         case SET_PROJECT_CONSORTIUM_ANALYSIS_CTX:
@@ -22,13 +28,6 @@ export default function reduce(state = initialState, action) {
             }
             newState.consortium.ui_selectedAnalysis = action.analysisId;
             return newState;
-
-        case SET_PROJECT_ANALYSES_BY_SHA:
-            if (!state.consortium) {
-                return state;  // only set analysesBySha when a consoritum ctx is set
-            }
-            const nextConsortium = Object.assign(state.consortium || {}, { analysesBySha: action.analysesBySha });
-            return Object.assign({}, state, {consortium: nextConsortium });
 
         default:
             return state;
