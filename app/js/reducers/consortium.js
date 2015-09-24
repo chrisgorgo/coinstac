@@ -48,7 +48,9 @@ export default function consortiumReducer(state = {
             });
         case CONSORTIUM_REMOVE_USER:
             return Object.assign({}, state, {
-                users: state.users.filter(user => user.id !== action.userId),
+                users: state.users.filter(user => {
+                    return user.username !== action.username;
+                }),
             });
         case CONSORTIUM_EDIT_LABEL:
             return Object.assign({}, state, {

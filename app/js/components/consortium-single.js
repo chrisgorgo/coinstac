@@ -85,17 +85,16 @@ class ConsortiumSingle extends Component {
 
     render() {
         const {
+            analyses,
             description,
             isLoading,
+            isMember,
             label,
             results,
             tags,
             users,
         } = this.props;
-
-
-        const isMember = true;
-        const { addUser, removeUser } = this.props.actions;
+        const { addUser, removeUser, addAnalysis } = this.props.actions;
         const { showAddAnalysis } = this.state;
         let memberButton;
 
@@ -126,6 +125,20 @@ class ConsortiumSingle extends Component {
             );
         }
 
+        /**
+         * @todo  Move this into the state tree. Probably somewhere in the
+         *        Consortium service? Make to the parent controller element?
+         */
+        function validateAnalysis(analysisLabel = '') {
+            if (analysisLabel.length < 5) {
+                throw new Error('Label must have at least 5 characters')
+            } else if (analyses.some(x => x.label === analysisLabel)) {
+                throw new Error(`Label ${analysisLabel} already exists`);
+            }
+
+            return true;
+        }
+
         return (
             <div className="consortium-single">
                 <h1>{label}</h1>
@@ -143,12 +156,9 @@ class ConsortiumSingle extends Component {
                             onClick={this.toggleShowAddAnalysis}
                             type="button">New Analysis Type</Button>
                         <div className={showAddAnalysis ? null : 'hidden'}>
-                            <hr/>
-                            {/*}<FormAddAnalysis
-                                consortium={consortium}
-                                onCancel={cancelNewAnalysisType}
-                                onSubmit={submitAnalysisType} />
-                            <hr/>*/}
+                            <FormAddAnalysis
+                                onSubmit={addAnalysis}
+                                validate={validateAnalysis} />
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -182,6 +192,7 @@ ConsortiumSingle.propTypes = {
     description: PropTypes.string.isRequired,
     error: PropTypes.string.isRequired,
     isLoading: PropTypes.bool.isRequired,
+    isMember: PropTypes.bool.isRequired,
     label: PropTypes.string.isRequired,
     results: PropTypes.array.isRequired,
     tags: PropTypes.array.isRequired,

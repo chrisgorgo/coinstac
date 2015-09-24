@@ -6,14 +6,14 @@ import Consortium from '../services/consortium';
 
 export const CONSORTIUM_RECIEVE = 'CONSORTIUM_RECIEVE';
 export const CONSORTIUM_REQUEST = 'CONSORTIUM_REQUEST';
-export const CONSORTIUM_FETCH_ERROR = 'CONSORTIUM_FETCH_ERROR';
+export const CONSORTIUM_ERROR = 'CONSORTIUM_ERROR';
 
 export function fetchConsortium(id) {
     return dispatch => {
         dispatch(requestConsortium(id));
         Consortium.get(id)
             .then(consortium => dispatch(receiveConsortium(consortium)))
-            .catch(error => dispatch(fetchConsortiumError(error)));
+            .catch(error => dispatch(consortiumError(error)));
     };
 }
 
@@ -31,10 +31,10 @@ function receiveConsortium(consortium) {
     };
 }
 
-function fetchConsortiumError(error) {
+export function consortiumError(error) {
     return {
         error,
-        type: CONSORTIUM_FETCH_ERROR,
+        type: CONSORTIUM_ERROR,
     };
 }
 
@@ -45,19 +45,19 @@ function fetchConsortiumError(error) {
 export const CONSORTIUM_ADD_USER = 'CONSORTIUM_ADD_USER';
 export const CONSORTIUM_REMOVE_USER = 'CONSORTIUM_REMOVE_USER';
 
-export function addUser(userId, consortiumId) {
+export function addUser(consortiumId, username) {
     return {
         consortiumId,
         type: CONSORTIUM_ADD_USER,
-        userId,
+        username,
     };
 }
 
-export function removeUser(userId, consortiumId) {
+export function removeUser(consortiumId, username) {
     return {
         consortiumId,
         type: CONSORTIUM_REMOVE_USER,
-        userId,
+        username,
     };
 }
 

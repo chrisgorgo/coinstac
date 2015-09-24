@@ -7,15 +7,22 @@
  * @{@link  https://github.com/rackt/redux/blob/master/examples/real-world/store/configureStore.js}
  */
 import { applyMiddleware, createStore } from 'redux';
-import loggerMiddleware from 'redux-logger';
+import createLogger from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 
 import { default as authenticationMiddleware } from '../middleware/authentication';
+import { default as consortiumMiddleware } from '../middleware/consortium';
 import rootReducer from '../reducers';
+
+const loggerMiddleware = createLogger({
+    collapsed: true,
+    level: 'info',
+});
 
 const createStoreWithMiddleware = applyMiddleware(
     thunkMiddleware,
     authenticationMiddleware,
+    consortiumMiddleware,
     loggerMiddleware,
 )(createStore);
 

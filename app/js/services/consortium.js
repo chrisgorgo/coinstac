@@ -47,11 +47,16 @@ function CollectionResponseFactory({
 }) {
     return new Promise((resolve, reject) => {
         /**
+         * @todo  Come up with a more intelligent `compareKey` system.
+         */
+        const compareKey = (key === KEYS.USERS) ? 'username' : 'id';
+
+        /**
          * @todo  Come up with a better comparator.
          */
         function valueFilter(x) {
             if (_.isObject(value) && _.isObject(x)) {
-                return x.id === value.id;
+                return x[compareKey] === value[compareKey];
             }
             return x === value;
         }
@@ -73,7 +78,7 @@ function CollectionResponseFactory({
                     mode === CollectionResponseFactory.REMOVE &&
                     valueExists
                 ) {
-                    consortium[key] = consortium.key.filter(
+                    consortium[key] = consortium[key].filter(
                         _.negate(valueFilter)
                     );
                 } else if (!valueExists && value) {
@@ -94,8 +99,13 @@ function CollectionResponseFactory({
             .catch(reject)
     });
 }
-CollectionResponseFactory.EDIT = Symbol('Edit consortium value')
+CollectionResponseFactory.ADD = Symbol('Add consortium value');
+CollectionResponseFactory.EDIT = Symbol('Edit consortium value');
 CollectionResponseFactory.REMOVE = Symbol('Remove consortium value');
+
+function validateAnalysis(analysis) {
+    consortia.find()
+}
 
 const Consortium = {
     /**
@@ -118,31 +128,17 @@ const Consortium = {
     },
 
     /**
-     * Add a user to a consortium
-     *
-     * @todo  Consider unifying this method's API with the others (i.e. pass in
-     *        a user object instead of ID.)
+     * Add a user to a consortium.
      *
      * @param  {number|string} consortiumId
      * @param  {number|string} userId
      * @return {Promise}
      */
-    addUser(consortiumId, userId) {
-        return new Promise((resolve, reject) => {
-            Promise.all([
-                Consortium.get(consoritumId),
-                User.get(userId),
-            ]).then(consortium, user => {
-                const hasUser = consortium[KEYS.USERS].some(x => x.id === userId);
-                const resolver = () => resolve({ consortium, user });
-
-                if (!hasUser) {
-                    consortium.users = [...consortium.users, user];
-                    consortia.save(consortium).then(resolver).catch(reject);
-                } else {
-                    resolver();
-                }
-            }).catch(reject);
+    addUser(consortiumId, username) {
+        return CollectionResponseFactory({
+            consortiumId,
+            key: KEYS.USERS,
+            value: { username },
         });
     },
 
@@ -153,12 +149,12 @@ const Consortium = {
      * @param  {number|string} userId
      * @return {Promise}
      */
-    removeUser(consortiumId, userId) {
+    removeUser(consortiumId, username) {
         return CollectionResponseFactory({
             consortiumId,
             key: KEYS.USERS,
             mode: CollectionResponseFactory.REMOVE,
-            value: { id: userId },
+            value: { username },
         });
     },
 
