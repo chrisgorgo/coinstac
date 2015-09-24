@@ -6,9 +6,6 @@ import _ from 'lodash';
 import config from 'config';
 
 class ConsortiaService {
-    constructor() {
-
-    }
 
     all() {
         return axios.get(config.api.url + '/coinstac/consortia')
