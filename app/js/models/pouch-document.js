@@ -9,7 +9,7 @@ module.exports = Model.extend({
         },
         _rev: {
             type: 'string',
-            required: true
+            required: false
         },
     }
 });
