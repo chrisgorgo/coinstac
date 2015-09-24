@@ -1,6 +1,7 @@
 /* jshint -W101 */ // permit long lines
 var path = require('path');
 var webpack = require('webpack');
+var chalk = require('chalk');
 var isDev = process.env.COINS_ENV === 'development';
 
 module.exports = {
