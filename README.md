@@ -22,8 +22,10 @@ The below assumes you want to boot into the app in development mode.  If you wan
 
 ## cli
 `electron . [--args...]`
-* @flag `--development` - Sets the COINS_ENV to `development`
-* @flag `--webpack` - Boots the WPDS as a child process of the electron COINSTAC app
+
+Always run `electron . --help` to see the latest and most accurate options.
+* @flag `--development` / `-dev` - Sets the COINS_ENV to `development`
+* @flag `--webpack` / `-w` - Boots the WPDS as a child process of the electron COINSTAC app
 
 ## config
 This project uses [config](https://www.npmjs.com/package/config) to pass configuration to the application. You’ll need to make a _config/default.json_ or _config/local.json_ file.  See _config/default.example.json_ for an example.
