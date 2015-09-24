@@ -2,7 +2,7 @@ import app from 'ampersand-app';
 import Project from '../../models/project.js'
 import React from 'react';
 import FormAddProject from './form-add-project';
-import Guid from 'guid';
+import uuid from 'uuid';
 import dbs from '../../services/db-registry';
 export default class FormAddProjectController extends React.Component {
 
@@ -34,7 +34,7 @@ export default class FormAddProjectController extends React.Component {
             return this.setState({ errors });
         }
 
-        let project = new Project({ _id: Guid.create().value, name });
+        let project = new Project({ _id: uuid.v4(), name });
         return dbs.get('projects').add(project.serialize())
         .then(() => {
             app.notifications.push({
