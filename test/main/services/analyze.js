@@ -35,11 +35,14 @@ test('main process analyze::one-shot', function(t) {
             requestId: 2,
             predictors: ['CortexVol'],
             files: [ {filename: 'bogus', dirname: 'bogus'} ],
-        }).then(function() {
-            t.fail('invalid input did not error');
-        }).catch(function(error) {
-            t.ok(error.message, 'returns object with error prop on invalid input');
-            t.equal(error.path, 'bogus/bogus', 'path returned for errors on files');
         });
+    })
+    .then(function() {
+        t.fail('invalid input did not error');
+    })
+    .catch(function(error) {
+        t.ok(error.message, 'returns object with error prop on invalid input');
+        t.equal(error.path, 'bogus/bogus', 'path returned for errors on files');
+        t.end();
     });
 });
