@@ -2,6 +2,8 @@ import app from 'ampersand-app';
 import Project from '../../models/project.js'
 import React from 'react';
 import FormAddProject from './form-add-project';
+import Guid from 'guid';
+import dbs from '../../services/db-registry';
 export default class FormAddProjectController extends React.Component {
 
     constructor(props) {
@@ -32,33 +34,14 @@ export default class FormAddProjectController extends React.Component {
             return this.setState({ errors });
         }
 
-        let project = new Project({ name });
-        dbs.get('projects')
-        .all()
-        .then(projects => {
-            let duplicateName = projects.some(project => project.name === name);
-            if (duplicateName) {
-                throw {status: 409};
-            }
-        })
+        let project = new Project({ _id: Guid.create().value, name });
+        return dbs.get('projects').add(project.serialize())
         .then(() => {
-            return dbs.get('projects').add(project.serialize())
-            .then(() => {
-                app.notifications.push({
-                    message: `Project '${name}' created`,
-                    level: 'success'
-                });
-                app.router.transitionTo('projects');
+            app.notifications.push({
+                message: `Project '${name}' created`,
+                level: 'success'
             });
-        })
-        .catch(err => {
-            if (err && err.status === 409) {
-                return app.notifications.push({
-                    message: `Project "${name}" already exists`,
-                    level: 'error'
-                });
-            }
-            throw error;
+            app.router.transitionTo('projects');
         });
     }
 
