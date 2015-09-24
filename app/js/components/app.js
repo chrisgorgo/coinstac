@@ -6,10 +6,10 @@ import auth from '../services/auth'
 import config from 'config';
 import url from 'url';
 import thenify from 'thenify'; // jshint ignore:line
-import PouchWrapper from 'pouchdb-wrapper';
+import Pouchy from 'pouchy';
 import Notify from './notification'
 import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
-// PouchWrapper.PouchDB.debug.enable('pouchdb:http');
+// Pouchy.PouchDB.debug.enable('pouchdb:http');
 
 config.api.url = url.format({
     protocol: config.api.protocol,

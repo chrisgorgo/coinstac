@@ -1,5 +1,5 @@
 'use strict';
-import PouchWrapper from 'pouchdb-wrapper';
+import Pouchy from 'pouchy';
 import app from 'ampersand-app';
 import config from 'config';
 import _ from 'lodash';
@@ -40,7 +40,7 @@ if (app.isDev) {
 /**
  * gets an existing or new instance of a db
  * @param  {string} nameOrUrl name of db or url to remote db
- * @return {PouchW}
+ * @return {Pouchy}
  */
 dbs.get = function(nameOrUrl) {
     let config = {};
@@ -57,9 +57,9 @@ dbs.get = function(nameOrUrl) {
 
 /**
  * Register an app-level datastore
- * @param  {object} opts required options for a pouch-wrapper instance
+ * @param  {object} opts required options for a Pouchy instance
  * @option {string} name
- * @return {PouchWrapper} database instance
+ * @return {Pouchy} database instance
  */
 dbs.register = function(opts) {
     var dbConnStr = opts.name || opts.url;
@@ -75,7 +75,7 @@ dbs.register = function(opts) {
     }
 
     // build db and cache it
-    let db = new PouchWrapper(opts);
+    let db = new Pouchy(opts);
     dbs.registery[opts.name] = db;
     dbs.push(db);
     return db;
