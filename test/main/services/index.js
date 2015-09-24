@@ -1,2 +1,13 @@
 'use strict';
-require('./analyze.js');
+var path = require('path');
+var glob = require("glob");
+var chalk = require('chalk');
+var files = glob.sync(path.join(__dirname, "/*.js")).filter(function(f) {
+    return !f.match(/index.js/);
+});
+
+files.forEach(function requireTest(file) {
+    var fullPath = path.resolve('./', file);
+    console.log(chalk.blue('Executing ' + file + '...'));
+    require(fullPath);
+});

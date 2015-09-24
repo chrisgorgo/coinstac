@@ -6,17 +6,13 @@ var chalk = require('chalk');
 require('../app/main/bootstrap.js');
 
 console.log(chalk.blue('Queuing tests...'));
-glob("./test/**/index.js", null, function (err, files) {
-    if (err) {
-
-    }
+var testIndexes = glob.sync("./test/**/index.js").filter(function(f) {
     // filter this file!
-    var testIndexes = files.filter(function(f) {
-        return !f.match(/test\/index.js/);
-    });
+    return !f.match(/test\/index.js/);
+});
 
-    testIndexes.forEach(function requireTest(f) {
-        var fullPath = path.resolve('./', f);
-        require(fullPath);
-    });
+testIndexes.forEach(function requireTest(f) {
+    var fullPath = path.resolve('./', f);
+    console.log(chalk.blue('Executing ' + f + '...'));
+    require(fullPath);
 });
