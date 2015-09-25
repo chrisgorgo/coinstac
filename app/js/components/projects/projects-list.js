@@ -3,20 +3,19 @@ import { Button } from 'react-bootstrap';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import dbs from '../../services/db-registry';
-const projectsDb = dbs.get('projects');
 
 export default class ProjectsList extends React.Component {
 
     componentWillMount() {
-        projectsDb.all().then(projects => {
+        dbs.get('projects').all().then(projects => {
             this.setState({ projects });
         });
     }
 
     deleteProject(project) {
-        projectsDb.delete(project)
+        dbs.get('projects').delete(project)
             .then(() => {
-                return projectsDb.all();
+                return dbs.get('projects').all();
             })
             .then((projects) => {
                 this.setState({ projects });

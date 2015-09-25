@@ -7,5 +7,6 @@ html(lang="en")
         #app
         script(type='text/javascript').
             window.COINS_ENV = '#{coinsEnv}';
+            window.coinstacDir = '#{coinstacDir}';
         script(type='text/javascript', src="js/babel-browser-polyfill.js")
         script(type='text/javascript', src=entryUrl)

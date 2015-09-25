@@ -65,8 +65,9 @@ dbs.register = function(opts) {
     var dbConnStr = opts.name || opts.url;
     // assert db can register, and configure its domain
     if (LOCAL_STORES.some(format => { return _.contains(dbConnStr, format); })) {
-        // pass. `name` only shall yield local database
+        opts.path = app.coinstacDir;
     } else if (REMOTE_STORES_SYNC_OUT.some(format => { return _.contains(dbConnStr, format); })) {
+        opts.path = app.coinstacDir;
         opts.replicate = 'both'; // @TODO outbound replications to happen manually using `replicate.to()`
     } else if (REMOTE_STORES_SYNC_IN.some(format => { return _.contains(dbConnStr, format); })) {
         opts.replicate = 'in';

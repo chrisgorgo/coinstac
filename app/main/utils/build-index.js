@@ -1,11 +1,13 @@
 var fs = require('fs');
+var path = require('path');
 var jade = require('jade');
 var _ = require('lodash');
 var locals;
 
 locals = {
     pageTitle: 'COINSTAC',
-    coinsEnv: process.env.COINS_ENV
+    coinsEnv: process.env.COINS_ENV,
+    coinstacDir: global.coinstacDir
 };
 
 if (process.env.COINS_ENV === 'development') {
@@ -15,7 +17,7 @@ if (process.env.COINS_ENV === 'development') {
 }
 
 // Complile the index template
-var fn = jade.compileFile('./app/index.jade', {
+var fn = jade.compileFile(path.join(process.cwd(), './app/index.jade'), {
     pretty: true
 });
 var html = fn(locals);

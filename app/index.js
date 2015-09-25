@@ -3,7 +3,6 @@ require('./main/bootstrap.js')
 var app = require('app');
 var BrowserWindow = require('browser-window');
 
-require('./build-index.js'); // generate index.html
 require('crash-reporter').start();
 
 // Keep a global reference of the window object, if you don't, the window will
