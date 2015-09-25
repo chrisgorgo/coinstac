@@ -65,7 +65,9 @@ class FormManageProjectController extends React.Component {
         Promise.all([projectRefreshed, consortiaRefreshed])
         .then(r => {
             this.setConsortiumContext(this.project.defaultConsortiumId);
-            this.setAnalysisCtx(this.project.defaultAnalysisId);
+            if (this.project.defaultConsortiumId) {
+                this.setAnalysisCtx(this.project.defaultAnalysisId);
+            }
         })
         .catch(err => {
             app.notifications.push({
