@@ -67,8 +67,14 @@ dbs.register = function(opts) {
     var dbConnStr = opts.name || opts.url;
     // assert db can register, and configure its domain
     if (LOCAL_STORES.some(function(format) { return _.contains(dbConnStr, format); })) {
+        if (!opts.path) {
+            throw new TypeError('path must be specified for db');
+        }
         opts.path = app.coinstacDir;
     } else if (REMOTE_STORES_SYNC_OUT.some(function(format) { return _.contains(dbConnStr, format); })) {
+        if (!opts.path) {
+            throw new TypeError('path must be specified for db');
+        }
         opts.path = app.coinstacDir;
         opts.replicate = 'both'; // @TODO outbound replications to happen manually using `replicate.to()`
     } else if (REMOTE_STORES_SYNC_IN.some(function(format) { return _.contains(dbConnStr, format); })) {
