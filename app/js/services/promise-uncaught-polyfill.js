@@ -1,6 +1,6 @@
 'use strict';
 module.exports = function(root) {
-    var app = require('ampersand-app'); // @note - only available in rendering process
+    var app = require('ampersand-app'); // @note - only available in render process
 
     process.on('unhandledRejection', function(reason, p) {
         console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
