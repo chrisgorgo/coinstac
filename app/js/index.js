@@ -1,4 +1,5 @@
-require('./services/promise-uncaught-polyfill')(window);
+import path from 'path';
+require('../common/utils/promise-uncaught-polyfill.js')({ root: window });
 import app from 'ampersand-app';
 import React from 'react';
 import Router, { Route } from 'react-router';

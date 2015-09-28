@@ -12,7 +12,7 @@ module.exports = function(opts) {
         'define-globals',
         'parse-cli-input',
         'build-index',
-        'configure-promise-polyfill',
+        'configure-uncaught-errors',
         'configure-error-serialization',
         'promisify-fs',
         'upsert-coinstac-user-dir',

@@ -1,5 +1,9 @@
 'use strict';
-module.exports = function(root) {
+module.exports = function(opts) {
+    if (!opts || !opts.root) {
+        throw new TypeError('promise-uncaught-polyfill requires `opts` object with at least a `root` prop');
+    }
+    var root = opts.root;
     var app = require('ampersand-app'); // @note - only available in render process
 
     process.on('unhandledRejection', function(reason, p) {
