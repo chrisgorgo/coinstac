@@ -6,7 +6,7 @@ import Consortium from '../services/consortium';
  * Consortium retrieval.
  */
 
-export const CONSORTIUM_RECIEVE = 'CONSORTIUM_RECIEVE';
+export const CONSORTIUM_RECEIVE = 'CONSORTIUM_RECEIVE';
 export const CONSORTIUM_REQUEST = 'CONSORTIUM_REQUEST';
 export const CONSORTIUM_ERROR = 'CONSORTIUM_ERROR';
 
@@ -29,7 +29,7 @@ function requestConsortium(id) {
 function receiveConsortium(consortium) {
     return {
         consortium,
-        type: CONSORTIUM_RECIEVE,
+        type: CONSORTIUM_RECEIVE,
     };
 }
 

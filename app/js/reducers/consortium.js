@@ -1,5 +1,5 @@
 import {
-    CONSORTIUM_RECIEVE,
+    CONSORTIUM_RECEIVE,
     CONSORTIUM_REQUEST,
     CONSORTIUM_FETCH_ERROR,
     CONSORTIUM_ADD_USER,
@@ -31,7 +31,7 @@ export default function consortiumReducer(state = {
     let results;
     let tags;
     switch (action.type) {
-        case CONSORTIUM_RECIEVE:
+        case CONSORTIUM_RECEIVE:
             return Object.assign({}, state, action.consortium, {
                 isLoading: false,
             });
