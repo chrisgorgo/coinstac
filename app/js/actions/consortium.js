@@ -1,3 +1,5 @@
+import uuid from 'uuid';
+
 import Consortium from '../services/consortium';
 
 /**
@@ -68,15 +70,17 @@ export function removeUser(consortiumId, username) {
 export const CONSORTIUM_EDIT_LABEL = 'CONSORTIUM_EDIT_LABEL';
 export const CONSORTIUM_EDIT_DESCRIPTION = 'CONSORTIUM_EDIT_DESCRIPTION';
 
-export function editLabel(label) {
+export function editLabel(consortiumId, label) {
     return {
+        consortiumId,
         label,
         type: CONSORTIUM_EDIT_LABEL,
     };
 }
 
-export function editDescription(description) {
+export function editDescription(consortiumId, description) {
     return {
+        consortiumId,
         description,
         type: CONSORTIUM_EDIT_DESCRIPTION,
     };
@@ -120,22 +124,25 @@ export const CONSORTIUM_ADD_ANALYSIS = 'CONSORTIUM_ADD_ANALYSIS';
 export const CONSORTIUM_EDIT_ANALYSIS = 'CONSORTIUM_EDIT_ANALYSIS';
 export const CONSORTIUM_REMOVE_ANALYSIS = 'CONSORTIUM_REMOVE_ANALYSIS';
 
-export function addAnalysis(analysis) {
+export function addAnalysis(consortiumId, analysis) {
     return {
-        analysis,
+        analysis: Object.assign({}, analysis, { id: uuid.v4() }),
+        consortiumId,
         type: CONSORTIUM_ADD_ANALYSIS,
     };
 }
 
-export function editAnalysis(analysis) {
+export function editAnalysis(consortiumId, id, analysis) {
     return {
         analysis,
+        consortiumId,
         type: CONSORTIUM_EDIT_ANALYSIS,
     };
 }
 
-export function removeAnalysis(id) {
+export function removeAnalysis(consortiumId, id) {
     return {
+        consortiumId,
         id,
         type: CONSORTIUM_REMOVE_ANALYSIS,
     };

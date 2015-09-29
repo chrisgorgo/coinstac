@@ -79,12 +79,12 @@ export default function consortiumReducer(state = {
             });
         case CONSORTIUM_ADD_ANALYSIS:
             return Object.assign({}, state, {
-                analyses: [...state.analyses, action.analyses],
+                analyses: [...state.analyses, action.analysis],
             });
         case CONSORTIUM_EDIT_ANALYSIS:
             /** @todo  Confirm analyses' structure */
             analyses = state.analyses.map(analysis => {
-                if (analyses.id === action.analysesId) {
+                if (analyses.id === action.id) {
                     return action.analyses;
                 }
                 return analyses;
@@ -92,7 +92,7 @@ export default function consortiumReducer(state = {
             return Object.assign({}, state, { analyses });
         case CONSORTIUM_REMOVE_ANALYSIS:
             analyses = state.analyses.filter(analysis => {
-                return analyses.id !== action.analysesId;
+                return analysis.id !== action.id;
             });
             return Object.assign({}, state, { analyses });
         case CONSORTIUM_ADD_RESULTS:

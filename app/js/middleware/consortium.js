@@ -10,12 +10,14 @@
 import {
     CONSORTIUM_ADD_USER,
     CONSORTIUM_REMOVE_USER,
+    CONSORTIUM_ADD_ANALYSIS,
+    CONSORTIUM_REMOVE_ANALYSIS,
     consortiumError,
 } from '../actions/consortium';
 import Consortium from '../services/consortium';
 
 export default store => next => action => {
-    const { consortiumId, type, username } = action;
+    const { analysis, consortiumId, id, type, username } = action;
 
     /**
      * @todo  This is effectively a user object 'schema'. Write an effective
@@ -32,6 +34,12 @@ export default store => next => action => {
                 .then(nextAction, errorHandler);
         case CONSORTIUM_REMOVE_USER:
             return Consortium.removeUser(consortiumId, username)
+                .then(nextAction, errorHandler);
+        case CONSORTIUM_ADD_ANALYSIS:
+            return Consortium.addAnalysis(consortiumId, analysis)
+                .then(nextAction, errorHandler);
+        case CONSORTIUM_REMOVE_ANALYSIS:
+            return Consortium.removeAnalysis(consortiumId, id)
                 .then(nextAction, errorHandler);
         default:
             return nextAction();

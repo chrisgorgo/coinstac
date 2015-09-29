@@ -103,8 +103,36 @@ CollectionResponseFactory.ADD = Symbol('Add consortium value');
 CollectionResponseFactory.EDIT = Symbol('Edit consortium value');
 CollectionResponseFactory.REMOVE = Symbol('Remove consortium value');
 
-function validateAnalysis(analysis) {
-    consortia.find()
+/**
+ * Validate an analysis.
+ *
+ * @todo  Validate `analysis.id` as unique. Define the analysis 'model'.
+ *
+ * @param  {number|string} consortiumId
+ * @param  {object}        analysis
+ * @param  {string}        analysis.label
+ * @return {Promise}
+ */
+export function validateAnalysis(consortiumId, { label }) {
+    return new Promise((resolve, reject) => {
+        if (label.length < 5) {
+            throw new Error('Label must have at least 5 characters');
+        }
+
+        Consortium.get(consortiumId)
+            .then(consortium => {
+                const isValid = !consortium.analyses.some(x => {
+                    x.label === label
+                });
+
+                if (isValid) {
+                    resolve();
+                } else {
+                    throw new Error(`Analysis label ${label} already exists`);
+                }
+            })
+            .catch(reject);
+    });
 }
 
 const Consortium = {
@@ -240,12 +268,14 @@ const Consortium = {
     /**
      * Add analysis to a consortium.
      *
+     * @todo  Build analysis validation into this method.
+     *
      * @param  {number|string} consortiumId
      * @param  {object}        analysis
      * @return {Promise}
      */
     addAnalysis(consortiumId, analysis) {
-        return ConsortiumCollectionReponseFactory({
+        return CollectionResponseFactory({
             consortiumId,
             key: KEYS.ANALYSES,
             value: analysis,

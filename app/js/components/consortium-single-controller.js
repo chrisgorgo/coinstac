@@ -9,10 +9,10 @@ import {
     addUser,
     removeUser,
     addAnalysis,
-    editAnalysis,
     removeAnalysis,
 } from '../actions/consortium';
 import ConsortiumSingle from './consortium-single';
+import { validateAnalysis } from '../services/consortium';
 
 class ConsortiumSingleController extends Component {
     componentWillMount() {
@@ -24,7 +24,14 @@ class ConsortiumSingleController extends Component {
     }
     render() {
         const { consortium, actions } = this.props;
-        return <ConsortiumSingle actions={actions} {...consortium} />;
+        const validate = partial(validateAnalysis, consortium._id);
+
+        return (
+            <ConsortiumSingle
+                actions={actions}
+                validateAnalysis={validate}
+                {...consortium} />
+        );
     }
 }
 
@@ -59,7 +66,6 @@ function mapDispatchToProps(dispatch, ownProps) {
         addUser: partial(addUser, _id, username),
         removeUser: partial(removeUser, _id, username),
         addAnalysis: partial(addAnalysis, _id),
-        editAnalysis: partial(editAnalysis, _id),
         removeAnalysis: partial(removeAnalysis, _id),
     };
 

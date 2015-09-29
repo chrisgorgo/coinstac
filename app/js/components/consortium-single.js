@@ -24,20 +24,21 @@ class ConsortiumSingle extends Component {
      * @todo  Implement 'Delete' button
      */
     renderAnalyses() {
-        const { analyses } = this.props;
-
+        const { analyses, actions: { removeAnalysis } } = this.props;
         return (
             <ul className="list-unstyled">
                 {analyses.map(x => {
+                    const { id, label } = x;
                     return (
-                        <li key={x.label} className="clearfix">
-                            {x.label}
+                        <li key={id} className="clearfix">
+                            {label}
                             <span className="text-muted pull-right">
-                                (id: {x.id})
+                                (id: {id})
                             </span>
                             <Button
-                                bsStyle="error"
-                                className="pull-right">Delete</Button>
+                                bsStyle="danger"
+                                className="pull-right"
+                                onClick={removeAnalysis.bind(null, id)}>Delete</Button>
                         </li>
                     );
                 })}
@@ -93,8 +94,9 @@ class ConsortiumSingle extends Component {
             results,
             tags,
             users,
+            validateAnalysis,
         } = this.props;
-        const { addUser, removeUser, addAnalysis } = this.props.actions;
+        const { addAnalysis, addUser, removeUser } = this.props.actions;
         const { showAddAnalysis } = this.state;
         let memberButton;
 
@@ -123,20 +125,6 @@ class ConsortiumSingle extends Component {
                     onClick={addUser}
                     type="button">Join Consortium</Button>
             );
-        }
-
-        /**
-         * @todo  Move this into the state tree. Probably somewhere in the
-         *        Consortium service? Make to the parent controller element?
-         */
-        function validateAnalysis(analysisLabel = '') {
-            if (analysisLabel.length < 5) {
-                throw new Error('Label must have at least 5 characters')
-            } else if (analyses.some(x => x.label === analysisLabel)) {
-                throw new Error(`Label ${analysisLabel} already exists`);
-            }
-
-            return true;
         }
 
         return (
@@ -197,6 +185,7 @@ ConsortiumSingle.propTypes = {
     results: PropTypes.array.isRequired,
     tags: PropTypes.array.isRequired,
     users: PropTypes.array.isRequired,
+    validateAnalysis: PropTypes.func.isRequired,
 };
 
 export default ConsortiumSingle;
