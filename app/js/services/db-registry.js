@@ -4,6 +4,10 @@ var app = require('ampersand-app');
 var config = require('config');
 var _ = require('lodash');
 var url = require('url');
+var app = require('ampersand-app');
+Pouchy.PouchDB.defaults({
+    prefix: app.coinstacDir
+});
 
 var LOCAL_STORES = ['projects'];
 var REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
