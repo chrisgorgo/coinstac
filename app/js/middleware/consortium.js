@@ -14,7 +14,7 @@ import {
     CONSORTIUM_REMOVE_ANALYSIS,
     consortiumError,
 } from '../actions/consortium';
-import Consortium from '../services/consortium';
+import consortium from '../services/consortium';
 
 export default store => next => action => {
     const { analysis, consortiumId, id, type, username } = action;
@@ -30,16 +30,16 @@ export default store => next => action => {
 
     switch (type) {
         case CONSORTIUM_ADD_USER:
-            return Consortium.addUser(consortiumId, username)
+            return consortium.addUser(consortiumId, username)
                 .then(nextAction, errorHandler);
         case CONSORTIUM_REMOVE_USER:
-            return Consortium.removeUser(consortiumId, username)
+            return consortium.removeUser(consortiumId, username)
                 .then(nextAction, errorHandler);
         case CONSORTIUM_ADD_ANALYSIS:
-            return Consortium.addAnalysis(consortiumId, analysis)
+            return consortium.addAnalysis(consortiumId, analysis)
                 .then(nextAction, errorHandler);
         case CONSORTIUM_REMOVE_ANALYSIS:
-            return Consortium.removeAnalysis(consortiumId, id)
+            return consortium.removeAnalysis(consortiumId, id)
                 .then(nextAction, errorHandler);
         default:
             return nextAction();

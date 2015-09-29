@@ -1,6 +1,6 @@
 import uuid from 'uuid';
 
-import Consortium from '../services/consortium';
+import consortium from '../services/consortium';
 
 /**
  * Consortium retrieval.
@@ -13,7 +13,7 @@ export const CONSORTIUM_ERROR = 'CONSORTIUM_ERROR';
 export function fetchConsortium(id) {
     return dispatch => {
         dispatch(requestConsortium(id));
-        Consortium.get(id)
+        consortium.get(id)
             .then(consortium => dispatch(receiveConsortium(consortium)))
             .catch(error => dispatch(consortiumError(error)));
     };

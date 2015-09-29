@@ -19,9 +19,9 @@ const KEYS = {
  *
  * @return {Promise}
  */
-function SingleResponseFactory({ consortiumId, key, value }) {
+function singleResponseFactory({ consortiumId, key, value }) {
     return new Promise((resolve, reject) => {
-        Consortium.get(consortiumId)
+        consortium.get(consortiumId)
             .then(consortium => {
                 consortium[key] = value;
                 consortia
@@ -38,7 +38,7 @@ function SingleResponseFactory({ consortiumId, key, value }) {
  *
  * @return {Promise}
  */
-function CollectionResponseFactory({
+function collectionResponseFactory({
     consortiumId,
     key,
     mode,
@@ -61,13 +61,13 @@ function CollectionResponseFactory({
             return x === value;
         }
 
-        Consortium.get(consortiumId)
+        consortium.get(consortiumId)
             .then(consortium => {
                 const valueExists = consortium[key].some(valueFilter);
                 const oldValues = consortium[key];
                 let isChanged = false;
 
-                if (mode === CollectionResponseFactory.EDIT && valueExists) {
+                if (mode === collectionResponseFactory.EDIT && valueExists) {
                     consortium[key] = consortium.key.map(x => {
                         if (valueFilter(x)) {
                             return newValue;
@@ -75,7 +75,7 @@ function CollectionResponseFactory({
                         return x;
                     });
                 } else if (
-                    mode === CollectionResponseFactory.REMOVE &&
+                    mode === collectionResponseFactory.REMOVE &&
                     valueExists
                 ) {
                     consortium[key] = consortium[key].filter(
@@ -99,9 +99,9 @@ function CollectionResponseFactory({
             .catch(reject)
     });
 }
-CollectionResponseFactory.ADD = Symbol('Add consortium value');
-CollectionResponseFactory.EDIT = Symbol('Edit consortium value');
-CollectionResponseFactory.REMOVE = Symbol('Remove consortium value');
+collectionResponseFactory.ADD = Symbol('Add consortium value');
+collectionResponseFactory.EDIT = Symbol('Edit consortium value');
+collectionResponseFactory.REMOVE = Symbol('Remove consortium value');
 
 /**
  * Validate an analysis.
@@ -119,7 +119,7 @@ export function validateAnalysis(consortiumId, { label }) {
             throw new Error('Label must have at least 5 characters');
         }
 
-        Consortium.get(consortiumId)
+        consortium.get(consortiumId)
             .then(consortium => {
                 const isValid = !consortium.analyses.some(x => {
                     x.label === label
@@ -135,7 +135,7 @@ export function validateAnalysis(consortiumId, { label }) {
     });
 }
 
-const Consortium = {
+const consortium = {
     /**
      * Get consortium by ID.
      *
@@ -163,7 +163,7 @@ const Consortium = {
      * @return {Promise}
      */
     addUser(consortiumId, username) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.USERS,
             value: { username },
@@ -178,10 +178,10 @@ const Consortium = {
      * @return {Promise}
      */
     removeUser(consortiumId, username) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.USERS,
-            mode: CollectionResponseFactory.REMOVE,
+            mode: collectionResponseFactory.REMOVE,
             value: { username },
         });
     },
@@ -224,7 +224,7 @@ const Consortium = {
      * @return {Promise}
      */
     addTag(consortiumId, tag) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.TAGS,
             value: tag,
@@ -240,10 +240,10 @@ const Consortium = {
      * @return {Promise}
      */
     editTag(consortiumId, tagId, tag) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.TAGS,
-            mode: CollectionResponseFactory.EDIT,
+            mode: collectionResponseFactory.EDIT,
             newValue: tag,
             value: { id: tagId },
         });
@@ -257,10 +257,10 @@ const Consortium = {
      * @return {Promise}
      */
     removeTag(consortiumId, tagId) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.TAGS,
-            mode: CollectionResponseFactory.REMOVE,
+            mode: collectionResponseFactory.REMOVE,
             value: { id: tagId}
         });
     },
@@ -275,7 +275,7 @@ const Consortium = {
      * @return {Promise}
      */
     addAnalysis(consortiumId, analysis) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.ANALYSES,
             value: analysis,
@@ -291,10 +291,10 @@ const Consortium = {
      * @return {Promise}
      */
     editAnalysis(consortiumId, analysisId, analysis) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.ANALYSES,
-            mode: CollectionResponseFactory.EDIT,
+            mode: collectionResponseFactory.EDIT,
             newValue: analysis,
             value: { id: analysisId },
         });
@@ -308,10 +308,10 @@ const Consortium = {
      * @return {Promise}
      */
     removeAnalysis(consortiumId, analysisId) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.ANALYSES,
-            mode: CollectionResponseFactory.REMOVE,
+            mode: collectionResponseFactory.REMOVE,
             value: { id: analysisId },
         });
     },
@@ -324,7 +324,7 @@ const Consortium = {
      * @return {Promise}
      */
     addResult(consortiumId, result) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.RESULTS,
             value: result,
@@ -340,10 +340,10 @@ const Consortium = {
      * @return {Promise}
      */
     editResult(consortiumId, resultId, result) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
             key: KEYS.RESULTS,
-            mode: CollectionResponseFactory.EDIT,
+            mode: collectionResponseFactory.EDIT,
             newValue: result,
             value: { id: resultId },
         });
@@ -357,12 +357,12 @@ const Consortium = {
      * @return {Promise}
      */
     removeResult(consortiumId, resultId) {
-        return CollectionResponseFactory({
+        return collectionResponseFactory({
             consortiumId,
-            mode: CollectionResponseFactory.REMOVE,
+            mode: collectionResponseFactory.REMOVE,
             value: { id: resultId },
         });
     },
 };
 
-export default Consortium;
+export default consortium;
