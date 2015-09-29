@@ -1,5 +1,5 @@
 'use strict';
-require('./main/bootstrap.js')
+require('./main/bootstrap.js')();
 var app = require('app');
 var BrowserWindow = require('browser-window');
 

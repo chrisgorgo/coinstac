@@ -1,15 +1,19 @@
 'use strict';
-import Pouchy from 'pouchy';
-import app from 'ampersand-app';
-import config from 'config';
-import _ from 'lodash';
-import url from 'url';
+var Pouchy = require('pouchy');
+var app = require('ampersand-app');
+var config = require('config');
+var _ = require('lodash');
+var url = require('url');
+var app = require('ampersand-app');
+Pouchy.PouchDB.defaults({
+    prefix: app.coinstacDir
+});
 
-const LOCAL_STORES = ['projects'];
-const REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
-const REMOTE_STORES_SYNC_OUT = ['consortium-'];
+var LOCAL_STORES = ['projects'];
+var REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
+var REMOTE_STORES_SYNC_OUT = ['consortium-'];
 
-const REMOTE_CONNECTION_DEFAULTS = {
+var REMOTE_CONNECTION_DEFAULTS = {
     protocol: config.db.remote.protocol,
     hostname: config.db.remote.hostname,
     port: config.db.remote.port,
@@ -21,16 +25,18 @@ dbs.registery = {};
 /**
  * @property {array} names returns an array of db names from the registry
  */
-Object.defineProperty(dbs, 'names', { get: () => {
-    return dbs.map(db => db.name);
-}});
+Object.defineProperty(dbs, 'names', {
+    get: function() {
+        return dbs.map(function(db) { return db.name });
+    }
+});
 
 
 // Load db registry helper services onto window in dev
 if (app.isDev) {
     window.dbs = dbs;
     window.log = function() {
-        return _.toArray(arguments).forEach((arg, ndx) => {
+        return _.toArray(arguments).forEach(function(arg, ndx) {
             console.info('log ndx: ', ndx);
             console.dir(arg);
         });
@@ -64,15 +70,21 @@ dbs.get = function(nameOrUrl) {
 dbs.register = function(opts) {
     var dbConnStr = opts.name || opts.url;
     // assert db can register, and configure its domain
-    if (LOCAL_STORES.some(format => { return _.contains(dbConnStr, format); })) {
+    if (LOCAL_STORES.some(function(format) { return _.contains(dbConnStr, format); })) {
+        if (!app.coinstacDir) {
+            throw new TypeError('path must be specified for db');
+        }
         opts.path = app.coinstacDir;
-    } else if (REMOTE_STORES_SYNC_OUT.some(format => { return _.contains(dbConnStr, format); })) {
+    } else if (REMOTE_STORES_SYNC_OUT.some(function(format) { return _.contains(dbConnStr, format); })) {
+        if (!app.coinstacDir) {
+            throw new TypeError('path must be specified for db');
+        }
         opts.path = app.coinstacDir;
         opts.replicate = 'both'; // @TODO outbound replications to happen manually using `replicate.to()`
-    } else if (REMOTE_STORES_SYNC_IN.some(format => { return _.contains(dbConnStr, format); })) {
+    } else if (REMOTE_STORES_SYNC_IN.some(function(format) { return _.contains(dbConnStr, format); })) {
         opts.replicate = 'in';
     } else {
-        throw new ReferenceError(`database ${name} does not fit LOCAL or REMOTE database constraints`);
+        throw new ReferenceError(`database ${name} does not fit LOCAL or REMOTE database varraints`);
     }
 
     // build db and cache it
@@ -96,4 +108,4 @@ dbs.unregister = function(name) {
     delete dbs.registery[name];
 }
 
-export default dbs;
+module.exports = dbs;
