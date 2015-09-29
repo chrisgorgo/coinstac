@@ -94,24 +94,27 @@ export const CONSORTIUM_ADD_TAG = 'CONSORTIUM_ADD_TAG';
 export const CONSORTIUM_EDIT_TAG = 'CONSORTIUM_EDIT_TAG';
 export const CONSORTIUM_REMOVE_TAG = 'CONSORTIUM_REMOVE_TAG';
 
-export function addTag(tag) {
+export function addTag(consortiumId, tag) {
     return {
+        consortiumId,
         tag,
         type: CONSORTIUM_ADD_TAG,
     };
 }
 
-export function editTag(oldTag, newTag) {
+export function editTag(consortiumId, tagId, tag) {
     return {
-        newTag,
-        oldTag,
+        consortiumId,
+        id: tagId,
+        tag,
         type: CONSORTIUM_EDIT_TAG,
     };
 }
 
-export function removeTag(tag) {
+export function removeTag(consortiumId, tagId) {
     return {
-        tag,
+        consortiumId,
+        id: tagId,
         type: CONSORTIUM_REMOVE_TAG,
     };
 }
@@ -132,18 +135,19 @@ export function addAnalysis(consortiumId, analysis) {
     };
 }
 
-export function editAnalysis(consortiumId, id, analysis) {
+export function editAnalysis(consortiumId, analysisId, analysis) {
     return {
         analysis,
         consortiumId,
+        id: analysisId,
         type: CONSORTIUM_EDIT_ANALYSIS,
     };
 }
 
-export function removeAnalysis(consortiumId, id) {
+export function removeAnalysis(consortiumId, analysisId) {
     return {
         consortiumId,
-        id,
+        id: analysisId,
         type: CONSORTIUM_REMOVE_ANALYSIS,
     };
 }
@@ -156,23 +160,27 @@ export const CONSORTIUM_ADD_RESULTS = 'CONSORTIUM_ADD_RESULTS';
 export const CONSORTIUM_EDIT_RESULTS = 'CONSORTIUM_EDIT_RESULTS';
 export const CONSORTIUM_REMOVE_RESULTS = 'CONSORTIUM_REMOVE_RESULTS';
 
-export function addResults(results) {
+export function addResults(consortiumId, results) {
     return {
+        consortiumId,
         results,
         type: CONSORTIUM_ADD_RESULTS,
     };
 }
 
-export function editResults(results) {
+export function editResults(consortiumId, resultsId, results) {
     return {
+        consortiumId,
+        id: resultsId,
         results,
         type: CONSORTIUM_EDIT_RESULTS,
     };
 }
 
-export function removeResults(id) {
+export function removeResults(consortiumId, resultsId) {
     return {
-        id,
+        consortiumId,
+        id: resultsId,
         type: CONSORTIUM_ADD_RESULTS,
     };
 }

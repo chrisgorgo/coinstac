@@ -67,7 +67,7 @@ export default function consortiumReducer(state = {
         case CONSORTIUM_EDIT_TAG:
             /** @todo  Confirm tag's object design */
             tags = state.tags.map(tag => {
-                if (tag.id === action.tagId) {
+                if (tag.id === action.id) {
                     return action.tag;
                 }
                 return tag;
@@ -75,7 +75,7 @@ export default function consortiumReducer(state = {
             return Object.assign({}, state, { tags });
         case CONSORTIUM_REMOVE_TAG:
             return Object.assign({}, state, {
-                tags: state.tags.filter(tag => tag.id !== action.tagId),
+                tags: state.tags.filter(tag => tag.id !== action.id),
             });
         case CONSORTIUM_ADD_ANALYSIS:
             return Object.assign({}, state, {
@@ -84,7 +84,7 @@ export default function consortiumReducer(state = {
         case CONSORTIUM_EDIT_ANALYSIS:
             /** @todo  Confirm analyses' structure */
             analyses = state.analyses.map(analysis => {
-                if (analyses.id === action.id) {
+                if (analysis.id === action.id) {
                     return action.analyses;
                 }
                 return analyses;
@@ -102,7 +102,7 @@ export default function consortiumReducer(state = {
         case CONSORTIUM_EDIT_RESULTS:
             /** @todo  Confirm shape of results object */
             results = state.results.map(result => {
-                if (result.id === action.resultId) {
+                if (result.id === action.id) {
                     return action.result;
                 }
                 return result;
@@ -111,7 +111,7 @@ export default function consortiumReducer(state = {
         case CONSORTIUM_REMOVE_RESULTS:
             return Object.assign({}, state, {
                 results: state.results.filter(result => {
-                    return result.id !== action.resultId
+                    return result.id !== action.id
                 }),
             });
         default:
