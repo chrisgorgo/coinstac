@@ -1,9 +1,19 @@
 import _ from 'lodash';
+import config from 'config';
+import url from 'url';
 
 import dbs from './db-registry';
 import User from './user';
 
-const consortia = dbs.get('consortiameta');
+/**
+ * @todo  Figure out a more convenient way to get the consortia store.
+ */
+const consortia = dbs.get(url.format({
+    hostname: config.db.remote.hostname,
+    pathname: 'consortiameta',
+    port: config.db.remote.port,
+    protocol: config.db.remote.protocol,
+}));
 
 const KEYS = {
     ANALYSES: 'analyses',
