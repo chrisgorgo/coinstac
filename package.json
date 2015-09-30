@@ -28,7 +28,7 @@
     "moment": "^2.10.3",
     "node-libs-browser": "^0.5.2",
     "nomnom": "^1.8.1",
-    "pouchy": "^1.0.1",
+    "pouchy": "^2.0.0",
     "prettysize": "0.0.3",
     "react-bootstrap": "^0.23.7",
     "react-marked": "^0.3.1",
