@@ -88,11 +88,11 @@ class ConsortiumSingle extends Component {
         const {
             analyses,
             description,
-            isLoading,
             isMember,
             label,
             results,
             tags,
+            ui_isLoading,
             users,
             validateAnalysis,
         } = this.props;
@@ -100,7 +100,7 @@ class ConsortiumSingle extends Component {
         const { showAddAnalysis } = this.state;
         let memberButton;
 
-        if (isLoading) {
+        if (ui_isLoading) {
             return (
                 <div className="consortium-single consortium-single--no-result">
                     Loading consortium…
@@ -178,12 +178,12 @@ ConsortiumSingle.propTypes = {
     actions: PropTypes.object.isRequired,
     analyses: PropTypes.array.isRequired,
     description: PropTypes.string.isRequired,
-    error: PropTypes.string.isRequired,
-    isLoading: PropTypes.bool.isRequired,
     isMember: PropTypes.bool.isRequired,
     label: PropTypes.string.isRequired,
     results: PropTypes.array.isRequired,
     tags: PropTypes.array.isRequired,
+    ui_error: PropTypes.string.isRequired,
+    ui_isLoading: PropTypes.bool.isRequired,
     users: PropTypes.array.isRequired,
     validateAnalysis: PropTypes.func.isRequired,
 };

@@ -20,11 +20,11 @@ import {
 export default function consortiumReducer(state = {
     analyses: [],
     description: '',
-    error: '',
-    isLoading: false,
     label: '',
     results: [],
     tags: [],
+    ui_error: '',
+    ui_isLoading: false,
     users: [],
 }, action) {
     let analyses;
@@ -33,14 +33,14 @@ export default function consortiumReducer(state = {
     switch (action.type) {
         case CONSORTIUM_RECEIVE:
             return Object.assign({}, state, action.consortium, {
-                isLoading: false,
+                ui_isLoading: false,
             });
         case CONSORTIUM_REQUEST:
-            return Object.assign({}, state, { isLoading: true });
+            return Object.assign({}, state, { ui_isLoading: true });
         case CONSORTIUM_FETCH_ERROR:
             return Object.assign({}, state, {
-                error: action.error.message,
-                isLoading: false,
+                ui_error: action.error.message,
+                ui_isLoading: false,
             })
         case CONSORTIUM_ADD_USER:
             return Object.assign({}, state, {
