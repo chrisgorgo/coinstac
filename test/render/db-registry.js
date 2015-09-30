@@ -15,6 +15,7 @@ test('render process, db-registry, general `.get()` ops', function(t) {
 });
 
 test('render process, db-registry, consortium ops', function(t) {
+    var tdbUrl = 'http://www.bogus-url/consortium-__test-url__';
     var tdb;
 
     t.throws(function() {
@@ -22,11 +23,8 @@ test('render process, db-registry, consortium ops', function(t) {
         t.fail('consortium did not error when URL was not provided');
     }, Error, 'consortium must provide url to instatiate db');
 
-    // this will generate extraneous, erroring output.  thats OK!
-    // we are only testing that a db instance was receieved, not
-    // if the instance has a valid connection
-    tdb = dbs.get('http://bogus-url/consortium-__test__');
-    t.ok(tdb, 'consortium db with url generates successfully');
+    tdb = dbs.get(tdbUrl);
+    t.equal(tdb.url, tdbUrl, 'consortium db with url generates successfully');
 
     t.end();
 
