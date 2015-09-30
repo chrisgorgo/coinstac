@@ -9,7 +9,6 @@ module.exports = function() {
     locals = {
         pageTitle: 'COINSTAC',
         coinsEnv: process.env.COINS_ENV,
-        coinstacDir: global.coinstacDir
     };
 
     if (process.env.COINS_ENV === 'development') {

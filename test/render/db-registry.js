@@ -6,7 +6,6 @@ var dbs = require(path.join(process.cwd(), 'app/js/services/db-registry.js'));
 var Pouchy = require('pouchy');
 
 var app = require('ampersand-app');
-app.coinstacDir = global.coinstacDir;
 
 test('render process, db-registry, general `.get()` ops', function(t) {
     var pdb = dbs.get('projects');

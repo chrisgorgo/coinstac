@@ -1,11 +1,14 @@
 var fs = require('fs');
+
+var appDirectory = require('../../common/utils/app-directory');
+
 module.exports = function() {
     var stat;
     try {
-        stat = fs.statSync(global.coinstacDir);
+        stat = fs.statSync(appDirectory);
     } catch (err) {
         if (err.code === 'ENOENT') {
-            return fs.mkdirSync(global.coinstacDir);
+            return fs.mkdirSync(appDirectory);
         }
         throw err;
     }

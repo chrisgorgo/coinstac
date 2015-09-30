@@ -8,7 +8,6 @@ import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
 import routes from './routes';
 
-app.coinstacDir = window.coinstacDir;
 app.isDev = window.COINS_ENV === 'development';
 app.store = configureStore();
 
