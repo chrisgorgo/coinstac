@@ -15,7 +15,8 @@ var getExternals = function() {
         ipc: 'commonjs ipc',
         remote: 'commonjs remote',
         path: 'commonjs path',
-        config: 'commonjs config'
+        config: 'commonjs config',
+        os: 'commonjs os',
     };
     Object.keys(require('./package.json').dependencies).forEach(function(packageName) {
         if (internals.some(function(internal) { return packageName.match(internal) })) {
