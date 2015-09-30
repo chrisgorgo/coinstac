@@ -5,8 +5,11 @@ var config = require('config');
 var _ = require('lodash');
 var url = require('url');
 var app = require('ampersand-app');
+
+var appDirectory = require('../../common/utils/app-directory');
+
 Pouchy.PouchDB.defaults({
-    prefix: app.coinstacDir
+    prefix: appDirectory
 });
 
 var LOCAL_STORES = ['projects'];
@@ -71,15 +74,15 @@ dbs.register = function(opts) {
     var dbConnStr = opts.name || opts.url;
     // assert db can register, and configure its domain
     if (LOCAL_STORES.some(function(format) { return _.contains(dbConnStr, format); })) {
-        if (!app.coinstacDir) {
+        if (appDirectory) {
             throw new TypeError('path must be specified for db');
         }
-        opts.path = app.coinstacDir;
+        opts.path = appDirectory;
     } else if (REMOTE_STORES_SYNC_OUT.some(function(format) { return _.contains(dbConnStr, format); })) {
-        if (!app.coinstacDir) {
+        if (appDirectory) {
             throw new TypeError('path must be specified for db');
         }
-        opts.path = app.coinstacDir;
+        opts.path = appDirectory;
         opts.replicate = 'both'; // @TODO outbound replications to happen manually using `replicate.to()`
     } else if (REMOTE_STORES_SYNC_IN.some(function(format) { return _.contains(dbConnStr, format); })) {
         opts.replicate = 'in';
