@@ -6,11 +6,6 @@ module.exports = function(opts) {
     var root = opts.root;
     var app = require('ampersand-app'); // @note - only available in render process
 
-    process.on('unhandledRejection', function(reason, p) {
-        console.log("Unhandled Rejection at: Promise ", p, " reason: ", reason);
-        // application specific logging, throwing an error, or other logic here
-    });
-
     root.Promise = require('bluebird');
     root.Promise.longStackTraces();
 
@@ -21,8 +16,29 @@ module.exports = function(opts) {
      * @param  {error}
      * @return {undefined}
      */
-    Promise.onPossiblyUnhandledRejection(function(error) {
+    Promise.onPossiblyUnhandledRejection(function handleCaughtPromise(error) {
         error = error || {};
+
+        /**
+         * If the provided handler provides a match() fn that returns truthy
+         * when passed the error, the handler will assume responsibility for handling
+         * the error and be called with it.  Otherwise, other handlers (including the default)
+         * will be given chance to handle the error.
+         * @param  {function} handler error handler function.  expected to have a `match` fn to test
+         *                            if it can handle the error or not.
+         * @return {boolean} true if a handler has matched the error and responsiblity delegated
+         */
+        var handleOnMatch = function(handler) {
+            if (handler && handler.match(error)) {
+                handler(error);
+                return true;
+            }
+        }
+
+        if (opts && opts.handlers && opts.handlers.some(handleOnMatch)) {
+            return; // handler matched
+        }
+
         var msg = error.message || 'unhandled error occurred :/';
         if (app.notifications) {
             app.notifications.push({
