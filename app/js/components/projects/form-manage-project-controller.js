@@ -172,7 +172,7 @@ class FormManageProjectController extends React.Component {
         const files = this.props.project.files;
         analyzeService.analyze({
             requestId: ++app.analysisRequestId,
-            predictors: ['CortexVol'], // @TODO make part of analysis definition
+            predictors: ['Left-Hippocampus'], // @TODO make part of analysis definition
             files
         });
         app.notifications.push({
