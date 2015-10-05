@@ -132,13 +132,13 @@ export function validateAnalysis(consortiumId, { label }) {
         consortium.get(consortiumId)
             .then(consortium => {
                 const isValid = !consortium.analyses.some(x => {
-                    x.label === label
+                    return x.label === label
                 });
 
                 if (isValid) {
                     resolve();
                 } else {
-                    throw new Error(`Analysis label ${label} already exists`);
+                    throw new Error(`Analysis label “${label}” already exists`);
                 }
             })
             .catch(reject);
