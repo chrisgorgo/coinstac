@@ -1,6 +1,7 @@
 import uuid from 'uuid';
 
-import consortium from '../services/consortium';
+import consortium, { validateAnalysis } from '../services/consortium';
+
 
 /**
  * Consortium retrieval.
@@ -128,11 +129,17 @@ export const CONSORTIUM_EDIT_ANALYSIS = 'CONSORTIUM_EDIT_ANALYSIS';
 export const CONSORTIUM_REMOVE_ANALYSIS = 'CONSORTIUM_REMOVE_ANALYSIS';
 
 export function addAnalysis(consortiumId, analysis) {
-    return {
-        analysis: Object.assign({}, analysis, { id: uuid.v4() }),
-        consortiumId,
-        type: CONSORTIUM_ADD_ANALYSIS,
-    };
+    return new Promise(function(resolve, reject) {
+        validateAnalysis(consortiumId, analysis)
+            .then(() => {
+                resolve({
+                    analysis: Object.assign({}, analysis, { id: uuid.v4() }),
+                    consortiumId,
+                    type: CONSORTIUM_ADD_ANALYSIS,
+                });
+            })
+            .catch(reject);
+    });
 }
 
 export function editAnalysis(consortiumId, analysisId, analysis) {

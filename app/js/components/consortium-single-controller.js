@@ -12,24 +12,35 @@ import {
     removeAnalysis,
 } from '../actions/consortium';
 import ConsortiumSingle from './consortium-single';
-import { validateAnalysis } from '../services/consortium';
+import dbs from '../services/db-registry';
 
 class ConsortiumSingleController extends Component {
+    constructor(props) {
+        super(props);
+        // this.onAnalysisChange = this.onAnalysisChange.bind(this);
+    }
     componentWillMount() {
         const {
             actions: { fetchConsortium },
-            consortium: { _id }
+            query: { _id },
         } = this.props;
-        fetchConsortium(_id);
+
+        fetchConsortium();
+
+        // dbs.get('consortium-' + _id).on('change', this.onAnalysisChange);
     }
+    componentWillUnmount() {
+        // dbs.get('consortium-' + _id).off('change', this.onAnalysisChange);
+    }
+    // onAnalysisChange(changeEvent) {
+    //     debugger;
+    // }
     render() {
         const { consortium, actions } = this.props;
-        const validate = partial(validateAnalysis, consortium._id);
 
         return (
             <ConsortiumSingle
                 actions={actions}
-                validateAnalysis={validate}
                 {...consortium} />
         );
     }

@@ -94,7 +94,6 @@ class ConsortiumSingle extends Component {
             tags,
             ui_isLoading,
             users,
-            validateAnalysis,
         } = this.props;
         const { addAnalysis, addUser, removeUser } = this.props.actions;
         const { showAddAnalysis } = this.state;
@@ -144,9 +143,7 @@ class ConsortiumSingle extends Component {
                             onClick={this.toggleShowAddAnalysis}
                             type="button">New Analysis Type</Button>
                         <div className={showAddAnalysis ? null : 'hidden'}>
-                            <FormAddAnalysis
-                                onSubmit={addAnalysis}
-                                validate={validateAnalysis} />
+                            <FormAddAnalysis onSubmit={addAnalysis} />
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -185,7 +182,6 @@ ConsortiumSingle.propTypes = {
     ui_error: PropTypes.string.isRequired,
     ui_isLoading: PropTypes.bool.isRequired,
     users: PropTypes.array.isRequired,
-    validateAnalysis: PropTypes.func.isRequired,
 };
 
 export default ConsortiumSingle;
