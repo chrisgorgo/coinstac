@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ConsortiumCard from './consortium-card';
-import consortium from '../services/consortium';
+import consortia from '../services/consortia';
 
 export default class DashboardConsortia extends React.Component {
     constructor(props) {
@@ -10,7 +10,7 @@ export default class DashboardConsortia extends React.Component {
         this.state = { consortia: [] };
     }
     componentWillMount() {
-        consortium.all()
+        consortia.all()
             .then(consortia => this.setState({ consortia }))
             .catch(err => console.error(err));
     }

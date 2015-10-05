@@ -157,15 +157,6 @@ const consortium = {
     },
 
     /**
-     * Get all consortia.
-     *
-     * @return {Promise}
-     */
-    all() {
-        return consortia.all();
-    },
-
-    /**
      * Add a user to a consortium.
      *
      * @param  {number|string} consortiumId
