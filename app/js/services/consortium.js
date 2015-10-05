@@ -10,7 +10,7 @@ import User from './user';
  */
 const consortia = dbs.get(url.format({
     hostname: config.db.remote.hostname,
-    pathname: 'consortiameta',
+    pathname: (config.db.remote.pathname ? config.db.remote.pathname + '/' : '') + 'consortiameta',
     port: config.db.remote.port,
     protocol: config.db.remote.protocol,
 }));
