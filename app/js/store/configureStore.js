@@ -8,6 +8,7 @@
  */
 import { applyMiddleware, createStore } from 'redux';
 import createLogger from 'redux-logger';
+import promiseMiddleware from 'redux-promise';
 import thunkMiddleware from 'redux-thunk';
 
 import { default as authenticationMiddleware } from '../middleware/authentication';
@@ -21,6 +22,7 @@ const loggerMiddleware = createLogger({
 
 const createStoreWithMiddleware = applyMiddleware(
     thunkMiddleware,
+    promiseMiddleware,
     authenticationMiddleware,
     consortiumMiddleware,
     loggerMiddleware,
