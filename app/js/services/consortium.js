@@ -15,6 +15,13 @@ const consortia = dbs.get(url.format({
     protocol: config.db.remote.protocol,
 }));
 
+/**
+ * Consortium keys.
+ *
+ * These correspond to the keys on a consortium meta document.
+ *
+ * @type {object}
+ */
 const KEYS = {
     ANALYSES: 'analyses',
     DESCRIPTION: 'description',
@@ -27,7 +34,24 @@ const KEYS = {
 /**
  * Single response factory.
  *
- * @return {Promise}
+ * The single response factory wraps consortium interactions that modify
+ * singular data stores, i.e. stored documents that aren't a collection. These
+ * are typically key-value pairs where the value is a string.
+ *
+ * @example
+ * singleResponseFactory({
+ *     consortiumId: 'myConsortiumId',
+ *     key: KEYS.DESCRIPTION,
+ *     value: 'My new description...',
+ * });
+ * // returns Promise
+ *
+ * @param  {object}  options
+ * @param  {string}  options.consortiumId Consortium's id
+ * @param  {string}  options.key          Consortium key to modify (see the
+ *                                        `KEYS` constant)
+ * @param  {string}  options.value        Consortium key's new value
+ * @return {Promise}                      Result of database transaction
  */
 function singleResponseFactory({ consortiumId, key, value }) {
     return new Promise((resolve, reject) => {
@@ -46,7 +70,62 @@ function singleResponseFactory({ consortiumId, key, value }) {
 /**
  * Collection response factory.
  *
- * @return {Promise}
+ * The collection  response factory wraps consortium interactions that modify
+ * collectiondata stores, i.e. nested documents stored in an array.
+ *
+ * The collection has three operation 'modes': add, edit and delete. These are
+ * specified by the 'mode' argument, which should be one of the function's
+ * static symbols.
+ *
+ * **Add to a collection:** use the `collectionResponseFactory.ADD` symbol.
+ * Specify the item to add in the `options.value` parameter.
+ *
+ * @example <caption>Example addition of item</caption>
+ * collectionResponseFactory({
+ *     consortiumId: 'myConsortiumId',
+ *     key: KEYS.ANALYSES,
+ *     mode: collectionResponseFactory.ADD,
+ *     value: { label: 'My New Analysis' },
+ * });
+ * // returns Promise
+ *
+ * **Edit item in collection:** use the `collectionResponseFactory.EDIT` symbol.
+ * Specify the item to edit in the `options.value` parameter and the edited item
+ * in the `options.newValue` parameter.
+ *
+ * @example <caption>Example edit of item</caption>
+ * collectionResponseFactory({
+ *     consortiumId: 'myConsortiumId',
+ *     key: KEYS.TAGS,
+ *     mode: collectionResponseFactory.EDIT,
+ *     newValue: { name: 'My Edited Tag' },
+ *     value: { id: 100 },
+ * });
+ * // returns Promise
+ *
+ * **Remove item from collection:** use the `collectionResponseFactory.REMOVE`
+ * symbol. Specify the item to delete in the `options.value` parameter.
+ *
+ * @example <caption>Example removal of item</caption>
+ * collectionResponseFactory({
+ *     consortiumId: 'myConsortiumId',
+ *     key: KEYS.USERS,
+ *     mode: collectionResponseFactory.REMOVE,
+ *     value: { username: 'my-username' },
+ * });
+ * // returns Promise
+ *
+ * @param  {object}  options
+ * @param  {string}  options.consortiumId Consortium's id
+ * @param  {string}  options.key          Consortium key to modify (see the
+ *                                        `KEYS` constant)
+ * @param  {symbol}  options.mode         Operation's mode (see
+ *                                        'collectionResponseFactory`'s static
+ *                                        symbols)
+ * @param  {string}  options.newValue     Consortium key's new value, only
+ *                                        necessary in 'edit' mode
+ * @param  {mixed}   options.value        Consortium key's value to operate on
+ * @return {Promise}                      Result of database transaction
  */
 function collectionResponseFactory({
     consortiumId,
@@ -109,8 +188,29 @@ function collectionResponseFactory({
             .catch(reject)
     });
 }
+
+/**
+ * Collection response factory's 'add' mode symbol.
+ *
+ * @see collectionResponseFactory
+ * @type {symbol}
+ */
 collectionResponseFactory.ADD = Symbol('Add consortium value');
+
+/**
+ * Collection response factory's 'edit' mode symbol.
+ *
+ * @see collectionResponseFactory
+ * @type {symbol}
+ */
 collectionResponseFactory.EDIT = Symbol('Edit consortium value');
+
+/**
+ * Collection response factory's 'remove' mode symbol.
+ *
+ * @see collectionResponseFactory
+ * @type {symbol}
+ */
 collectionResponseFactory.REMOVE = Symbol('Remove consortium value');
 
 /**
@@ -118,9 +218,9 @@ collectionResponseFactory.REMOVE = Symbol('Remove consortium value');
  *
  * @todo  Validate `analysis.id` as unique. Define the analysis 'model'.
  *
- * @param  {number|string} consortiumId
- * @param  {object}        analysis
- * @param  {string}        analysis.label
+ * @param  {string}  consortiumId
+ * @param  {object}  analysis
+ * @param  {string}  analysis.label
  * @return {Promise}
  */
 export function validateAnalysis(consortiumId, { label }) {
@@ -145,11 +245,16 @@ export function validateAnalysis(consortiumId, { label }) {
     });
 }
 
+/**
+ * Consortium.
+ *
+ * @type {object}
+ */
 const consortium = {
     /**
      * Get consortium by ID.
      *
-     * @param  {number|string} id Consortium's id
+     * @param  {string}  id Consortium's id
      * @return {Promise}
      */
     get(id) {
@@ -159,8 +264,8 @@ const consortium = {
     /**
      * Add a user to a consortium.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} userId
+     * @param  {string}  consortiumId
+     * @param  {string}  username
      * @return {Promise}
      */
     addUser(consortiumId, username) {
@@ -174,8 +279,8 @@ const consortium = {
     /**
      * Remove a user from a consortium.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} userId
+     * @param  {string}  consortiumId
+     * @param  {string}  username
      * @return {Promise}
      */
     removeUser(consortiumId, username) {
@@ -190,8 +295,8 @@ const consortium = {
     /**
      * Edit a consortium's label.
      *
-     * @param  {number|string} consortiumId
-     * @param  {string}        label        Label's updated value
+     * @param  {string}  consortiumId
+     * @param  {string}  label        Label's updated value
      * @return {Promise}
      */
     editLabel(consortiumId, label) {
@@ -205,8 +310,8 @@ const consortium = {
     /**
      * Edit a consortium's description.
      *
-     * @param  {number|string} consortiumId
-     * @param  {string}        description  Description's updated value
+     * @param  {string}  consortiumId
+     * @param  {string}  description  Description's updated value
      * @return {Promise}
      */
     editDescription(consortiumId, description) {
@@ -220,8 +325,8 @@ const consortium = {
     /**
      * Add a tag to a consortium.
      *
-     * @param  {number|string} consortiumId
-     * @param  {object}        tag
+     * @param  {string}  consortiumId
+     * @param  {object}  tag
      * @return {Promise}
      */
     addTag(consortiumId, tag) {
@@ -235,9 +340,9 @@ const consortium = {
     /**
      * Edit a consortium's tag.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} tagId        Tag's ID
-     * @param  {string}        tag          Tag's new value
+     * @param  {string}          consortiumId
+     * @param  {(number|string)} tagId        Tag's ID
+     * @param  {string}          tag          Tag's new value
      * @return {Promise}
      */
     editTag(consortiumId, tagId, tag) {
@@ -253,8 +358,8 @@ const consortium = {
     /**
      * Remove a tag from a consortium.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} tagId
+     * @param  {string}          consortiumId
+     * @param  {(number|string)} tagId
      * @return {Promise}
      */
     removeTag(consortiumId, tagId) {
@@ -271,8 +376,8 @@ const consortium = {
      *
      * @todo  Build analysis validation into this method.
      *
-     * @param  {number|string} consortiumId
-     * @param  {object}        analysis
+     * @param  {string}  consortiumId
+     * @param  {object}  analysis
      * @return {Promise}
      */
     addAnalysis(consortiumId, analysis) {
@@ -286,9 +391,9 @@ const consortium = {
     /**
      * Edit a consortium's analysis.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} analysisId
-     * @param  {object}        analysis
+     * @param  {string}          consortiumId
+     * @param  {(number|string)} analysisId
+     * @param  {object}          analysis
      * @return {Promise}
      */
     editAnalysis(consortiumId, analysisId, analysis) {
@@ -304,8 +409,8 @@ const consortium = {
     /**
      * Remove analysis from a consortium.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} analysisId
+     * @param  {string}          consortiumId
+     * @param  {(number|string)} analysisId
      * @return {Promise}
      */
     removeAnalysis(consortiumId, analysisId) {
@@ -320,8 +425,8 @@ const consortium = {
     /**
      * Add analysis result to a consortium.
      *
-     * @param  {number|string} consortiumId
-     * @param  {object}        result
+     * @param  {string}  consortiumId
+     * @param  {object}  result
      * @return {Promise}
      */
     addResult(consortiumId, result) {
@@ -335,9 +440,9 @@ const consortium = {
     /**
      * Edit a consortia's analysis result.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} resultId
-     * @param  {object}        result
+     * @param  {string}          consortiumId
+     * @param  {(number|string)} resultId
+     * @param  {object}          result
      * @return {Promise}
      */
     editResult(consortiumId, resultId, result) {
@@ -353,8 +458,8 @@ const consortium = {
     /**
      * Remove an analysis result from a consortia.
      *
-     * @param  {number|string} consortiumId
-     * @param  {number|string} resultId
+     * @param  {string}          consortiumId
+     * @param  {(number|string)} resultId
      * @return {Promise}
      */
     removeResult(consortiumId, resultId) {
