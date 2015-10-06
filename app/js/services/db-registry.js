@@ -8,13 +8,13 @@ var app = require('ampersand-app');
 
 var appDirectory = require('../../common/utils/app-directory');
 
+var LOCAL_STORES = ['projects'];
+var REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
+var REMOTE_STORES_SYNC_OUT = ['consortium-', 'consortiameta'];
+
 Pouchy.PouchDB.defaults({
     prefix: appDirectory
 });
-
-var LOCAL_STORES = ['projects'];
-var REMOTE_STORES_SYNC_IN = ['coinstac-users', 'coinstac-consortia'];
-var REMOTE_STORES_SYNC_OUT = ['consortium-'];
 
 var REMOTE_CONNECTION_DEFAULTS = {
     protocol: config.db.remote.protocol,
@@ -65,33 +65,49 @@ dbs.get = function(nameOrUrl) {
 }
 
 /**
- * Register an app-level datastore
- * @param  {object} opts required options for a Pouchy instance
- * @option {string} name
- * @return {Pouchy} database instance
+ * Register an app-level datastore.
+ *
+ * @param  {object} opts      Required options for a Pouchy instance
+ * @param  {string} opts.name Store's registered name, see `LOCAL_STORES`,
+ *                            `REMOTE_STORES_SYNC_IN` and
+ *                            `REMOTE_STORES_SYNC_OUT`
+ * @param  {string} opts.url  Store's URL
+ * @return {Pouchy}           Database instance
  */
 dbs.register = function(opts) {
     var dbConnStr = opts.name || opts.url;
+    var db;
+
+    /**
+     * Store contains `dbConnStr`.
+     *
+     * @param  {array}   store
+     * @return {boolean}
+     */
+    function hasDbConnStr(store) {
+        return store.some(function(format) {
+            return _.contains(dbConnStr, format);
+        });
+    }
+
     // assert db can register, and configure its domain
-    if (LOCAL_STORES.some(function(format) { return _.contains(dbConnStr, format); })) {
-        if (!appDirectory) {
-            throw new TypeError('path must be specified for db');
-        }
+    if (hasDbConnStr(LOCAL_STORES)) {
         opts.path = appDirectory;
-    } else if (REMOTE_STORES_SYNC_OUT.some(function(format) { return _.contains(dbConnStr, format); })) {
-        if (!appDirectory) {
-            throw new TypeError('path must be specified for db');
-        }
+    } else if (hasDbConnStr(REMOTE_STORES_SYNC_OUT)) {
         opts.path = appDirectory;
-        opts.replicate = 'both'; // @TODO outbound replications to happen manually using `replicate.to()`
-    } else if (REMOTE_STORES_SYNC_IN.some(function(format) { return _.contains(dbConnStr, format); })) {
+
+        // @TODO outbound replications to happen manually using `replicate.to()`
+        opts.replicate = 'both';
+    } else if (hasDbConnStr(REMOTE_STORES_SYNC_IN)) {
         opts.replicate = 'in';
     } else {
-        throw new ReferenceError(`database ${name} does not fit LOCAL or REMOTE database varraints`);
+        throw new ReferenceError(
+            `database ${name} does not fit LOCAL or REMOTE database variants`
+        );
     }
 
     // build db and cache it
-    let db = new Pouchy(opts);
+    db = new Pouchy(opts);
     dbs.registery[opts.name] = db;
     dbs.push(db);
     return db;
