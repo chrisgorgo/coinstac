@@ -10,6 +10,7 @@ import {
     addUser,
     editResult,
     fetchConsortium,
+    fetchResults,
     removeAnalysis,
     removeResult,
     removeUser,
@@ -27,9 +28,10 @@ class ConsortiumSingleController extends Component {
     }
 
     componentWillMount() {
-        const { actions: { fetchConsortium } } = this.props;
+        const { actions: { fetchConsortium, fetchResults } } = this.props;
 
         fetchConsortium();
+        fetchResults();
     }
 
     componentDidMount() {
@@ -62,7 +64,7 @@ class ConsortiumSingleController extends Component {
         const { doc, doc: { _id: resultId } } = change;
         const {
             actions: { addResult, editResult },
-            consortium: { results },
+            consortium: { ui_results: results },
         } = this.props;
 
         // If the doc's already in the results it's an edit
@@ -123,6 +125,7 @@ function mapDispatchToProps(dispatch, ownProps) {
         addUser: partial(addUser, _id, username),
         editResult: partial(editResult, _id),
         fetchConsortium: partial(fetchConsortium, _id),
+        fetchResults: partial(fetchResults, _id),
         removeAnalysis: partial(removeAnalysis, _id),
         removeResult: partial(removeResult, _id),
         removeUser: partial(removeUser, _id, username),

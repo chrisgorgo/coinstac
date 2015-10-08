@@ -2,9 +2,6 @@ import Promise from 'bluebird';
 import uuid from 'uuid';
 
 import consortium, { validateAnalysis } from '../services/consortium';
-import {
-    getResults as getConsortiumAnalysisResults,
-} from '../services/consortium-analyses-results';
 
 /**
  * Consortium retrieval.
@@ -17,16 +14,8 @@ export const CONSORTIUM_ERROR = 'CONSORTIUM_ERROR';
 export function fetchConsortium(id) {
     return dispatch => {
         dispatch(requestConsortium(id));
-
-        /** @todo  Figure out how to clean up this mess */
-        Promise.all([
-            consortium.get(id),
-            getConsortiumAnalysisResults(id),
-        ])
-            .then(([consortium, results]) => {
-                consortium.results = results;
-                dispatch(receiveConsortium(consortium))
-            })
+        consortium.get(id)
+            .then(consortium => dispatch(receiveConsortium(consortium)))
             .catch(error => dispatch(consortiumError(error)));
     };
 }
@@ -201,4 +190,40 @@ export function removeResult(consortiumId, resultId) {
         id: resultId,
         type: CONSORTIUM_REMOVE_RESULT,
     };
+}
+
+
+import { getResults } from '../services/consortium-analyses-results';
+
+/**
+ * Consortium analyses results fetching.
+ *
+ * @todo  Move to a more appropriate result-centered actions file.
+ */
+
+export const CONSORTIUM_RESULTS_RECEIVE = 'CONSORTIUM_RESULTS_RECEIVE';
+export const CONSORTIUM_RESULTS_REQUEST = 'CONSORTIUM_RESULTS_REQUEST';
+
+export function fetchResults(consortiumId) {
+    return dispatch => {
+        dispatch(requestResults(consortiumId));
+        getResults(consortiumId)
+            .then(results => dispatch(receiveResults(consortiumId, results)))
+            .catch(error => dispatch(consortiumError(error)));
+    }
+}
+
+function requestResults(consortiumId) {
+    return {
+        consortiumId: consortiumId,
+        type: CONSORTIUM_RESULTS_REQUEST,
+    };
+}
+
+function receiveResults(consortiumId, results) {
+    return {
+        consortiumId: consortiumId,
+        results,
+        type: CONSORTIUM_RESULTS_RECEIVE,
+    }
 }

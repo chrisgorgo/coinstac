@@ -48,17 +48,23 @@ class ConsortiumSingle extends Component {
     }
 
     renderResults() {
-        const { results } = this.props;
+        const { ui_results: results } = this.props;
 
-        return (
-            <div className="consortium-single-results">
-                {results.map(result => {
-                    return (
-                        <ConsortiumSingleResult key={result._id} {...result} />
-                    );
-                })}
-            </div>
-        );
+        if (results.length > 0) {
+            return (
+                <div className="consortium-single-results">
+                    {results.map(result => {
+                        return (
+                            <ConsortiumSingleResult
+                                key={result._id}
+                                {...result} />
+                        );
+                    })}
+                </div>
+            );
+        } else {
+            return <div>Loading results…</div>;
+        }
     }
 
     renderTags() {
@@ -100,7 +106,6 @@ class ConsortiumSingle extends Component {
             description,
             isMember,
             label,
-            results,
             tags,
             ui_isLoading,
             users,
@@ -187,7 +192,7 @@ ConsortiumSingle.propTypes = {
     description: PropTypes.string.isRequired,
     isMember: PropTypes.bool.isRequired,
     label: PropTypes.string.isRequired,
-    results: PropTypes.array.isRequired,
+    ui_results: PropTypes.array.isRequired,
     tags: PropTypes.array.isRequired,
     ui_error: PropTypes.string.isRequired,
     ui_isLoading: PropTypes.bool.isRequired,
