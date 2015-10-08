@@ -12,9 +12,9 @@ import {
     CONSORTIUM_ADD_ANALYSIS,
     CONSORTIUM_EDIT_ANALYSIS,
     CONSORTIUM_REMOVE_ANALYSIS,
-    CONSORTIUM_ADD_RESULTS,
-    CONSORTIUM_EDIT_RESULTS,
-    CONSORTIUM_REMOVE_RESULTS,
+    CONSORTIUM_ADD_RESULT,
+    CONSORTIUM_EDIT_RESULT,
+    CONSORTIUM_REMOVE_RESULT,
 } from '../actions/consortium';
 
 export default function consortiumReducer(state = {
@@ -95,25 +95,23 @@ export default function consortiumReducer(state = {
                 return analysis.id !== action.id;
             });
             return Object.assign({}, state, { analyses });
-        case CONSORTIUM_ADD_RESULTS:
+        case CONSORTIUM_ADD_RESULT:
             return Object.assign({}, state, {
-                results: [...state.results, action.results]
+                results: [...state.results, action.result]
             });
-        case CONSORTIUM_EDIT_RESULTS:
-            /** @todo  Confirm shape of results object */
+        case CONSORTIUM_EDIT_RESULT:
             results = state.results.map(result => {
-                if (result.id === action.id) {
+                if (result._id === action.id) {
                     return action.result;
                 }
                 return result;
             });
             return Object.assign({}, state, { results });
-        case CONSORTIUM_REMOVE_RESULTS:
-            return Object.assign({}, state, {
-                results: state.results.filter(result => {
-                    return result.id !== action.id
-                }),
+        case CONSORTIUM_REMOVE_RESULT:
+            results = state.results.filter(result => {
+                return result._id !== action.id
             });
+            return Object.assign({}, state, { results });
         default:
             return state;
     }

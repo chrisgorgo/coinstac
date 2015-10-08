@@ -174,31 +174,31 @@ export function removeAnalysis(consortiumId, analysisId) {
  * Results consortium actions/action creators.
  */
 
-export const CONSORTIUM_ADD_RESULTS = 'CONSORTIUM_ADD_RESULTS';
-export const CONSORTIUM_EDIT_RESULTS = 'CONSORTIUM_EDIT_RESULTS';
-export const CONSORTIUM_REMOVE_RESULTS = 'CONSORTIUM_REMOVE_RESULTS';
+export const CONSORTIUM_ADD_RESULT = 'CONSORTIUM_ADD_RESULT';
+export const CONSORTIUM_EDIT_RESULT = 'CONSORTIUM_EDIT_RESULT';
+export const CONSORTIUM_REMOVE_RESULT = 'CONSORTIUM_REMOVE_RESULT';
 
-export function addResults(consortiumId, results) {
+export function addResult(consortiumId, result) {
     return {
         consortiumId,
-        results,
-        type: CONSORTIUM_ADD_RESULTS,
+        result,
+        type: CONSORTIUM_ADD_RESULT,
     };
 }
 
-export function editResults(consortiumId, resultsId, results) {
+export function editResult(consortiumId, resultId, result) {
     return {
         consortiumId,
-        id: resultsId,
-        results,
-        type: CONSORTIUM_EDIT_RESULTS,
+        id: resultId,
+        result,
+        type: CONSORTIUM_EDIT_RESULT,
     };
 }
 
-export function removeResults(consortiumId, resultsId) {
+export function removeResult(consortiumId, resultId) {
     return {
         consortiumId,
-        id: resultsId,
-        type: CONSORTIUM_ADD_RESULTS,
+        id: resultId,
+        type: CONSORTIUM_REMOVE_RESULT,
     };
 }

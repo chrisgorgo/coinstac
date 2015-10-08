@@ -66,6 +66,13 @@ class ConsortiumSingleResult extends Component {
     }
 };
 
+ConsortiumSingleResult.defaultProps = {
+    contributors: [],
+    data: {},
+    files: [],
+    sampleSize: 0,
+};
+
 ConsortiumSingleResult.displayName = 'ConsortiumSingleResult';
 
 ConsortiumSingleResult.propTypes = {

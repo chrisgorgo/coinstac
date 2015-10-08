@@ -5,23 +5,81 @@ import partial from 'lodash/function/partial';
 
 import Auth from '../services/auth';
 import {
-    fetchConsortium,
-    addUser,
-    removeUser,
     addAnalysis,
+    addResult,
+    addUser,
+    editResult,
+    fetchConsortium,
     removeAnalysis,
+    removeResult,
+    removeUser,
 } from '../actions/consortium';
 import ConsortiumSingle from './consortium-single';
+import {
+    getListener as getConsortiumAnalysisResultsListener
+} from '../services/consortium-analyses-results';
 
 class ConsortiumSingleController extends Component {
     constructor(props) {
         super(props);
+        this.onAnalysisResultsDelete = this.onAnalysisResultsDelete.bind(this);
+        this.onAnalysisResultsChange = this.onAnalysisResultsChange.bind(this);
     }
+
     componentWillMount() {
         const { actions: { fetchConsortium } } = this.props;
 
         fetchConsortium();
     }
+
+    componentDidMount() {
+        const { query: { _id: consortiumId } } = this.props;
+
+        getConsortiumAnalysisResultsListener(consortiumId).on(
+            'change',
+            this.onAnalysisResultsChange
+        );
+        getConsortiumAnalysisResultsListener(consortiumId).on(
+            'delete',
+            this.onAnalysisResultsDelete
+        );
+    }
+
+    componentWillUnmount() {
+        const { query: { _id: consortiumId } } = this.props;
+
+        getConsortiumAnalysisResultsListener(consortiumId).removeListener(
+            'change',
+            this.onAnalysisResultsChange
+        );
+        getConsortiumAnalysisResultsListener(consortiumId).removeListener(
+            'delete',
+            this.onAnalysisResultsDelete
+        );
+    }
+
+    onAnalysisResultsChange(change) {
+        const { doc, doc: { _id: resultId } } = change;
+        const {
+            actions: { addResult, editResult },
+            consortium: { results },
+        } = this.props;
+
+        // If the doc's already in the results it's an edit
+        if (results.some(r => r._id === resultId)) {
+            editResult(resultId, doc);
+        } else {
+            addResult(doc);
+        }
+    }
+
+    onAnalysisResultsDelete(change) {
+        const { doc: { _id: resultId } } = change;
+        const { removeResult } = this.props.actions;
+
+        removeResult(resultId);
+    }
+
     render() {
         const { consortium, actions } = this.props;
 
@@ -60,11 +118,14 @@ function mapDispatchToProps(dispatch, ownProps) {
     const { query: { _id } } = ownProps;
     const { username } = Auth.getUser();
     const actions = {
-        fetchConsortium: partial(fetchConsortium, _id),
-        addUser: partial(addUser, _id, username),
-        removeUser: partial(removeUser, _id, username),
         addAnalysis: partial(addAnalysis, _id),
+        addResult: partial(addResult, _id),
+        addUser: partial(addUser, _id, username),
+        editResult: partial(editResult, _id),
+        fetchConsortium: partial(fetchConsortium, _id),
         removeAnalysis: partial(removeAnalysis, _id),
+        removeResult: partial(removeResult, _id),
+        removeUser: partial(removeUser, _id, username),
     };
 
     return {
