@@ -149,8 +149,20 @@ function deleteListener(consortiumId) {
     }
 }
 
+/**
+ * Get consortium analysis results.
+ *
+ * Returns documents from the consortium analysis store that have an attribute
+ * `aggregate` that is `true`.
+ *
+ * @todo  Improve performance of request.
+ *
+ * @param  {string}  consortiumId
+ * @return {Promise}              Pouch request that resolves to results
+ */
 function getResults(consortiumId) {
-    return getDb(consortiumId).all();
+    return getDb(consortiumId).all()
+        .then(docs => docs.filter(d => !!d.aggregate));
 }
 
 export { getListener, deleteListener, getResults };

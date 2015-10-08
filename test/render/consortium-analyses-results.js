@@ -25,12 +25,18 @@ const documents = [{
     data: { 'Data': 1 },
     error: null,
     files: ['four', 'five', 'six'],
+}, {
+    _id: 'doc3',
+    aggregate: true,
+    data: { 'Data': 2 },
+    error: null,
+    files: ['seven'],
 }];
-const mockDbsGet = function(name) {
+const mockDbsGet = name => {
     const slug = name.replace(/_/g, '-');
 
     if (slug.indexOf(consortiumId) !== -1) {
-        return database;
+        return database; // Defined in setup
     } else {
         throw new Error(`dbs.get request for unknown “${name}”`);
     }
@@ -81,7 +87,13 @@ test('seed test database', t => {
 });
 
 test('retrieve stored results', t => {
-    t.plan(documents.length);
+    /**
+     * This tests the `getResults` export, which only returns documents that
+     * have an `aggregate` property that's truthy.
+     */
+    const aggregateDocs = documents.filter(d => !!d.aggregate);
+
+    t.plan(aggregateDocs.length);
 
     /**
      * Test helper for comparing a PouchDB document to the original object.
@@ -106,7 +118,7 @@ test('retrieve stored results', t => {
     getResults(consortiumId)
         .then(docs => {
             docs.forEach((doc, index) => {
-                compareDocs(doc, documents[index]);
+                compareDocs(doc, aggregateDocs[index]);
             });
         })
         .catch(t.error);
@@ -155,10 +167,10 @@ test('emit change events', t => {
         })
         .then(() => {
             return database.save({
-                aggregate: true,
+                aggregate: false,
                 data: null,
                 error: null,
-                files: ['seven'],
+                files: ['eight'],
             });
         })
         .catch(t.error);
