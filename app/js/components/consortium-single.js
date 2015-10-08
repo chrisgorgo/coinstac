@@ -1,6 +1,7 @@
 import { Button } from 'react-bootstrap';
 import React, { Component, PropTypes } from 'react';
 
+import ConsortiumSingleResult from './consortium-single-result';
 import FormAddAnalysis from './form-add-analysis';
 
 class ConsortiumSingle extends Component {
@@ -46,9 +47,18 @@ class ConsortiumSingle extends Component {
         );
     }
 
-    /** @todo  Implement */
     renderResults() {
-        return;
+        const { results } = this.props;
+
+        return (
+            <div className="consortium-single-results">
+                {results.map(result => {
+                    return (
+                        <ConsortiumSingleResult key={result._id} {...result} />
+                    );
+                })}
+            </div>
+        );
     }
 
     renderTags() {

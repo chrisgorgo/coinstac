@@ -1,7 +1,10 @@
+import Promise from 'bluebird';
 import uuid from 'uuid';
 
 import consortium, { validateAnalysis } from '../services/consortium';
-
+import {
+    getResults as getConsortiumAnalysisResults,
+} from '../services/consortium-analyses-results';
 
 /**
  * Consortium retrieval.
@@ -14,8 +17,16 @@ export const CONSORTIUM_ERROR = 'CONSORTIUM_ERROR';
 export function fetchConsortium(id) {
     return dispatch => {
         dispatch(requestConsortium(id));
-        consortium.get(id)
-            .then(consortium => dispatch(receiveConsortium(consortium)))
+
+        /** @todo  Figure out how to clean up this mess */
+        Promise.all([
+            consortium.get(id),
+            getConsortiumAnalysisResults(id),
+        ])
+            .then(([consortium, results]) => {
+                consortium.results = results;
+                dispatch(receiveConsortium(consortium))
+            })
             .catch(error => dispatch(consortiumError(error)));
     };
 }
