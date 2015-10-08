@@ -5,13 +5,14 @@ import ConsortiumCard from './consortium-card';
 import consortia from '../services/consortia';
 
 export default class DashboardConsortia extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = { consortia: [] };
     }
-    componentDidMount() {
+    componentWillMount() {
         consortia.all()
-            .then(consortia => this.setState({ consortia }));
+            .then(consortia => this.setState({ consortia }))
+            .catch(err => console.error(err));
     }
     render() {
         return (

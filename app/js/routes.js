@@ -16,7 +16,7 @@ import Home from './components/home';
 import LayoutNoAuth from './components/layout-noauth'
 import Login from './components/form-login-controller';
 import Signup from './components/form-signup-controller';
-import ConsortiumSingle from './components/consortium-single';
+import ConsortiumSingleController from './components/consortium-single-controller';
 import DashboardProjects from './components/projects/dashboard-projects';
 import ProjectsList from './components/projects/projects-list';
 import PageProject from './components/projects/page-project';
@@ -33,7 +33,7 @@ export default (
             <Route name="dashboard" path="/home" handler={Dashboard}>
                 <DefaultRoute handler={DashboardHome} />
                 <Route name="consortia" handler={DashboardConsortia} />
-                <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingle} />
+                <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingleController} />
                 <Route name="projects" handler={DashboardProjects}>
                     <DefaultRoute name="projects-list" handler={ProjectsList} />
                     <Route
