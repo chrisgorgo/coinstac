@@ -2,7 +2,34 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
 var FreeSurfer = require('freesurfer-parser');
-var osr = require('coinstac-distributed-algorithm-set').oneShotRegression;
+var algos = require('coinstac-distributed-algorithm-set');
+var osr = algos.oneShotRegression;
+var utils = algos.utils;
+
+/**
+ * @TODO change input to take x & y and minimize m
+ */
+var computeRegression = function(analysisInputs, analysisMeta) {
+    var xVals = _.pluck(analysisInputs, 'predictors');
+    var initialMVals = _.range(1, xVals[0].length + 1, 0);
+    var yVals = _.pluck(analysisInputs, 'dependentVars');
+
+    // @TODO dep vars (control/patient) must have both types
+    var normalizedYVals = utils.normalize(yVals);
+    var normalizedXVals = utils.normalize(xVals);
+
+    var optimizedMVals = osr.minimize(initialMVals, normalizedXVals, normalizedYVals);
+
+    var predictedYVals = osr.applyModel(optimizedMVals, normalizedXVals);
+
+    var r2 = utils.r2(normalizedYVals, predictedYVals);
+
+    return _.assign(
+        {},
+        _.zipObject(analysisMeta.predictors, optimizedMVals),
+        { r2: r2}
+    );
+};
 
 /*
  * @param  {object} request object of form {requestId: number, files: [set, of, files (ref models/file.js)]}
@@ -70,12 +97,7 @@ module.exports = function(request) {
             });
     });
 
-    return Promise.all(roiPromises)
-        .then(function computeRegression(analysisInputs) {
-            var predictors = _.pluck(analysisInputs, 'predictors');
-            var response = _.pluck(analysisInputs, 'dependentVars');
-            var regressor = _.range(1, predictors[0].length + 1, 0);
-            var minimizedRegressors = osr.minimize(regressor, predictors, response);
-            return _.zipObject(analysisMeta.predictors, minimizedRegressors);
-        });
+    return Promise.all(roiPromises).then(function(analysisInputs) {
+        return computeRegression(analysisInputs, analysisMeta);
+    });
 };

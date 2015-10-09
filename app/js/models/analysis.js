@@ -23,7 +23,7 @@ var Analysis = PouchDocument.extend(isoDateMixin, {
             required: true,
             allowNull: false
         },
-        result: {
+        data: {
             type: 'array',
             required: true,
             allowNull: false
