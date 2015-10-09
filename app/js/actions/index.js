@@ -2,6 +2,7 @@
  * action types
  */
 export const INIT = 'init';
+export const PROJECT_FILE_CHANGE_CONTROL_TAG = 'PROJECT_FILE_CHANGE_CONTROL_TAG';
 export const SET_CONSORTIA = 'SET_CONSORTIA';
 export const SET_PROJECT = 'SET_PROJECT';
 export const SET_PROJECT_CONSORTIUM_CTX = 'SET_PROJECT_CONSORTIUM_CTX';
@@ -39,3 +40,20 @@ export function setUser(user) {
 export function setSignupUser(user) {
     return { type: SET_SIGNUP_USER, user };
 };
+
+/**
+ * Change a project's file's `control` tag value.
+ *
+ * @param  {string}  projectId Stored project's ID
+ * @param  {string}  fileSha   Stored file's SHA hash
+ * @param  {boolean} tagValue  `true` if the file represents a control
+ * @return {object}
+ */
+export function changeFileControlTag(projectId, fileSha, tagValue) {
+    return {
+        fileSha,
+        projectId,
+        type: PROJECT_FILE_CHANGE_CONTROL_TAG,
+        value: tagValue,
+    };
+}

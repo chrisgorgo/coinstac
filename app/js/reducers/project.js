@@ -1,4 +1,5 @@
 import {
+    PROJECT_FILE_CHANGE_CONTROL_TAG,
     SET_PROJECT,
     SET_PROJECT_CONSORTIUM_CTX,
     SET_PROJECT_CONSORTIUM_ANALYSIS_CTX
@@ -28,6 +29,16 @@ export default function reduce(state = initialState, action) {
             }
             newState.consortium.ui_selectedAnalysis = action.analysisId;
             return newState;
+
+        case PROJECT_FILE_CHANGE_CONTROL_TAG:
+            return Object.assign({}, state, {
+                files: state.files.map(file => {
+                    if (file.sha === action.fileSha) {
+                        file.tags.control = action.value;
+                    }
+                    return file;
+                }),
+            });
 
         default:
             return state;

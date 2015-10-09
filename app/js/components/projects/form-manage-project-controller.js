@@ -132,6 +132,41 @@ class FormManageProjectController extends React.Component {
         return this.setConsortiumContext(evt.target.value);
     }
 
+    /**
+     * Toggle the 'control' flag tag on a file object.
+     *
+     * @param  {number}  fileIndex
+     * @param  {boolean} isControl
+     * @return {Promise}
+     */
+    handleFileControlChange(fileIndex, isControl) {
+        const controlTagValue = !!isControl;
+        const projectId = this.project._id;
+        const projectsDb = dbs.get('projects');
+
+        function errorHandler(error) {
+            app.notifications.push({
+                level: 'error',
+                message: `Couldn’t change control tag on file #${fileIndex + 1}`,
+            });
+            console.error(error);
+        }
+
+        return projectsDb.get(projectId)
+            .then(project => {
+                const file = project.files[fileIndex];
+                file.tags.control = controlTagValue;
+                return projectsDb.save(project)
+                    .then(() => {
+                        actions.changeFileControlTag(
+                            projectId,
+                            file.sha,
+                            controlTagValue
+                        );
+                    }, errorHandler);
+            }, errorHandler);
+    }
+
     handleFileDelete(file, data, rowIndex, property) {
         // queue all updates to the project to happen one at a time
         projectAsyncQueue = projectAsyncQueue.then(() => {
@@ -314,6 +349,7 @@ class FormManageProjectController extends React.Component {
                 projectModel={this.project}
                 handleConsortiumCtxChange={this.handleConsortiumCtxChange.bind(this)}
                 handleAnalysisCtxChange={this.handleAnalysisCtxChange.bind(this)}
+                handleFileControlChange={this.handleFileControlChange.bind(this)}
                 handleFileDelete={this.handleFileDelete.bind(this)}
                 handleFileSearch={this.handleFileSearch.bind(this)}
                 handleSubmitAnalyze={this.handleSubmitAnalyze.bind(this)}

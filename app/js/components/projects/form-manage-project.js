@@ -108,6 +108,7 @@ export default class FormManageProject extends React.Component {
                         <ProjectFiles
                             project={projectModel}
                             consortium={consortium}
+                            handleFileControlChange={this.props.handleFileControlChange}
                             handleFileSearch={this.props.handleFileSearch}
                             handleFileDelete={this.props.handleFileDelete} />
                     ) : <span>Please select a consortium & analysis</span>

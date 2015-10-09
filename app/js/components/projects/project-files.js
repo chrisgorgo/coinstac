@@ -44,6 +44,26 @@ export default class ProjectFiles extends React.Component {
         ];
 
         columns.push({
+            header: 'Is Control',
+            cell: (value, data, rowIndex) => {
+                const isChecked = data[rowIndex].tags.control;
+                const handleChange =
+                    this.props.handleFileControlChange.bind(
+                        null, rowIndex, !isChecked
+                    );
+
+                return {
+                    value: (
+                        <input
+                            checked={isChecked}
+                            onChange={handleChange}
+                            type="checkbox" />
+                    ),
+                };
+            }
+        });
+
+        columns.push({
             header: 'Delete',
             cell: (value, data, rowIndex, property) => {
                 value = data[rowIndex];
