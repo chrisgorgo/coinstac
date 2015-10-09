@@ -158,11 +158,7 @@ class FormManageProjectController extends React.Component {
                 file.tags.control = controlTagValue;
                 return projectsDb.save(project)
                     .then(() => {
-                        actions.changeFileControlTag(
-                            projectId,
-                            file.sha,
-                            controlTagValue
-                        );
+                        actions.setProject((new Project(project).serialize()))
                     }, errorHandler);
             }, errorHandler);
     }
