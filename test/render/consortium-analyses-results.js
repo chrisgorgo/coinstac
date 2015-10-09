@@ -47,7 +47,7 @@ let dbsGetRef;
 let resultsEmitter;
 
 test('test setup', t => {
-    t.plan(2);
+    t.plan(documents.length * 2 + 1);
 
     database = new Pouchy({
         name: consortiumId,
@@ -56,9 +56,13 @@ test('test setup', t => {
         },
     });
 
-    database.all()
-        .then(docs => {
-            t.ok(docs, 'database instantiated');
+    // Seed the test database
+    database.bulkDocs(documents)
+        .then(results => {
+            results.forEach((result, index) => {
+                t.ok(result.ok, 'doc okay');
+                t.equals(result.id, documents[index]._id, 'id matches');
+            });
         })
         .catch(t.error);
 
@@ -73,58 +77,7 @@ test('test setup', t => {
     t.equals(dbs.get, mockDbsGet, 'mock dbs.get');
 });
 
-test('seed test database', t => {
-    t.plan(documents.length * 2);
-
-    database.bulkDocs(documents)
-        .then(results => {
-            results.forEach((result, index) => {
-                t.ok(result.ok, 'doc okay');
-                t.equals(result.id, documents[index]._id, 'id matches');
-            });
-        })
-        .catch(t.error);
-});
-
-test('retrieve stored results', t => {
-    /**
-     * This tests the `getResults` export, which only returns documents that
-     * have an `aggregate` property that's truthy.
-     */
-    const aggregateDocs = documents.filter(d => !!d.aggregate);
-
-    t.plan(aggregateDocs.length);
-
-    /**
-     * Test helper for comparing a PouchDB document to the original object.
-     *
-     * @param  {object} actual
-     * @param  {object} expected
-     * @return {tape.assert}
-     */
-    function compareDocs(actual, expected) {
-        const expectedKeys = Object.keys(expected);
-        // Strip extra Pouch keys by doing an object 'map'
-        const mappedActual = Object.keys(actual).reduce((result, key) => {
-            if (expectedKeys.indexOf(key) !== -1) {
-                result[key] = actual[key];
-            }
-            return result;
-        }, {});
-
-        t.deepEqual(mappedActual, expected);
-    }
-
-    getResults(consortiumId)
-        .then(docs => {
-            docs.forEach((doc, index) => {
-                compareDocs(doc, aggregateDocs[index]);
-            });
-        })
-        .catch(t.error);
-});
-
-test('get an EventEmitter', t => {
+test('result listner is an EventEmitter', t => {
     resultsEmitter = getListener(consortiumId);
 
     t.ok(resultsEmitter instanceof EventEmitter);
@@ -132,7 +85,7 @@ test('get an EventEmitter', t => {
 });
 
 
-test('emit change events', t => {
+test('result listener emits change events', t => {
     const maxCount = 3;
     let count = 0;
 
@@ -176,7 +129,7 @@ test('emit change events', t => {
         .catch(t.error);
 });
 
-test('emit delete events', t => {
+test('result listener emits delete events', t => {
     t.plan(3);
 
     // Set up listener
@@ -196,7 +149,7 @@ test('emit delete events', t => {
         .catch(t.error);
 });
 
-test('should be destroy-able', t => {
+test('result listerener can be destroy-able', t => {
     deleteListener(consortiumId);
 
     t.notOk('_listeners' in resultsEmitter, 'Listeners removed');
