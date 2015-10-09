@@ -36,13 +36,15 @@ Object.defineProperty(dbs, 'names', {
 
 
 // Load db registry helper services onto window in dev
-window.dbs = dbs;
-window.log = function() {
-    return _.toArray(arguments).forEach(function(arg, ndx) {
-        console.info('log ndx: ', ndx);
-        console.dir(arg);
-    });
-};
+if (app.isDev) {
+    window.dbs = dbs;
+    window.log = function() {
+        return _.toArray(arguments).forEach(function(arg, ndx) {
+            console.info('log ndx: ', ndx);
+            console.dir(arg);
+        });
+    };
+}
 
 /**
  * gets an existing or new instance of a db
