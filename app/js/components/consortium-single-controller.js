@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
 import partial from 'lodash/function/partial';
 
+import app from 'ampersand-app';
 import Auth from '../services/auth';
 import {
     addAnalysis,
@@ -66,18 +67,31 @@ class ConsortiumSingleController extends Component {
             actions: { addResult, editResult },
             consortium: { ui_results: results },
         } = this.props;
+        let message;
 
         // If the doc's already in the results it's an edit
         if (results.some(r => r._id === resultId)) {
+            message = 'Analyses result edited';
             editResult(resultId, doc);
         } else {
+            message = 'Analyses result added';
             addResult(doc);
         }
+
+        app.notifications.push({
+            level: 'success',
+            message,
+        });
     }
 
     onAnalysisResultsDelete(change) {
         const { doc: { _id: resultId } } = change;
         const { removeResult } = this.props.actions;
+
+        app.notifications.push({
+            level: 'success',
+            message: 'Analyses result removed',
+        });
 
         removeResult(resultId);
     }
