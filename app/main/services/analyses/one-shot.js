@@ -52,7 +52,7 @@ module.exports = function(request) {
         predictors: request.predictors,
         getDependentVars: function(file) {
             // return true if file is for a control
-            return _.get(file, 'tags.control') ? 0 : 1;
+            return _.get(file, 'tags.control') ? -1 : 1;
         }
     };
 
