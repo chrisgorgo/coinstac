@@ -12,23 +12,24 @@ import {
     CONSORTIUM_ADD_ANALYSIS,
     CONSORTIUM_EDIT_ANALYSIS,
     CONSORTIUM_REMOVE_ANALYSIS,
-    CONSORTIUM_ADD_RESULTS,
-    CONSORTIUM_EDIT_RESULTS,
-    CONSORTIUM_REMOVE_RESULTS,
+    CONSORTIUM_ADD_RESULT,
+    CONSORTIUM_EDIT_RESULT,
+    CONSORTIUM_REMOVE_RESULT,
+    CONSORTIUM_RESULTS_RECEIVE,
+    CONSORTIUM_RESULTS_REQUEST,
 } from '../actions/consortium';
 
 export default function consortiumReducer(state = {
     analyses: [],
     description: '',
     label: '',
-    results: [],
+    ui_results: [],
     tags: [],
     ui_error: '',
     ui_isLoading: false,
     users: [],
 }, action) {
     let analyses;
-    let results;
     let tags;
     switch (action.type) {
         case CONSORTIUM_RECEIVE:
@@ -95,24 +96,29 @@ export default function consortiumReducer(state = {
                 return analysis.id !== action.id;
             });
             return Object.assign({}, state, { analyses });
-        case CONSORTIUM_ADD_RESULTS:
+        case CONSORTIUM_ADD_RESULT:
             return Object.assign({}, state, {
-                results: [...state.results, action.results]
+                ui_results: [...state.ui_results, action.result],
             });
-        case CONSORTIUM_EDIT_RESULTS:
-            /** @todo  Confirm shape of results object */
-            results = state.results.map(result => {
-                if (result.id === action.id) {
-                    return action.result;
-                }
-                return result;
-            });
-            return Object.assign({}, state, { results });
-        case CONSORTIUM_REMOVE_RESULTS:
+        case CONSORTIUM_EDIT_RESULT:
             return Object.assign({}, state, {
-                results: state.results.filter(result => {
-                    return result.id !== action.id
+                ui_results: state.ui_results.map(result => {
+                    if (result._id === action.id) {
+                        return action.result;
+                    }
+                    return result;
                 }),
+             });
+        case CONSORTIUM_REMOVE_RESULT:
+            return Object.assign({}, state, {
+                ui_results: state.ui_results.filter(result => {
+                    return result._id !== action.id
+                }),
+            });
+
+        case CONSORTIUM_RESULTS_RECEIVE:
+            return Object.assign({}, state, {
+                ui_results: action.results,
             });
         default:
             return state;
