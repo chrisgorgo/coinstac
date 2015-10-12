@@ -10,6 +10,8 @@
 import url from 'url';
 import axios from 'axios'
 import config from 'config';
+import hawk from 'hawk/lib/browser';
+import Promise from 'bluebird';
 
 /** Storage key used with `localStorage` for storing authentication headers */
 const AUTH_RESPONSE_KEY = 'COINSTAC_AUTH_RESPONSE';
@@ -112,17 +114,31 @@ const Auth = {
      * @return {Promise} Axios's response
      */
     logout: function() {
-        const { user: { id } } = Auth.getUser();
-        axios({
-            method: 'delete',
-            withCredentials: true,
-            url: getApiUrl(`/auth/keys/${id}`),
-        })
-            .then(response => {
-                Auth.clearAuthResponse();
-                Auth.clearUser();
-                return response;
+        const authResponse = Auth.getAuthResponse();
+
+        Auth.clearAuthResponse();
+        Auth.clearUser();
+
+        if (authResponse && authResponse.id) {
+            const url = getApiUrl(`/auth/keys/${authResponse.id}`);
+            const method = 'delete';
+            const hawkHeaders = hawk.client.header(
+                url,
+                method.toUpperCase(),
+                { credentials: authResponse }
+            );
+
+            return axios({
+                headers: {
+                    Authorization: hawkHeaders.field,
+                },
+                method,
+                withCredentials: true,
+                url,
             });
+        } else {
+            return Promise.resolve();
+        }
     },
 
     /**

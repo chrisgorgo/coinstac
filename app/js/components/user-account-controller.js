@@ -15,12 +15,20 @@ class UserAccountController extends React.Component {
     }
 
     logout() {
-        console.info(['@TODO `connect` in higher level actions to dispatch',
-            '`setUser(null)` action for logout.  Alternatively, consider ',
-            'simply transitionTo\'ing with a query for the login handler to',
-            'handler, resetting user state'
-        ].join(' '));
-        app.router.transitionTo('/');
+        auth.logout()
+            .then(() => {
+                app.notifications.push({
+                    level: 'success',
+                    message: 'Successfully logged out',
+                });
+            })
+            .catch(response => {
+                app.notifications.push({
+                    level: 'error',
+                    message: `Error logging out: ${response.data.error.message}`,
+                })
+            })
+            .finally(() => app.router.transitionTo('/'));
     }
 
     render() {
