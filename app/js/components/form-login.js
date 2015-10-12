@@ -31,7 +31,6 @@ class FormLogin extends Component {
                         </form>
                     </div>
                 </div>
-                <Button onClick={this.props.hotRoute} block>HOT ROUTE</Button>
                 <Button bsStyle="link" block>Forgot Password?</Button>
             </div>
         );
@@ -39,7 +38,6 @@ class FormLogin extends Component {
 };
 
 FormLogin.propTypes = {
-    hotRoute: PropTypes.func.isRequired,
     submit: PropTypes.func.isRequired,
 };
 

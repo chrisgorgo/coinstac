@@ -9,28 +9,7 @@ import User from '../models/user';
 export default class FormLoginController extends Component {
     constructor(props) {
         super(props);
-        this.hotRoute = this.hotRoute.bind(this);
         this.submit = this.submit.bind(this);
-    }
-
-    /**
-     * Expose dummy login functionality.
-     *
-     * @todo  Remove the hot route for actual authentication.
-     */
-    hotRoute() {
-        const user = auth.setUser({
-            username: 'admin',
-            name: 'Admin McAdmin',
-            institution: 'BillBraskeyLTD',
-            email: 'heyo',
-        });
-
-        app.notifications.push({
-            message: 'Welcome ' + user.name,
-            level: 'success'
-        });
-        app.router.transitionTo('/home');
     }
     submit(e) {
         e.preventDefault();
@@ -53,10 +32,7 @@ export default class FormLoginController extends Component {
     }
     render() {
         return (
-            <FormLogin
-                ref="logon"
-                hotRoute={this.hotRoute}
-                submit={this.submit} />
+            <FormLogin ref="logon" submit={this.submit} />
         );
     }
 }
