@@ -17,7 +17,7 @@ var validOps = function() {
         consortiumId: 'testConsortiumId123',
         fileSha: 'testSha123',
         complete: moment().format(), // forces dates in ISO 8601 long string
-        result: ['testResult'],
+        data: ['testResult'],
         username: 'testUsername'
     };
 };

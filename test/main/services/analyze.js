@@ -9,16 +9,18 @@ test('main process analyze::one-shot', function(t) {
     var testFile1 = new File({
         filename: 'free-surfer-dummy-1.txt',
         dirname: path.resolve(__dirname, 'mocks'),
-        sha: 'abc123'
+        sha: 'abc123',
+        tags: { control: false, patient: true }
     });
     var testFile2 = new File({
         filename: 'free-surfer-dummy-2.txt',
         dirname: path.resolve(__dirname, 'mocks'),
-        sha: 'xyz789'
+        sha: 'xyz789',
+        tags: { control: true, patient: false }
     });
 
 
-    t.plan(3);
+    t.plan(4);
 
     // test valid one-shot file inputs
     oneShot({
@@ -26,21 +28,18 @@ test('main process analyze::one-shot', function(t) {
         predictors: ['CortexVol'],
         files: [ testFile1.serialize(), testFile2.serialize() ],
     }).then(function(data) {
-        t.equal(1, Object.keys(data).length, 'produces regressor set of proper length');
-    })
-
-    // test invalid one-shot file inputs
-    .then(function() {
+        t.ok(0 < data.r2 && data.r2 <= 1, 'valid r^2 generated');
+        t.ok(Math.abs(data['CortexVol']), 'optimized independent var β returned for roi-predictors');
+    }).then(function() {
+        // test invalid one-shot file inputs
         return oneShot({
             requestId: 2,
             predictors: ['CortexVol'],
             files: [ {filename: 'bogus', dirname: 'bogus'} ],
         });
-    })
-    .then(function() {
+    }).then(function() {
         t.fail('invalid input did not error');
-    })
-    .catch(function(error) {
+    }).catch(function(error) {
         t.ok(error.message, 'returns object with error prop on invalid input');
         t.equal(error.path, 'bogus/bogus', 'path returned for errors on files');
         t.end();

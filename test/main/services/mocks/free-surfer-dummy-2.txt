@@ -10,7 +10,7 @@ Left-Pallidum   1793.4
 3rd-Ventricle   665.6
 4th-Ventricle   1062.8
 Brain-Stem  20074.3
-Left-Hippocampus    4065.7
+Left-Hippocampus    4065.8
 Left-Amygdala   1466.4
 CSF 1126.2
 Left-Accumbens-area 646.3
@@ -20,7 +20,7 @@ Left-choroid-plexus 1088.8
 Right-Lateral-Ventricle 3015.5
 Right-Inf-Lat-Vent  355.3
 Right-Cerebellum-White-Matter   20315.8
-Right-Cerebellum-Cortex 47351
+Right-Cerebellum-Cortex 30000
 Right-Thalamus-Proper   6815.1
 Right-Caudate   3875.2
 Right-Putamen   4985.5
@@ -49,7 +49,7 @@ BrainSegVolNotVent  1.06978e+06
 BrainSegVolNotVentSurf  1.06924e+06
 lhCortexVol 224630
 rhCortexVol 3
-CortexVol   4
+CortexVol   5
 lhCorticalWhiteMatterVol    218035
 rhCorticalWhiteMatterVol    217435
 CorticalWhiteMatterVol  435465
