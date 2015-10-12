@@ -41,7 +41,7 @@ export default class FormLoginController extends Component {
                     message: `Welcome, ${user.label}!`,
                     level: 'success'
                 });
-                app.router.transitionTo('/home');
+                app.router.transitionTo('home');
             })
             .catch(error => {
                 app.notifications.push({

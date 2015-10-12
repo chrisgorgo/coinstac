@@ -56,11 +56,12 @@ const Auth = {
         };
 
         return axios({
+            data,
             method: 'post',
             url: getApiUrl('/users'),
-            data,
+            withCredentials: true,
         })
-            .then(Auth.login({ password, username }));
+            .then(() => Auth.login({ password, username }));
     },
 
     /**
