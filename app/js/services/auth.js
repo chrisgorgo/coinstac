@@ -10,16 +10,12 @@
 import url from 'url';
 import axios from 'axios'
 import config from 'config';
-import User from '../models/user';
 
 /** Storage key used with `localStorage` for storing authentication headers */
 const AUTH_RESPONSE_KEY = 'COINSTAC_AUTH_RESPONSE';
 
 /** Storage key used with `localStorage` for storing user */
 const USER_KEY = 'COINSTAC_USER';
-
-/** Hold a private reference to the user model */
-let user;
 
 /**
  * API URL format helper.
@@ -82,15 +78,31 @@ const Auth = {
         };
 
         return axios({
+            data,
             method: 'post',
             url: getApiUrl('/auth/keys'),
-            data,
+            withCredentials: true,
         })
             .then(response => {
-                return response.data.data[0]
-            })
-            .then(Auth.setAuthResponse)
-            .then(Auth.setUser);
+                const {
+                    algorithm,
+                    expireTime,
+                    issueTime,
+                    id,
+                    key,
+                    user,
+                } = response.data.data[0];
+
+                Auth.setAuthResponse({
+                    algorithm,
+                    expireTime,
+                    issueTime,
+                    id,
+                    key,
+                });
+
+                return Auth.setUser(user);
+            });
     },
 
     /**
@@ -99,9 +111,10 @@ const Auth = {
      * @return {Promise} Axios's response
      */
     logout: function() {
-        const { user = { id } } = Auth.getUser();
-        axiox({
+        const { user: { id } } = Auth.getUser();
+        axios({
             method: 'delete',
+            withCredentials: true,
             url: getApiUrl(`/auth/keys/${id}`),
         })
             .then(response => {
@@ -114,33 +127,23 @@ const Auth = {
     /**
      * Save user.
      *
-     * @param  {Object} userAttributes
+     * @param  {Object} user
      * @return {Object}
      */
-    setUser: function(userAttributes) {
-        user = new User(userAttributes);
-        localStorage.setItem(USER_KEY, JSON.stringify(user.serialize()));
+    setUser: function(user) {
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
         return Auth.getUser();
     },
 
     /**
      * Get saved user.
      *
-     * @return {Object|undefined}
+     * @return {(Object|undefined)}
      */
     getUser: function() {
         // Get stored user if needed
-        if (!user && localStorage[USER_KEY]) {
-            user = new User(JSON.parse(localStorage.getItem(USER_KEY)));
-        }
-
-        if (user && user.isValid()) {
-            return {
-                email: user.get('email'),
-                institution: user.get('institution'),
-                name: user.get('name'),
-                username: user.get('username'),
-            };
+        if (localStorage.getItem(USER_KEY)) {
+            return JSON.parse(localStorage.getItem(USER_KEY));
         }
     },
 
@@ -150,9 +153,7 @@ const Auth = {
      * @return {undefined}
      */
     clearUser: function() {
-        if (user) {
-            user.clear();
-        }
+        localStorage.removeItem(USER_KEY);
     },
 
     /**
@@ -160,12 +161,23 @@ const Auth = {
      *
      * @see Auth.getUser()
      *
-     * @param  {Object}           auth
-     * @return {Object|undefined} Stored auth response
+     * @param  {Object}             auth
+     * @return {(Object|undefined)} Stored auth response
      */
     setAuthResponse: function(auth) {
         localStorage.setItem(AUTH_RESPONSE_KEY, JSON.stringify(auth));
-        return Auth.getUser();
+        return Auth.getAuthResponse();
+    },
+
+    /**
+     * Get stored authentication response.
+     *
+     * @return {(Object|undefined)}
+     */
+    getAuthResponse: function() {
+        if (localStorage.getItem(AUTH_RESPONSE_KEY)) {
+            return JSON.parse(localStorage.getItem(AUTH_RESPONSE_KEY));
+        }
     },
 
     /**
