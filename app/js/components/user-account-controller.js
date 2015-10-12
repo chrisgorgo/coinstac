@@ -1,17 +1,17 @@
-import app from 'ampersand-app';
-import React from 'react';
-import { Button } from 'react-bootstrap';
-import Auth from '../services/auth';
-import UserAccount from './user-account';
 import { bindActionCreators } from 'redux';
-import * as allActions from '../actions/index';
+import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
-let cachedActions;
+import React from 'react';
+
+import * as allActions from '../actions/index';
+import app from 'ampersand-app';
+import auth from '../services/auth';
+import UserAccount from './user-account';
 
 class UserAccountController extends React.Component {
     constructor(props) {
-        super(props)
-        cachedActions = bindActionCreators(allActions, props.dispatch);
+        super(props);
+        this.logout = this.logout.bind(this);
     }
 
     logout() {
@@ -24,13 +24,20 @@ class UserAccountController extends React.Component {
     }
 
     render() {
-        let { user } = this.props.login;
-        user = user || {};
+        const { dispatch } = this.props;
+        const logout = bindActionCreators(this.logout, dispatch);
+
         return (
-            <UserAccount logout={this.logout.bind(this)} user={user} />
+            <UserAccount logout={logout} {...this.props} />
         )
     }
 }
 
-function select(state) { return { login: state.login }; };
+function select(state) {
+    return {
+        login: state.login,
+        user: auth.getUser(),
+    };
+}
+
 export default connect(select)(UserAccountController);

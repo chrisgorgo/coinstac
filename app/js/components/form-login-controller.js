@@ -38,7 +38,7 @@ export default class FormLoginController extends Component {
         auth.login(this.refs.logon.data())
             .then(user => {
                 app.notifications.push({
-                    message: 'Welcome ' + user.name,
+                    message: `Welcome, ${user.label}!`,
                     level: 'success'
                 });
                 app.router.transitionTo('/home');
