@@ -2,6 +2,6 @@
 
 module.exports = {
     test: {
-        command: 'node_modules/.bin/babel-tape-runner test/index.js',
+        command: 'node_modules/.bin/babel-node test/index.js',
     },
 };
