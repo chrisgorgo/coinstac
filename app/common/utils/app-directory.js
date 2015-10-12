@@ -6,9 +6,8 @@
 
 'use strict';
 
-var os = require('os');
 var path = require('path');
-
-var appDirectory = path.join(os.homedir(), '.coinstac');
+var osHomedir = require('os-homedir');
+var appDirectory = path.join(osHomedir(), '.coinstac');
 
 module.exports = appDirectory;
