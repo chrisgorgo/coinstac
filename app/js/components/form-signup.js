@@ -1,58 +1,51 @@
 import app from 'ampersand-app';
-import React from 'react';
-import {Input, Button} from 'react-bootstrap';
+import { Button, Input } from 'react-bootstrap';
+import React, { Component, PropTypes } from 'react';
+
 import FieldPassword from './field-password';
 
-export default class FormSignup extends React.Component {
+class FormSignup extends Component {
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
 
-    data() {
-        return {
-            name: this.refs['signup-name'].getInputDOMNode().value,
-            username: this.refs['signup-username'].getInputDOMNode().value,
-            password: this.refs.password.state.password,
+    handleSubmit(event) {
+        event.preventDefault();
+
+        /** @todo  Remove hard-coded institution. */
+        this.props.onSubmit({
             email:  this.refs.email.getInputDOMNode().value,
-            institution: this.refs.institution.getInputDOMNode().value
-        };
+            institution: 'mrn',
+            name: this.refs['signup-name'].getInputDOMNode().value,
+            password: this.refs.password.state.password,
+            username: this.refs['signup-username'].getInputDOMNode().value,
+        });
     }
 
     render() {
         return (
             <div className="panel panel-default">
                 <div className="panel-body">
-                    <form onSubmit={this.props.submit.bind(this)}>
+                    <form onSubmit={this.handleSubmit}>
                         <Input
-                            onChange={this.props.handleFieldChange.bind(this)}
                             type="text"
-                            value={this.props.user.name}
                             label="Name:"
                             ref="signup-name" />
                         <Input
-                            onChange={this.props.handleFieldChange.bind(this)}
-                            value={this.props.user.username}
                             type="text"
                             label="Username:"
                             ref="signup-username" />
                         <Input
-                            onChange={this.props.handleFieldChange.bind(this)}
-                            value={this.props.user.email}
                             type="email"
                             label="Email:"
                             ref="email" />
                         <FieldPassword
-                            onChange={this.props.handleFieldChange.bind(this)}
                             validation={true}
                             ref="password" />
-                        <Input
-                            onChange={this.props.handleFieldChange.bind(this)}
-                            value={this.props.user.institution}
-                            type="select"
-                            label="Institution:"
-                            ref="institution"
-                            help="(Optional)" />
                         <Button
                             bsStyle="primary"
                             type="submit"
-                            disabled={!this.props.user.valid}
                             block>Sign Up</Button>
                     </form>
                 </div>
@@ -60,3 +53,11 @@ export default class FormSignup extends React.Component {
         )
     }
 }
+
+FormSignup.displayName = 'FormSignup';
+
+FormSignup.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+};
+
+export default FormSignup;

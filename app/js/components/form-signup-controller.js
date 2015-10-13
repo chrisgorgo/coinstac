@@ -1,57 +1,96 @@
 import app from 'ampersand-app';
-import React, { Component } from 'react';
-import { Input, Button } from 'react-bootstrap';
+import React, { Component, PropTypes } from 'react';
 
 import auth from '../services/auth';
 import FormSignup from './form-signup';
 import User from '../models/user';
 
-export default class FormSignupController extends Component {
+function errorHandler(error) {
+    let message;
+
+    if (error.message) {
+        message = error.message;
+    } else if (typeof error === 'string') {
+        message = error;
+    } else {
+        message = 'Signup error occurred. Please try again.';
+    }
+
+    app.notifications.push({
+        level: 'error',
+        message,
+    });
+}
+
+class FormSignupController extends Component {
     constructor(props) {
         super(props);
-
-        this.submit = this.submit.bind(this);
-        this.handleFieldChange = this.handleFieldChange.bind(this);
-    }
-    submit(e) {
-        e.preventDefault();
-
-        auth.createUser(this.refs.signup.data()).then(response => {
-            const userData = response.data.data[0];
-            app.notifications.push({
-                message: 'Registration successful',
-                level: 'success'
-            });
-            app.router.transitionTo('login');
-            this.props.setSignupUser(null);
-        }).catch(error => {
-            app.notifications.push({
-                message: error.message,
-                level: 'error',
-            });
-        });
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
-    handleFieldChange(evt) {
-        let rawUser = this.refs.signup.data();
-        if (!rawUser.username || !rawUser.password || !rawUser.email || !rawUser.name) {
-            rawUser.valid = false; // set user
-            return this.props.setSignupUser(rawUser);
+    /**
+     * Handle new user form submits.
+     *
+     * @todo  Improve form validation, move Redux action or middleware.
+     *
+     * @param  {object}    formData
+     * @param  {string}    formData.email
+     * @param  {string}    formData.institution
+     * @param  {string}    formData.name
+     * @param  {string}    formData.password
+     * @param  {string}    formData.username
+     * @return {undefined}
+     */
+    onSubmit(formData) {
+        let error;
+
+        if (!formData.name) {
+            error = 'Name required';
+        } else if (!formData.username) {
+            error = 'Username required';
+        } else if (!formData.email) {
+            error = 'Email required';
+        } else if (!formData.password) {
+            error = 'Password required';
+        } else if (formData.password.length < 8) {
+            error = 'Password must be at least 8 characters long';
+        } else if (!formData.institution) {
+            error = 'Institution required';
         }
-        // detected valid user. assert validity by pumping user data into User model
-        let user = new User(rawUser);
-        rawUser = user.serialize();
-        rawUser.valid = true;
-        return this.props.setSignupUser(rawUser);
+
+        if (error) {
+            return errorHandler(error);
+        }
+
+        try {
+            const user = new User(formData);
+
+            if (!user.isValid()) {
+                throw new Error('Invalid user');
+            }
+
+            auth.createUser(formData)
+                .then(response => {
+                    this.props.setSignupUser(user.serialize());
+                    app.router.transitionTo('home');
+                })
+                .catch(response => errorHandler(response.data.error));
+        } catch (error) {
+            errorHandler(error);
+        }
     }
 
     render() {
-        let { signup } = this.props;
         return (
-            <FormSignup ref="signup"
-                user={signup.user}
-                handleFieldChange={this.handleFieldChange}
-                submit={this.submit} />
+            <FormSignup onSubmit={this.onSubmit} />
         );
     }
 }
+
+FormSignupController.displayName = 'FormSignupController';
+
+FormSignupController.propTypes = {
+    setSignupUser: PropTypes.func.isRequired,
+};
+
+export default FormSignupController;
