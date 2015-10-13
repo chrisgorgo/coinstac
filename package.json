@@ -32,6 +32,7 @@
     "os-homedir": "^1.0.1",
     "pouchy": "^2.0.0",
     "prettysize": "0.0.3",
+    "react": "^0.13.3",
     "react-bootstrap": "^0.23.7",
     "react-marked": "^0.3.1",
     "react-notification-system": "^0.1.14",
