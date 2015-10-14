@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Link } from 'react-router';
-import { ButtonToolbar } from 'react-bootstrap';
-import { ButtonLink } from 'react-router-bootstrap';
+import { Button, ButtonToolbar } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 export default class ConsortiumCard extends React.Component {
     render() {
@@ -14,8 +14,7 @@ export default class ConsortiumCard extends React.Component {
 
                     <h2 className="panel-title">
                         <Link
-                            to="consortium-single"
-                            params={{label: this.props.label}}
+                            to={`/consortia/${this.props.label}`}
                             query={{_id: this.props._id}}>
                             {this.props.label}
                         </Link>
@@ -25,17 +24,17 @@ export default class ConsortiumCard extends React.Component {
                 <div className="panel-body">
                     <p>{this.props.description}</p>
                     <ButtonToolbar>
-                        <ButtonLink
-                            to="consortium-single"
-                            params={{label: this.props.label}}
-                            query={{_id: this.props._id}}
-                            bsSize="small">
-                            <span
-                                className="glyphicon glyphicon glyphicon-eye-open"
-                                aria-hidden="true">
-                            </span>
-                            View
-                        </ButtonLink>
+                        <LinkContainer
+                            to={`/consortia/${this.props.label}`}
+                            query={{_id: this.props._id}}>
+                            <Button bsSize="small">
+                                <span
+                                    className="glyphicon glyphicon glyphicon-eye-open"
+                                    aria-hidden="true">
+                                </span>
+                                View
+                            </Button>
+                        </LinkContainer>
                     </ButtonToolbar>
 
                     <div className="row">

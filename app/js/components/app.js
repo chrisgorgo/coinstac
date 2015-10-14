@@ -35,11 +35,9 @@ export default class App extends React.Component {
         //     );
         // }
         return (
-            <div>
-                <div className="app">
-                    <Notify />
-                    <RouteHandler />
-                </div>
+            <div className="app">
+                <Notify />
+                {this.props.children}
                 {devPanel}
             </div>
         );

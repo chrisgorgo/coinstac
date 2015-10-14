@@ -72,7 +72,7 @@ class FormSignupController extends Component {
             auth.createUser(formData)
                 .then(response => {
                     this.props.setSignupUser(user.serialize());
-                    app.router.transitionTo('home');
+                    pushState({ state: 'signup' }, '/');
                 })
                 .catch(response => errorHandler(response.data.error));
         } catch (error) {

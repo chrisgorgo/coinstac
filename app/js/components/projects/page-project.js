@@ -1,7 +1,9 @@
 'use strict';
 
+import { Button } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import React from 'react';
-import { ButtonLink } from 'react-router-bootstrap';
+
 import FormManageProjectController from './form-manage-project-controller';
 
 export default class PageProject extends React.Component {
@@ -13,10 +15,15 @@ export default class PageProject extends React.Component {
 
         return (
             <div className="projects-single">
-                <ButtonLink bsStyle="link" to="projects">
-                    <span className="glyphicon glyphicon-arrow-left" aria-hidden="true">&nbsp;</span>
-                    Back
-                </ButtonLink>
+                <LinkContainer to="/projects">
+                    <Button bsStyle="link" to="projects">
+                        <span
+                            className="glyphicon glyphicon-arrow-left"
+                            aria-hidden="true">
+                        </span>
+                        Back
+                    </Button>
+                </LinkContainer>
                 <h3>Edit Project</h3>
                 <FormManageProjectController projectId={projectId} />
             </div>

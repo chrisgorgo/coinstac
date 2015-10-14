@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import { RouteHandler } from 'react-router';
 import DashboardNav from './dashboard-nav';
 import UserAccountController from './user-account-controller'
 
@@ -20,7 +19,7 @@ export default class Dashboard extends React.Component {
                         </nav>
                     </div>
                     <div className="col-xs-12 col-sm-8">
-                        <RouteHandler />
+                        {this.props.children}
                     </div>
                 </div>
             </div>

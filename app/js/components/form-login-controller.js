@@ -14,13 +14,15 @@ export default class FormLoginController extends Component {
     submit(e) {
         e.preventDefault();
 
+        const { history: { pushState } } = this.props;
+
         auth.login(this.refs.logon.data())
             .then(user => {
                 app.notifications.push({
                     message: `Welcome, ${user.label}!`,
                     level: 'success'
                 });
-                app.router.transitionTo('home');
+                pushState({ state: 'login' }, '/');
             })
             .catch(error => {
                 app.notifications.push({

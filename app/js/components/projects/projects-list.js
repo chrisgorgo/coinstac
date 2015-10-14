@@ -32,9 +32,7 @@ export default class ProjectsList extends React.Component {
                         <div key={project._id} className="project panel panel-default">
                             <div className="panel-body">
                                 <h4>
-                                    <Link
-                                        to="projects-single"
-                                        params={{ projectId: project._id }}>
+                                    <Link to={`/projects/${project._id}`}>
                                         {project.name}
                                     </Link>
                                 </h4>

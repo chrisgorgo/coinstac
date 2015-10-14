@@ -7,7 +7,7 @@
  * @{@link  https://github.com/rackt/react-router}
  */
 import React from 'react';
-import Router, { Route, DefaultRoute, RouteHandler } from 'react-router';
+import { Route, IndexRoute } from 'react-router';
 import App from './components/app';
 import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
@@ -24,24 +24,22 @@ import FormAddProjectController from './components/projects/form-add-project-con
 
 export default (
     <Route handler={App}>
-        <Route name="noauth" path="/" handler={LayoutNoAuth}>
-            <DefaultRoute handler={Login} />
-            <Route name="login" handler={Login} />
-            <Route name="signup" handler={Signup} />
+        <Route path="/" handler={LayoutNoAuth}>
+            <IndexRoute handler={Login} />
+            <Route path="login" handler={Login} />
+            <Route path="signup" handler={Signup} />
         </Route>
-        <Route name="home" path="/home" handler={Home}>
-            <Route name="dashboard" path="/home" handler={Dashboard}>
-                <DefaultRoute handler={DashboardHome} />
-                <Route name="consortia" handler={DashboardConsortia} />
-                <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingleController} />
-                <Route name="projects" handler={DashboardProjects}>
-                    <DefaultRoute name="projects-list" handler={ProjectsList} />
+        <Route path="/home" handler={Home}>
+            <Route path="/home" handler={Dashboard}>
+                <IndexRoute handler={DashboardHome} />
+                <Route path="consortia" handler={DashboardConsortia} />
+                <Route path="/consortia/:label" handler={ConsortiumSingleController} />
+                <Route path="projects" handler={DashboardProjects}>
+                    <IndexRoute handler={ProjectsList} />
                     <Route
-                        name="projects-new"
                         path="/projects/new"
                         handler={FormAddProjectController} />
                     <Route
-                        name="projects-single"
                         path="/projects/:projectId"
                         handler={PageProject} />
                 </Route>
