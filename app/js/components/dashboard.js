@@ -1,11 +1,13 @@
 'use strict';
 
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import DashboardNav from './dashboard-nav';
 import UserAccountController from './user-account-controller'
 
-export default class Dashboard extends React.Component {
+class Dashboard extends Component {
     render() {
+        const { children, history: { pushState} } = this.props;
+
         return (
             <div className="dashboard container-fluid">
                 <div className="row">
@@ -15,14 +17,23 @@ export default class Dashboard extends React.Component {
                                 <abbr title="Collaborative Informatics and Neuroimaging Suite Toolkit for Anonymous Computation">COINSTAC</abbr>
                             </h1>
                             <DashboardNav />
-                            <UserAccountController />
+                            <UserAccountController pushState={pushState} />
                         </nav>
                     </div>
                     <div className="col-xs-12 col-sm-8">
-                        {this.props.children}
+                        {children}
                     </div>
                 </div>
             </div>
         );
     }
 };
+
+Dashboard.displayName = 'Dashboard';
+
+Dashboard.propTypes = {
+    children: PropTypes.node.isRequired,
+    history: PropTypes.object.isRequired,
+};
+
+export default Dashboard;
