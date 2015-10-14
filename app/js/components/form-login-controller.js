@@ -1,12 +1,11 @@
-import _ from 'lodash';
 import app from 'ampersand-app';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 import auth from '../services/auth';
 import FormLogin from './form-login';
-import User from '../models/user';
+import LayoutNoauth from './layout-noauth';
 
-export default class FormLoginController extends Component {
+class FormLoginController extends Component {
     constructor(props) {
         super(props);
         this.submit = this.submit.bind(this);
@@ -34,7 +33,17 @@ export default class FormLoginController extends Component {
     }
     render() {
         return (
-            <FormLogin ref="logon" submit={this.submit} />
+            <LayoutNoauth>
+                <FormLogin ref="logon" submit={this.submit} />
+            </LayoutNoauth>
         );
     }
 }
+
+FormLoginController.displayName = 'FormLoginController';
+
+FormLoginController.propTypes = {
+    history: PropTypes.object.isRequired,
+};
+
+export default FormLoginController;

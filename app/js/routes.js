@@ -12,8 +12,6 @@ import App from './components/app';
 import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
 import DashboardConsortia from './components/dashboard-consortia';
-import Home from './components/home';
-import LayoutNoAuth from './components/layout-noauth'
 import Login from './components/form-login-controller';
 import Signup from './components/form-signup-controller';
 import ConsortiumSingleController from './components/consortium-single-controller';
@@ -23,26 +21,21 @@ import PageProject from './components/projects/page-project';
 import FormAddProjectController from './components/projects/form-add-project-controller';
 
 export default (
-    <Route handler={App}>
-        <Route path="/" handler={LayoutNoAuth}>
-            <IndexRoute handler={Login} />
-            <Route path="login" handler={Login} />
-            <Route path="signup" handler={Signup} />
-        </Route>
-        <Route path="/home" handler={Home}>
-            <Route path="/home" handler={Dashboard}>
-                <IndexRoute handler={DashboardHome} />
-                <Route path="consortia" handler={DashboardConsortia} />
-                <Route path="/consortia/:label" handler={ConsortiumSingleController} />
-                <Route path="projects" handler={DashboardProjects}>
-                    <IndexRoute handler={ProjectsList} />
-                    <Route
-                        path="/projects/new"
-                        handler={FormAddProjectController} />
-                    <Route
-                        path="/projects/:projectId"
-                        handler={PageProject} />
-                </Route>
+    <Route component={App}>
+        <Route path="login" component={Login} />
+        <Route path="signup" component={Signup} />
+        <Route path="/" component={Dashboard}>
+            <IndexRoute component={DashboardHome} />
+            <Route path="/consortia" component={DashboardConsortia} />
+            <Route path="/consortia/:label" component={ConsortiumSingleController} />
+            <Route path="/projects" component={DashboardProjects}>
+                <IndexRoute component={ProjectsList} />
+                <Route
+                    path="new"
+                    component={FormAddProjectController} />
+                <Route
+                    path=":projectId"
+                    component={PageProject} />
             </Route>
         </Route>
     </Route>

@@ -29,10 +29,10 @@ const LayoutNoAuth = ({ children }) => {
     );
 };
 
-function select(state) {
-    return {
-        signup: state.signup,
-        login: state.login
-    };
+LayoutNoAuth.displayName = 'LayoutNoAuth';
+
+LayoutNoAuth.propTypes = {
+    children: PropTypes.node.isRequired,
 };
-export default connect(select)(LayoutNoAuth);
+
+export default LayoutNoAuth;

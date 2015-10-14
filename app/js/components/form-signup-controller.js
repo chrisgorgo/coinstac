@@ -1,8 +1,12 @@
 import app from 'ampersand-app';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
 
 import auth from '../services/auth';
 import FormSignup from './form-signup';
+import LayoutNoauth from './layout-noauth';
+import { setSignupUser } from '../actions';
 import User from '../models/user';
 
 function errorHandler(error) {
@@ -82,7 +86,9 @@ class FormSignupController extends Component {
 
     render() {
         return (
-            <FormSignup onSubmit={this.onSubmit} />
+            <LayoutNoauth>
+                <FormSignup onSubmit={this.onSubmit} />
+            </LayoutNoauth>
         );
     }
 }
@@ -90,7 +96,22 @@ class FormSignupController extends Component {
 FormSignupController.displayName = 'FormSignupController';
 
 FormSignupController.propTypes = {
+    history: PropTypes.object.isRequired,
     setSignupUser: PropTypes.func.isRequired,
 };
 
-export default FormSignupController;
+/** @todo  Implement */
+function mapStateToProps(state) {
+    return {};
+};
+
+function mapDispatchToProps(dispatch) {
+    return {
+        setSignupUser: bindActionCreators(setSignupUser, dispatch),
+    };
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(FormSignupController);
