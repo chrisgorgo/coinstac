@@ -1,4 +1,5 @@
-require('babel/polyfill');
+import 'babel/polyfill';
+
 import path from 'path';
 require('../common/utils/promise-uncaught-polyfill.js')({ root: window });
 import app from 'ampersand-app';

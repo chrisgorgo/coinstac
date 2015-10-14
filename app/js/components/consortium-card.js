@@ -68,11 +68,3 @@ export default class ConsortiumCard extends React.Component {
         );
     }
 };
-
-                        // <span className="btn btn-default btn-sm">
-                        //     <span
-                        //         className="glyphicon glyphicon-pencil"
-                        //         aria-hidden="true">
-                        //     </span>
-                        //     Edit
-                        // </span>
