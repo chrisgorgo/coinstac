@@ -1,15 +1,9 @@
-'use strict';
 import app from 'ampersand-app';
-import React from 'react';
-import { RouteHandler } from 'react-router';
-import auth from '../services/auth'
 import config from 'config';
-import url from 'url';
-import thenify from 'thenify'; // jshint ignore:line
-import Pouchy from 'pouchy';
 import Notify from './notification'
-import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
-// Pouchy.PouchDB.debug.enable('pouchdb:http');
+import React, { Component, PropTypes } from 'react';
+import thenify from 'thenify'; // jshint ignore:line
+import url from 'url';
 
 config.api.url = url.format({
     protocol: config.api.protocol,
@@ -24,24 +18,19 @@ config.db.remote.url = url.format({
     port: config.db.remote.port
 });
 
-export default class App extends React.Component {
+export default class App extends Component {
     render() {
-        let devPanel;
-        // if (app.isDev) {
-        //     devPanel = (
-        //         <DebugPanel top right bottom>
-        //             <DevTools store={app.store} monitor={LogMonitor} />
-        //         </DebugPanel>
-        //     );
-        // }
         return (
-            <div>
-                <div className="app">
-                    <Notify />
-                    <RouteHandler />
-                </div>
-                {devPanel}
+            <div className="app">
+                <Notify />
+                {this.props.children}
             </div>
         );
     }
 }
+
+App.displayName = 'App';
+
+App.propTypes = {
+    children: PropTypes.node,
+};

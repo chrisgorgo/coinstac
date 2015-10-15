@@ -1,34 +1,32 @@
-require('babel/polyfill');
+import 'babel/polyfill';
+
 import path from 'path';
 require('../common/utils/promise-uncaught-polyfill.js')({ root: window });
 import app from 'ampersand-app';
-import React from 'react';
-import Router, { Route } from 'react-router';
+import createHistory from 'history/lib/createHashHistory';
 import { Provider } from 'react-redux';
+import React from 'react';
+import { render } from 'react-dom';
+import { Router } from 'react-router';
 
 import configureStore from './store/configureStore';
 import routes from './routes';
 
 app.isDev = window.COINS_ENV === 'development';
-app.store = configureStore();
+
+const store = configureStore();
+const history = createHistory();
 
 // Load application stylesheets
 require('../styles/app.scss');
-require('reactabular/style.css')
+require('reactabular/style.css');
 
-app.router = Router.create({
-    routes: routes,
-    location: Router.HashLocation
-});
-
-app.router.run((Handler, routerState) => { // note "routerState" here
-    React.render(
-        <Provider store={app.store}>
-            {() => <Handler routerState={routerState} />}
-        </Provider>,
-        document.getElementById('app')
-    );
-});
+render(
+    <Provider store={store}>
+        <Router history={history} routes={routes} />
+    </Provider>,
+    document.getElementById('app')
+);
 
 window.app = app;
 

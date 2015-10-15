@@ -1,18 +1,39 @@
-import _ from 'lodash';
 import app from 'ampersand-app';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 import auth from '../services/auth';
 import FormLogin from './form-login';
-import User from '../models/user';
+import LayoutNoauth from './layout-noauth';
 
-export default class FormLoginController extends Component {
+class FormLoginController extends Component {
     constructor(props) {
         super(props);
+        this.hotRoute = this.hotRoute.bind(this);
         this.submit = this.submit.bind(this);
     }
+
+    /**
+     * Allow users to log in without authentication.
+     *
+     * @todo  Remove for production.
+     */
+    hotRoute(event) {
+        event.preventDefault();
+
+        const { history: { pushState } } = this.props;
+
+        auth.setUser({
+            email: 'testuser@mrn.org',
+            label: 'Test User',
+            username: 'testuser',
+        });
+        pushState({ state: 'login' }, '/');
+    }
+
     submit(e) {
         e.preventDefault();
+
+        const { history: { pushState } } = this.props;
 
         auth.login(this.refs.logon.data())
             .then(user => {
@@ -20,7 +41,7 @@ export default class FormLoginController extends Component {
                     message: `Welcome, ${user.label}!`,
                     level: 'success'
                 });
-                app.router.transitionTo('home');
+                pushState({ state: 'login' }, '/');
             })
             .catch(error => {
                 app.notifications.push({
@@ -32,7 +53,20 @@ export default class FormLoginController extends Component {
     }
     render() {
         return (
-            <FormLogin ref="logon" submit={this.submit} />
+            <LayoutNoauth>
+                <FormLogin
+                    ref="logon"
+                    hotRoute={this.hotRoute}
+                    submit={this.submit} />
+            </LayoutNoauth>
         );
     }
 }
+
+FormLoginController.displayName = 'FormLoginController';
+
+FormLoginController.propTypes = {
+    history: PropTypes.object.isRequired,
+};
+
+export default FormLoginController;

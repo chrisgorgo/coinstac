@@ -1,20 +1,23 @@
 import { bindActionCreators } from 'redux';
 import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 
 import * as allActions from '../actions/index';
 import app from 'ampersand-app';
 import auth from '../services/auth';
 import UserAccount from './user-account';
 
-class UserAccountController extends React.Component {
+class UserAccountController extends Component {
     constructor(props) {
         super(props);
         this.logout = this.logout.bind(this);
     }
 
     logout() {
+        // Passed down via react-router
+        const { pushState } = this.props;
+
         auth.logout()
             .then(() => {
                 app.notifications.push({
@@ -28,7 +31,7 @@ class UserAccountController extends React.Component {
                     message: `Error logging out: ${response.data.error.message}`,
                 })
             })
-            .finally(() => app.router.transitionTo('/'));
+            .finally(() => pushState({ state: 'logout'}, '/login'));
     }
 
     render() {
@@ -40,6 +43,12 @@ class UserAccountController extends React.Component {
         )
     }
 }
+
+UserAccountController.displayName = 'UserAccountController';
+
+UserAccountController.propTypes = {
+    pushState: PropTypes.func.isRequired,
+};
 
 function select(state) {
     return {

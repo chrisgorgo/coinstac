@@ -36,7 +36,7 @@ class ConsortiumSingleController extends Component {
     }
 
     componentDidMount() {
-        const { query: { _id: consortiumId } } = this.props;
+        const { location: { query: { _id: consortiumId } } } = this.props;
 
         getConsortiumAnalysisResultsListener(consortiumId).on(
             'change',
@@ -131,7 +131,7 @@ function mapStateToProps(state) {
  * This keeps the sub-components simpler.
  */
 function mapDispatchToProps(dispatch, ownProps) {
-    const { query: { _id } } = ownProps;
+    const { location: { query: { _id } } } = ownProps;
     const { username } = Auth.getUser();
     const actions = {
         addAnalysis: partial(addAnalysis, _id),

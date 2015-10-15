@@ -6,30 +6,21 @@
  *
  * @{@link  https://github.com/rackt/redux/blob/master/examples/real-world/store/configureStore.js}
  */
-import { applyMiddleware, createStore } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import createLogger from 'redux-logger';
 import promiseMiddleware from 'redux-promise';
 import thunkMiddleware from 'redux-thunk';
 
-import { default as authenticationMiddleware } from '../middleware/authentication';
 import { default as consortiumMiddleware } from '../middleware/consortium';
 import rootReducer from '../reducers';
 
-const loggerMiddleware = createLogger({
-    collapsed: true,
-    level: 'info',
-});
-
-const createStoreWithMiddleware = applyMiddleware(
-    thunkMiddleware,
-    promiseMiddleware,
-    authenticationMiddleware,
-    consortiumMiddleware,
-    loggerMiddleware,
+const finalCreateStore = compose(
+  applyMiddleware(thunkMiddleware, consortiumMiddleware),
+  applyMiddleware(createLogger())
 )(createStore);
 
 export default function configureStore(initialState) {
-    const store = createStoreWithMiddleware(rootReducer, initialState);
+      const store = finalCreateStore(rootReducer, initialState);
 
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers

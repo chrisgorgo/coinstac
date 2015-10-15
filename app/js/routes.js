@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Use React Router to implement application routing.
  *
@@ -7,13 +5,13 @@
  * @{@link  https://github.com/rackt/react-router}
  */
 import React from 'react';
-import Router, { Route, DefaultRoute, RouteHandler } from 'react-router';
+import { Route, IndexRoute } from 'react-router';
+
 import App from './components/app';
+import auth from './services/auth';
 import Dashboard from './components/dashboard';
 import DashboardHome from './components/dashboard-home';
 import DashboardConsortia from './components/dashboard-consortia';
-import Home from './components/home';
-import LayoutNoAuth from './components/layout-noauth'
 import Login from './components/form-login-controller';
 import Signup from './components/form-signup-controller';
 import ConsortiumSingleController from './components/consortium-single-controller';
@@ -22,29 +20,42 @@ import ProjectsList from './components/projects/projects-list';
 import PageProject from './components/projects/page-project';
 import FormAddProjectController from './components/projects/form-add-project-controller';
 
+/**
+ * Force authentication on application routes.
+ *
+ * @{@link  https://github.com/rackt/react-router/blob/master/docs/API.md#onenternextstate-replacestate}
+ * @{@link  https://github.com/rackt/react-router/blob/master/examples/auth-flow/app.js}
+ *
+ * @todo  Actually validate user by logging them in.
+ *
+ * @param  {unknown}   nextState
+ * @param  {unknown}   replaceState
+ * @return {undefined}
+ */
+function requireAuth(nextState, replaceState) {
+    if (!auth.getUser()) {
+        replaceState({
+            nextPathname: nextState.location.pathname
+        }, '/login');
+    }
+}
+
 export default (
-    <Route handler={App}>
-        <Route name="noauth" path="/" handler={LayoutNoAuth}>
-            <DefaultRoute handler={Login} />
-            <Route name="login" handler={Login} />
-            <Route name="signup" handler={Signup} />
-        </Route>
-        <Route name="home" path="/home" handler={Home}>
-            <Route name="dashboard" path="/home" handler={Dashboard}>
-                <DefaultRoute handler={DashboardHome} />
-                <Route name="consortia" handler={DashboardConsortia} />
-                <Route name="consortium-single" path="/consortia/:label" handler={ConsortiumSingleController} />
-                <Route name="projects" handler={DashboardProjects}>
-                    <DefaultRoute name="projects-list" handler={ProjectsList} />
-                    <Route
-                        name="projects-new"
-                        path="/projects/new"
-                        handler={FormAddProjectController} />
-                    <Route
-                        name="projects-single"
-                        path="/projects/:projectId"
-                        handler={PageProject} />
-                </Route>
+    <Route component={App}>
+        <Route path="login" component={Login} />
+        <Route path="signup" component={Signup} />
+        <Route path="/" component={Dashboard} onEnter={requireAuth}>
+            <IndexRoute component={DashboardHome} />
+            <Route path="/consortia" component={DashboardConsortia} />
+            <Route path="/consortia/:label" component={ConsortiumSingleController} />
+            <Route path="/projects" component={DashboardProjects}>
+                <IndexRoute component={ProjectsList} />
+                <Route
+                    path="new"
+                    component={FormAddProjectController} />
+                <Route
+                    path=":projectId"
+                    component={PageProject} />
             </Route>
         </Route>
     </Route>
