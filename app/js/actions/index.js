@@ -9,6 +9,7 @@ export const SET_PROJECT_CONSORTIUM_CTX = 'SET_PROJECT_CONSORTIUM_CTX';
 export const SET_PROJECT_CONSORTIUM_ANALYSIS_CTX = 'SET_PROJECT_CONSORTIUM_ANALYSIS_CTX';
 export const SET_USER = 'SET_USER';
 export const SET_SIGNUP_USER = 'SET_SIGNUP_USER';
+export const SET_AUTHORIZED_UI_DATA_READY = 'SET_AUTHORIZED_UI_DATA_READY';
 
 /*
  * action creators
@@ -39,6 +40,10 @@ export function setUser(user) {
 
 export function setSignupUser(user) {
     return { type: SET_SIGNUP_USER, user };
+};
+
+export function setAuthorizedUiDataReady(ready) {
+    return { type: SET_AUTHORIZED_UI_DATA_READY, ready };
 };
 
 /**
