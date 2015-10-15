@@ -8,8 +8,28 @@ import LayoutNoauth from './layout-noauth';
 class FormLoginController extends Component {
     constructor(props) {
         super(props);
+        this.hotRoute = this.hotRoute.bind(this);
         this.submit = this.submit.bind(this);
     }
+
+    /**
+     * Allow users to log in without authentication.
+     *
+     * @todo  Remove for production.
+     */
+    hotRoute(event) {
+        event.preventDefault();
+
+        const { history: { pushState } } = this.props;
+
+        auth.setUser({
+            email: 'testuser@mrn.org',
+            label: 'Test User',
+            username: 'testuser',
+        });
+        pushState({ state: 'login' }, '/');
+    }
+
     submit(e) {
         e.preventDefault();
 
@@ -34,7 +54,10 @@ class FormLoginController extends Component {
     render() {
         return (
             <LayoutNoauth>
-                <FormLogin ref="logon" submit={this.submit} />
+                <FormLogin
+                    ref="logon"
+                    hotRoute={this.hotRoute}
+                    submit={this.submit} />
             </LayoutNoauth>
         );
     }
