@@ -14,9 +14,11 @@ import thunkMiddleware from 'redux-thunk';
 import { default as consortiumMiddleware } from '../middleware/consortium';
 import rootReducer from '../reducers';
 
-const finalCreateStore = compose(
-  applyMiddleware(thunkMiddleware, consortiumMiddleware),
-  applyMiddleware(createLogger())
+const finalCreateStore = applyMiddleware(
+    thunkMiddleware,
+    promiseMiddleware,
+    consortiumMiddleware,
+    createLogger()
 )(createStore);
 
 export default function configureStore(initialState) {
