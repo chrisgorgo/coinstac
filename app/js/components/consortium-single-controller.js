@@ -49,7 +49,7 @@ class ConsortiumSingleController extends Component {
     }
 
     componentWillUnmount() {
-        const { query: { _id: consortiumId } } = this.props;
+        const { location: { query: { _id: consortiumId } } } = this.props;
 
         getConsortiumAnalysisResultsListener(consortiumId).removeListener(
             'change',
