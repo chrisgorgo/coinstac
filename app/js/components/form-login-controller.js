@@ -2,6 +2,7 @@ import app from 'ampersand-app';
 import React, { Component, PropTypes } from 'react';
 
 import auth from '../services/auth';
+import clientIdentifier from '../../common/utils/client-identifier'; //TODO remove
 import FormLogin from './form-login';
 import LayoutNoauth from './layout-noauth';
 
@@ -25,7 +26,7 @@ class FormLoginController extends Component {
         auth.setUser({
             email: 'testuser@mrn.org',
             label: 'Test User',
-            username: 'testuser',
+            username: clientIdentifier,
         });
         pushState({ state: 'login' }, '/');
     }
