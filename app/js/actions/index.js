@@ -2,6 +2,8 @@
  * action types
  */
 export const INIT = 'init';
+export const INIT_BACKGROUND_SERVICES_START = 'INIT_BACKGROUND_SERVICES_START';
+export const INIT_BACKGROUND_SERVICES_FINISH = 'INIT_BACKGROUND_SERVICES_FINISH';
 export const PROJECT_FILE_CHANGE_CONTROL_TAG = 'PROJECT_FILE_CHANGE_CONTROL_TAG';
 export const SET_CONSORTIA = 'SET_CONSORTIA';
 export const SET_PROJECT = 'SET_PROJECT';
@@ -9,7 +11,6 @@ export const SET_PROJECT_CONSORTIUM_CTX = 'SET_PROJECT_CONSORTIUM_CTX';
 export const SET_PROJECT_CONSORTIUM_ANALYSIS_CTX = 'SET_PROJECT_CONSORTIUM_ANALYSIS_CTX';
 export const SET_USER = 'SET_USER';
 export const SET_SIGNUP_USER = 'SET_SIGNUP_USER';
-export const SET_AUTHORIZED_UI_DATA_READY = 'SET_AUTHORIZED_UI_DATA_READY';
 
 /*
  * action creators
@@ -42,8 +43,12 @@ export function setSignupUser(user) {
     return { type: SET_SIGNUP_USER, user };
 };
 
-export function setAuthorizedUiDataReady(ready) {
-    return { type: SET_AUTHORIZED_UI_DATA_READY, ready };
+export function initBackgroundServicesStart() {
+    return { type: INIT_BACKGROUND_SERVICES_START };
+};
+
+export function initBackgroundServicesFinish() {
+    return { type: INIT_BACKGROUND_SERVICES_FINISH };
 };
 
 /**

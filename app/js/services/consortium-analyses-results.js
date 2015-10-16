@@ -41,6 +41,7 @@
 
 import config from 'config';
 import EventEmitter from 'events';
+import url from 'url';
 
 import dbs from './db-registry';
 
@@ -53,14 +54,9 @@ import dbs from './db-registry';
 const store = new Map();
 
 function getDb(consortiumId) {
-    const slug = consortiumId.replace(/_/g, '-');
-
-    /** @todo  Move database URL to a common configuration file */
-    return dbs.get(
-        config.db.remote.url + '/' +
-        (config.db.remote.pathname ? config.db.remote.pathname + '/': '') +
-        'consortium-' + slug
-    );
+    let dbUrlComponents = config.db.remote;
+    dbUrlComponents.pathname = 'consortium-' + consortiumId;
+    return dbs.get(url.format(dbUrlComponents));
 }
 
 /**
