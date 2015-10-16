@@ -38,3 +38,18 @@ window.onerror = function(err) {
     console.dir(err);
 }
 console.info('>> renderer process up');
+
+/**
+ * Multishot analysis.
+ *
+ * @todo  Move to separate file/module.
+ */
+var multiShotInitializer = require('./services/multi-shot-initializer');
+
+multiShotInitializer.init()
+    .then(function(listeners) {
+        console.log(listeners );
+    })
+    .catch(function(error) {
+        console.error(error);
+    });

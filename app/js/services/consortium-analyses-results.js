@@ -83,6 +83,7 @@ class ConsortiumAnalysesResults extends EventEmitter {
     constructor(consortiumId) {
         super(consortiumId);
 
+        this.consortiumId = consortiumId;
         this.pouchy = getDb(consortiumId);
 
         // Wire up events
