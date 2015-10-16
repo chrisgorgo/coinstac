@@ -34,6 +34,9 @@ class Analyze {
 
     /**
      * send request to analyze files
+     *
+     * @todo  Improve documentation
+     *
      * @param  {object} request
      * @option {array}  files array of files of form `file`.  See models/file.js
      * @option {number} requestId recommended requestId so that render process
@@ -43,6 +46,12 @@ class Analyze {
     analyze(request) {
         if (!request.files || !Array.isArray(request.files)) {
             throw new ReferenceError('`files` set required');
+        }
+        if (!request.type || ['one', 'multi'].indexOf(request.type) === -1) {
+            throw new ReferenceError('`type` property required!');
+        }
+        if (request.type === 'multi' && !_.isObject(request.mVals)) {
+            throw new ReferenceError('A set `mVals` property requires `request.type` is an object.');
         }
         if (!request.requestId) {
             throw new ReferenceError('use `requestId` to identify async analyze requests');

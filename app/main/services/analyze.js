@@ -1,6 +1,7 @@
 'use strict';
 var ipc = require('ipc');
 var oneShot = require('./analyses/one-shot.js');
+var multiShot = require('./analyses/multi-shot.js');
 var Errio = require('errio');
 var _ = require('lodash');
 var clientIdentifier = require('../../common/utils/client-identifier.js');
@@ -41,7 +42,7 @@ ipc.on('analyze-files', function(event, request) {
 
     console.log('analyze-files request: ');
     console.dir(request);
-    var result = oneShot(request);
+    var result = multiShot(request);
     result.then(function(result) {
         return sendResult(null, result);
     }).catch(function(err) {

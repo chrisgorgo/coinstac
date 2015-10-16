@@ -204,7 +204,11 @@ class FormManageProjectController extends React.Component {
         analyzeService.analyze({
             requestId: ++app.analysisRequestId,
             predictors: ['Left-Hippocampus'], // @TODO make part of analysis definition
-            files
+            files,
+            mVals: {
+                'Left-Hippocampus': 0
+            },
+            type: 'multi',
         });
         app.notifications.push({
             message: `Analysis request ${app.analysisRequestId} dispatched!`,
