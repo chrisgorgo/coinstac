@@ -32,8 +32,10 @@ ipc.on('analyze-files', function(event, request) {
         console.log('emitting result: ');
         console.dir(result);
         event.sender.send('files-analyzed', {
+            consortiumId: request.consortiumId,
             requestId: request.requestId,
             fileShas: _.pluck(request.files, 'sha'),
+            history: request.history,
             data: result,
             error: err,
             username: clientIdentifier,
