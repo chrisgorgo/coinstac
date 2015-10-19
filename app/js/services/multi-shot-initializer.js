@@ -3,78 +3,197 @@
 var analyze = require('./analyze');
 var app = require('ampersand-app');
 var assign = require('lodash/object/assign');
+var config = require('config');
 var consortia = require('./consortia');
 var consortiumAnalysesResults =
     require('./consortium-analyses-results');
 var clientIdentifier = require('../../common/utils/client-identifier');
 var dbs = require('./db-registry');
-var sha1 = require('sha-1');
 var Promise = require('bluebird');
-
-var projects = dbs.get('projects');
+var sha1 = require('sha-1');
 
 // Cache listeners and change handlers
 var aggregateChangeListeners = [];
 var aggregateChangeHandlers = [];
 
-// Get user's consortia
-function getUserConsortia() {
+/**
+ * Get an analysis's ID from its files' shas.
+ *
+ * @param  {array}  fileShas
+ * @return {string}
+ */
+function getAnalysisId(fileShas) {
+    return sha1(fileShas.sort().join(''));
+}
+
+/**
+ * Get a consortium's analysis/aggregate CouchDB name.
+ *
+ * @param  {string} consortiumId
+ * @return {string}
+ */
+function getConsortiumDbName(consortiumId) {
+    return (
+        config.db.remote.url + '/' +
+        (config.db.remote.pathname ? config.db.remote.pathname + '/': '') +
+        'consortium-' + consortiumId.replace(/_/g, '-')
+    );
+}
+
+/**
+ * Get consortia that a user has joined.
+ *
+ * @param  {string}  username
+ * @return {Promise}          Resolves to an array of consortium objects as
+ *                            provided by the API.
+ */
+function getUserConsortia(username) {
+    /** @todo  Use the auth service to retrieve username */
+    if (typeof username === 'undefined') {
+        username = clientIdentifier;
+    }
+
     return consortia.all()
         .then(function(consortia) {
             return consortia.filter(function(consortium) {
                 return consortium.users.some(function(user) {
-                    return user.username === clientIdentifier;
+                    return user.username === username;
                 });
             });
         });
 }
 
-// Get change listeners for the consortia the user's joined
-function getAnalysesResultsListeners() {
-    return getUserConsortia().then(function(consortia) {
-        return consortia.map(function(consortium) {
-            return consortiumAnalysesResults.getListener(
-                consortium._id
-            );
+/**
+ * Get a project's files from an aggregate analysis's file shas.
+ *
+ * @param  {array}   aggregateFileShas Collection of file shas from an aggregate
+ *                                     document
+ * @return {Promise}
+ */
+function getProjectFilesFromAggregateFileShas(aggregateFileShas) {
+    return dbs.get('projects').all()
+        .then(function(projects) {
+            // Find the user's corresponding project
+            return projects.find(function(project) {
+                return project.files
+                    // Pluck file objects' shas
+                    .map(function(file) {
+                        return file.sha;
+                    })
+                    // Ensure all the project's shas are in `aggregateFileShas`
+                    .every(function(fileSha) {
+                        return aggregateFileShas.indexOf(fileSha) !== -1;
+                    });
+            });
+        })
+        .then(function(project) {
+            if (!project) {
+                throw new Error('Couldn\'t find user\'s corresponding project');
+            }
+            return project.files;
         });
-    });
 }
 
-// Respond to analyses aggregate result changes
-function onAggregateChange(newAggregate, files) {
-    var history = newAggregate.history;
+/**
+ * Run an analysis on the client.
+ *
+ * @param  {object}    options
+ * @param  {array}     options.files
+ * @param  {array}     options.mVals
+ * @return {undefined}
+ */
+function runAnalysis(options) {
+    console.log('Running analysis', options); //TODO Remove log
+
+    var consortiumId = options.consortiumId;
+    var files = options.files;
+    var history = options.history || [];
 
     /** @todo  Don't hard-code these attributes */
+    var mVals = options.mVals || { 'Left-Hippocampus': 0 };
     var predictors = ['Left-Hippocampus'];
     var type = 'multi';
 
-    if (
-        // See if user is a part of this aggregate
-        newAggregate.contributors.indexOf(clientIdentifier) !== -1 &&
-
-        // See if user hasn't run analysis the latest
-        !history[history.length - 1][clientIdentifier]
-    ) {
-        analyze.analyze({
-            files: files,
-            mVals: newAggregate.data.mVals,
-            predictors: predictors,
-            requestId: ++app.analysisRequestId,
-            type: type,
-        });
-        app.notifications.push({
-            level: 'info',
-            message:
-                'Analysis request ' + app.analysisRequestId + ' dispatched!',
+    if (!Array.isArray(files) || !files.length) {
+        return app.notifications.push({
+            level: 'error',
+            message: 'Analysis requires files',
         });
     }
+    if (!consortiumId) {
+        throw new Error('Running analysis requires a consortium ID');
+    }
+
+    analyze.analyze({
+        consortiumId: consortiumId,
+        files: files,
+        mVals: mVals,
+        history: history,
+        predictors: predictors,
+        requestId: ++app.analysisRequestId,
+        type: type,
+    });
+    app.notifications.push({
+        level: 'info',
+        message:
+            'Analysis request ' + app.analysisRequestId + ' dispatched!',
+    });
 }
 
-// Respond to user's analysis complete
+/**
+ * Respond to aggregate analysis changes.
+ *
+ * @param  {object}   newAggregate New aggregate document
+ * @return {undefined}
+ */
+function onAggregateChange(newAggregate) {
+    console.log('Aggregate analysis changed', newAggregate); //TODO Remove
+
+    var aggregateFileShas = newAggregate.files;
+    var history = newAggregate.history;
+
+    // Exit early if client shouldn't run a new analysis
+    if (
+        // See if iteration count exceeds maximum count
+        !Array.isArray(history) ||
+        history.length >= newAggregate.maxIterations ||
+
+        // See if user is a part of this aggregate
+        // TODO:  Figure out why server mutates the aggregate's contributors.
+        // This changes the array `indexOf` check
+        !newAggregate.contributors ||
+        newAggregate.contributors.indexOf(clientIdentifier) !== -1
+    ) {
+        return;
+    }
+
+    getProjectFilesFromAggregateFileShas(aggregateFileShas)
+        .then(function(files) {
+            if (files) {
+                return runAnalysis({
+                    files: files,
+                    mVals: newAggregate.data.mVals,
+                });
+            }
+        })
+        .catch(function(error) {
+            console.error(error);
+        });
+}
+
+/**
+ * Respond to user's analysis completion
+ *
+ * @param  {object}    result
+ * @return {undefined}
+ */
 function onAnalysisComplete(result) {
+    console.log('Client analysis complete', result); //TODO Remove
+
+    var consortiumId = result.consortiumId;
     var error = result.error;
-    var fileShas = result.fileShas;
-    var id;
+    var analysis;
+    var db;
 
     if (error) {
         return app.notifications.push({
@@ -83,47 +202,27 @@ function onAnalysisComplete(result) {
         });
     }
 
-    /** @todo  Move result `_id` generation to a common utility */
-    id = sha1(fileShas.sort().join(''));
+    analysis = Object.assign({}, result, {
+        /** @todo  Figure out how to no regenerate this id */
+        _id: getAnalysisId(result.fileShas),
+        /** Clone `data` into the history array */
+        history: result.history.concat(result.data),
+    });
+    db = dbs.get(getConsortiumDbName(consortiumId));
 
-    /** @todo  There has to be a better way to do this */
-    getUserConsortia()
-        .then(function(consortia) {
-            return Promise.all(consortia.map(function(consortium) {
-                var name = 'consortia-' + consortium._id.replace(/_/g, '-');
-
-                // Find the name of the db with a document with `id`
-                return new Promise(function(resolve, reject) {
-                    dbs.get(name).find({
-                        fields: ['_id'],
-                        limit: 1,
-                        selector: { _id: id },
-                    })
-                        .then(function(result) {
-                            if (result && result.length) {
-                                resolve(name);
-                            } else {
-                                resolve();
-                            }
-                        })
-                        .catch(reject);
-                });
-            }));
+    db.get(analysis._id)
+        .then(function(doc) {
+            return db.save(assign({}, doc, analysis));
+        }, function() {
+            // Doc doesn't exist, save new analysis
+            return db.save(analysis);
         })
-        .then(function(names) {
-            var name = names.sort().slice(0, 1).pop();
-
-            if (!name) {
-                throw new Error('Could not find db: ' + name);
-            }
-
-            return dbs.get(name).save(assign({}, result, { _id: id }));
-        })
-        .then(function(result) {
+        .then(function(response) {
             app.notifications.push({
                 level: 'success',
-                message: 'Analysis request' + result.requestId + 'complete!',
+                message: 'Analysis request' + analysis.requestId + ' complete!',
             });
+            return response;
         })
         .catch(function(error) {
             var message = (error.status === 409) ?
@@ -134,42 +233,95 @@ function onAnalysisComplete(result) {
                 level: 'error',
                 message: message,
             });
+
+            console.error(error);
         });
+}
+
+/**
+ * Wire up an aggregate handler.
+ *
+ * @see ConsortiumAnalysesResults
+ *
+ * @todo  Make sure a user has projects in `consortiumId`'s aggregate before
+ *        wiring up the handler. If he/she doesn't have projects then this
+ *        causes unnecessary processing on the client.
+ *
+ * @param  {string} consortiumId
+ * @return {object}              Instance of `ConsortiumAnalysesResults`
+ */
+function addConsortiumAggregateListener(consortiumId) {
+    var changeHandler;
+    var changeListener;
+    var consortiumListener;
+
+    // Exit early if a listener is already set up
+    for (var i = 0, il = aggregateChangeHandlers.length; i < il; i++) {
+        if (aggregateChangeHandlers[i].consortiumId === consortiumId) {
+            return;
+        }
+    }
+
+    // Only pass aggregates to `onAggregateChange`
+    changeHandler = function(change) {
+        if (change.doc.aggregate) {
+            onAggregateChange(change.doc);
+        }
+    };
+    consortiumListener = consortiumAnalysesResults.getListener(consortiumId);
+
+    changeListener = consortiumListener.on('change', changeHandler);
+
+    aggregateChangeHandlers.push(changeHandler);
+    aggregateChangeListeners.push(changeListener);
+
+    return changeListener;
 }
 
 // Wire everthing up
 function init() {
     analyze.addChangeListener(onAnalysisComplete);
 
-    return Promise.all([projects.all(), getAnalysesResultsListeners()])
+    return getUserConsortia()
+        .then(function(userConsortia) {
+            return Promise.all(userConsortia.map(function(consortium) {
+                return dbs.get(getConsortiumDbName(consortium._id))
+                    .all()
+                    .then(function(docs) {
+                        var result = {
+                            consortiumId: consortium._id,
+                        };
+
+                        /**
+                         * @todo  This assumes one aggregate per consortium.
+                         *        Change check to make it more flexible.
+                         */
+                        return docs.reduce(function(result, doc) {
+                            if (!!doc.aggregate) {
+                                result.aggregate = doc;
+                            }
+
+                            return result;
+                        }, result);
+                    });
+            }));
+        })
         .then(function(results) {
-            var projects = results[0];
-            var listeners = results[1];
-
-            // Match analyses results listener with projects' files
-            return listeners.map(function(listener) {
-                var project = projects.find(function(project) {
-                    return (
-                        project.defaultConsortiumId === listener.consortiumId
-                    );
-                });
-                var handler;
-                var onChange;
-
-                if (project) {
-                    onChange = function(change) {
-                        onAggregateChange(change.doc, project.files);
-                    };
-                    handler = listener.on('change', onChange);
-
-                    aggregateChangeHandlers.push(onChange);
-                    aggregateChangeListeners.push(handler);
-
-                    return handler;
+            return results.map(function(result) {
+                /**
+                 * Run the aggregate change listener when the client first
+                 * loads. This ensures the client runs analysis and submits it
+                 * if needed.
+                 *
+                 * @todo  The location of this call makes it confusing. Find a
+                 *        better way.
+                 */
+                if (result.aggregate) {
+                    onAggregateChange(result.aggregate);
                 }
+
+                return addConsortiumAggregateListener(result.consortiumId);
             });
-        }, function(error) {
-            console.error(error);
         });
 }
 
@@ -187,6 +339,8 @@ function destroy() {
 }
 
 module.exports = {
+    addConsortiumAggregateListener: addConsortiumAggregateListener,
     destroy: destroy,
     init: init,
+    runAnalysis: runAnalysis,
 };

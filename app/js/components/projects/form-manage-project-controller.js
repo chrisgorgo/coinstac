@@ -13,6 +13,11 @@ import { connect } from 'react-redux';
 import * as allActions from '../../actions/index';
 import FormManageProject from './form-manage-project';
 import fieldStateToBsClass from '../../utils/field-state-to-bs-class';
+import {
+    addConsortiumAggregateListener,
+    runAnalysis,
+} from '../../services/multi-shot-initializer';
+
 let requestId = 0;
 let actions;
 let projectAsyncQueue = Promise.resolve();
@@ -33,9 +38,7 @@ class FormManageProjectController extends React.Component {
 
     componentDidMount() {
         this.saveFile = this.saveFile.bind(this); // prebind for easy listener removal
-        this.handleAnalyzed = this.handleAnalyzed.bind(this);
         fileService.addChangeListener(this.saveFile);
-        analyzeService.addChangeListener(this.handleAnalyzed);
     }
 
     componentWillMount() {
@@ -79,49 +82,8 @@ class FormManageProjectController extends React.Component {
     }
 
     componentWillUnmount() {
-        analyzeService.removeChangeListener(this.handleAnalyzed);
         fileService.removeChangeListener(this.saveFile);
         this.props.dispatch(allActions.setProject(null));
-    }
-
-    handleAnalyzed(result) {
-        let { error, data } = result;
-        if (error) {
-            error = Errio.parse(error);
-            let msg = error.message;
-            if (error.data && error.data.file) {
-                msg = msg + ` (file: ${error.data.file.filename})`;
-            }
-            return app.notifications.push({
-                message: `Failed to analyze files: ${msg}`,
-                level: 'error'
-            });
-        }
-        const fileShas = result.fileShas;
-        const cDb = dbs.get(this.props.project.consortium.dbUrl);
-        result._id = sha1(fileShas.sort().join(''));
-        return cDb.all().then(docs => {
-            // @TODO test if docs submitted are a subset of existing analysis
-            // @TODO test if docs submitted are a superset of existing analysis
-            // @TODO test if focs are sameset/diffset
-        }).then(() => {
-            return cDb.save(result).then(d => {
-                return app.notifications.push({
-                    message: `Analysis request ${result.requestId} complete!`,
-                    level: 'success'
-                });
-            });
-        }).catch(err => {
-            let msg = 'Unable to store completed analysis';
-            if (err.status === 409) {
-                msg = 'Analysis over this fileset already submitted';
-            }
-            return app.notifications.push({
-                message: msg,
-                level: 'error'
-            });
-        });
-
     }
 
     handleAnalysisCtxChange(evt) {
@@ -196,24 +158,13 @@ class FormManageProjectController extends React.Component {
     }
 
     handleSubmitAnalyze() {
-        const submitToConsortium = _.find(
-            this.props.consortia,
-            {_id: this.props.project.consortium._id}
-        );
-        const files = this.props.project.files;
-        analyzeService.analyze({
-            requestId: ++app.analysisRequestId,
-            predictors: ['Left-Hippocampus'], // @TODO make part of analysis definition
+        const { project: { consortium: { _id } , files } } = this.props;
+
+        runAnalysis({
+            consortiumId: _id,
             files,
-            mVals: {
-                'Left-Hippocampus': 0
-            },
-            type: 'multi',
         });
-        app.notifications.push({
-            message: `Analysis request ${app.analysisRequestId} dispatched!`,
-            level: 'info'
-        });
+        addConsortiumAggregateListener(_id);
     }
 
     saveFile(meta) {
