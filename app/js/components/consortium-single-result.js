@@ -1,6 +1,35 @@
 import React, { Component, PropTypes } from 'react';
 import { Panel, ProgressBar } from 'react-bootstrap';
 
+/**
+ * Convert an object to a React `ul`.
+ */
+function toList(data) {
+    return (
+        <ul>
+            {Object.keys(data).map((key, index) => {
+                let value;
+
+                if (Array.isArray(data)) {
+                    value = (
+                        <span>
+                            {data.map(toList)}
+                        </span>
+                    );
+                } else if (data[key] instanceof Object) {
+                    value = toList(data[key]);
+                } else {
+                    value = data[key];
+                }
+
+                return (
+                    <li key={key}><strong>{key}:</strong>{' '}{value}</li>
+                );
+            })}
+        </ul>
+    );
+}
+
 class ConsortiumSingleResult extends Component {
     constructor(props) {
         super(props);
@@ -11,21 +40,7 @@ class ConsortiumSingleResult extends Component {
     renderData() {
         const { data } = this.props;
 
-        if (data) {
-            return (
-                <ul className="list-unstyled">
-                    {Object.keys(data).map((key, i) => {
-                        return (
-                            <li key={i}>
-                                <strong>{key}:</strong>
-                                {' '}
-                                <code>{data[key]}</code>
-                            </li>
-                        );
-                    })}
-                </ul>
-            );
-        }
+        return toList(data);
     }
     renderProgress() {
         const { error } = this.props;
