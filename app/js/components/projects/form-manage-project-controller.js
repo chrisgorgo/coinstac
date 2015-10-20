@@ -42,8 +42,6 @@ class FormManageProjectController extends React.Component {
     }
 
     componentWillMount() {
-        app.analysisRequestId = app.analysisRequestId || 0;
-
         // fetch current project, all consortia, then patch state
         let projectRefreshed = dbs.get('projects').get(this.props.projectId)
         .then((p) => {

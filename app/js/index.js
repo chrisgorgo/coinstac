@@ -13,6 +13,7 @@ import configureStore from './store/configureStore';
 import routes from './routes';
 
 app.isDev = window.COINS_ENV === 'development';
+app.analysisRequestId = app.analysisRequestId || 0;
 
 const store = configureStore();
 const history = createHistory();
