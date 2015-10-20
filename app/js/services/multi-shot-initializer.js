@@ -165,7 +165,7 @@ function runAnalysis(options) {
     }
 
     analyze.analyze({
-        aggregateId: newAggregate._id,
+        aggregateId: aggregateId,
         consortiumId: consortiumId,
         files: files,
         mVals: mVals,
@@ -189,12 +189,10 @@ function runAnalysis(options) {
 function onAggregateChange(newAggregate) {
     console.log('Aggregate analysis changed', newAggregate); //TODO Remove
 
-    var newAggregateId = newAggregate._id;
-
-    lock(newAggregateId, function(release) {
+    var aggregateId = newAggregate._id;
+    lock(aggregateId, function(release) {
         var aggregateFileShas = newAggregate.files;
         var aggregateHistory = newAggregate.history;
-        var aggregateId = newAggregate._id;
         var username = auth.getUser().username;
 
         // Exit early if client shouldn't run a new analysis
@@ -219,24 +217,26 @@ function onAggregateChange(newAggregate) {
         Promise.all([
             getProjectFilesFromAggregateFileShas(aggregateFileShas),
             getConsortiumIdFromAggregateId(aggregateId),
+            getAnalysisHistoryFromAggregateFileShas(aggregateFileShas),
         ])
             .then(function(responses) {
                 var files = responses[0];
                 var consortiumId = responses[1];
+                var analysisHistory = responses[2];
                 var options;
 
                 if (
-                    analysisHistory.length <= aggregateHistory.length + 1 &&
+                    analysisHistory.length < aggregateHistory.length &&
                     files
                 ) {
-                    if (RELEASOR[newAggregateId]) {
-                        throw new Error('Lock on ' + newAggregateId + ' already exists!');
+                    if (RELEASOR[aggregateId]) {
+                        throw new Error('Lock on ' + aggregateId + ' already exists!');
                     }
 
-                    RELEASOR[newAggregateId] = release();
+                    RELEASOR[aggregateId] = release();
 
                     runAnalysis({
-                        aggregateId: newAggregateId,
+                        aggregateId: aggregateId,
                         consortiumId: consortiumId,
                         files: files,
                         mVals: newAggregate.data.mVals,
