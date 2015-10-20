@@ -16,7 +16,10 @@ var getAnalysisId = require('../utils/get-analysis-id');
 var aggregateChangeListeners = [];
 var aggregateChangeHandlers = [];
 
-var LOCK = false;
+var Lock = require('lock');
+var lock = Lock();
+
+var RELEASOR = {};
 
 /**
  * Get a project's files from an aggregate analysis's file shas.
@@ -134,6 +137,7 @@ function getAnalysisHistoryFromAggregateFileShas(aggregateFileShas) {
  * Run an analysis on the client.
  *
  * @param  {object}    options
+ * @param  {string}    options.aggregateId
  * @param  {array}     options.files
  * @param  {array}     options.mVals
  * @return {undefined}
@@ -141,13 +145,7 @@ function getAnalysisHistoryFromAggregateFileShas(aggregateFileShas) {
 function runAnalysis(options) {
     console.log('Running analysis', options); //TODO Remove log
 
-    // Engage the lock
-    if (LOCK) {
-        console.log('Analysis already running! Exiting.');
-        return;
-    }
-    LOCK = true;
-
+    var aggregateId = options.aggregateId;
     var consortiumId = options.consortiumId;
     var files = options.files;
 
@@ -167,6 +165,7 @@ function runAnalysis(options) {
     }
 
     analyze.analyze({
+        aggregateId: newAggregate._id,
         consortiumId: consortiumId,
         files: files,
         mVals: mVals,
@@ -190,56 +189,67 @@ function runAnalysis(options) {
 function onAggregateChange(newAggregate) {
     console.log('Aggregate analysis changed', newAggregate); //TODO Remove
 
-    var aggregateFileShas = newAggregate.files;
-    var aggregateHistory = newAggregate.history;
-    var aggregateId = newAggregate._id;
-    var username = auth.getUser().username;
+    var newAggregateId = newAggregate._id;
 
-    // Exit early if client shouldn't run a new analysis
-    if (
-        !Array.isArray(aggregateFileShas) ||
-        aggregateFileShas.length === 0 ||
+    lock(newAggregateId, function(release) {
+        var aggregateFileShas = newAggregate.files;
+        var aggregateHistory = newAggregate.history;
+        var aggregateId = newAggregate._id;
+        var username = auth.getUser().username;
 
-        // See if iteration count exceeds maximum count
-        // There should be one more history item than the max iteration count
-        !Array.isArray(aggregateHistory) ||
-        aggregateHistory.length > newAggregate.maxIterations ||
+        // Exit early if client shouldn't run a new analysis
+        if (
+            !Array.isArray(aggregateFileShas) ||
+            aggregateFileShas.length === 0 ||
 
-        // See if user is a part of this aggregate
-        // TODO:  Figure out why server mutates the aggregate's contributors.
-        // This changes the array `indexOf` check
-        !newAggregate.contributors ||
-        newAggregate.contributors.indexOf(username) !== -1
-    ) {
-        return;
-    }
+            // See if iteration count exceeds maximum count
+            // There should be one more history item than the max iteration count
+            !Array.isArray(aggregateHistory) ||
+            aggregateHistory.length > newAggregate.maxIterations ||
 
-    Promise.all([
-        getProjectFilesFromAggregateFileShas(aggregateFileShas),
-        getConsortiumIdFromAggregateId(aggregateId),
-        getAnalysisHistoryFromAggregateFileShas(aggregateFileShas),
-    ])
-        .then(function(responses) {
-            var files = responses[0];
-            var consortiumId = responses[1];
-            var analysisHistory = responses[2];
+            // See if user is a part of this aggregate
+            // TODO:  Figure out why server mutates the aggregate's contributors.
+            // This changes the array `indexOf` check
+            !newAggregate.contributors ||
+            newAggregate.contributors.indexOf(username) !== -1
+        ) {
+            return release()();
+        }
 
-            debugger;
+        Promise.all([
+            getProjectFilesFromAggregateFileShas(aggregateFileShas),
+            getConsortiumIdFromAggregateId(aggregateId),
+        ])
+            .then(function(responses) {
+                var files = responses[0];
+                var consortiumId = responses[1];
+                var options;
 
-            if (
-                analysisHistory.length <= aggregateHistory.length + 1 &&
-                files
-            ) {
-                return runAnalysis({
-                    consortiumId: consortiumId,
-                    files: files,
-                    mVals: newAggregate.data.mVals,
-                });
-            }
-        })
-        .catch(function(error) {
-            console.error(error);
-        });
+                if (
+                    analysisHistory.length <= aggregateHistory.length + 1 &&
+                    files
+                ) {
+                    if (RELEASOR[newAggregateId]) {
+                        throw new Error('Lock on ' + newAggregateId + ' already exists!');
+                    }
+
+                    RELEASOR[newAggregateId] = release();
+
+                    runAnalysis({
+                        aggregateId: newAggregateId,
+                        consortiumId: consortiumId,
+                        files: files,
+                        mVals: newAggregate.data.mVals,
+                    });
+                } else {
+                    release()();
+                }
+            })
+            .catch(function(error) {
+                release()();
+                console.error(error);
+            });
+    });
 }
 
 /**
@@ -251,9 +261,7 @@ function onAggregateChange(newAggregate) {
 function onAnalysisComplete(result) {
     console.log('Client analysis complete', result); //TODO Remove
 
-    // Release the lock
-    LOCK = false;
-
+    var aggregateId = result.aggregateId;
     var consortiumId = result.consortiumId;
     var error = result.error;
     var db;
@@ -299,6 +307,15 @@ function onAnalysisComplete(result) {
             });
 
             console.error(error);
+        })
+        .finally(function() {
+            // Release the lock
+            var release = RELEASOR[aggregateId];
+
+            if (release instanceof Function) {
+                delete RELEASOR[aggregateId];
+                release();
+            }
         });
 }
 
