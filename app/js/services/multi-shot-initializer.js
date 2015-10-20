@@ -190,7 +190,11 @@ function onAggregateChange(newAggregate) {
     console.log('Aggregate analysis changed', newAggregate); //TODO Remove
 
     var aggregateId = newAggregate._id;
+
+    console.log('Waiting for lock...', aggregateId);
     lock(aggregateId, function(release) {
+        console.log('Aquiring lock', aggregateId);
+
         var aggregateFileShas = newAggregate.files;
         var aggregateHistory = newAggregate.history;
         var username = auth.getUser().username;
@@ -211,6 +215,7 @@ function onAggregateChange(newAggregate) {
             !newAggregate.contributors ||
             newAggregate.contributors.indexOf(username) !== -1
         ) {
+            console.log('Releasing lock.', aggregateId);
             return release()();
         }
 
@@ -242,10 +247,14 @@ function onAggregateChange(newAggregate) {
                         mVals: newAggregate.data.mVals,
                     });
                 } else {
+                    console.log('Releasing lock.', aggregateId);
+
                     release()();
                 }
             })
             .catch(function(error) {
+                console.log('Releasing lock.', aggregateId);
+
                 release()();
                 console.error(error);
             });
@@ -314,6 +323,7 @@ function onAnalysisComplete(result) {
 
             if (release instanceof Function) {
                 delete RELEASOR[aggregateId];
+                console.log('Releasing lock', aggregateId);
                 release();
             }
         });
