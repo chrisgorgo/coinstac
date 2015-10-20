@@ -308,7 +308,7 @@ function onAnalysisComplete(result) {
 
             console.error(error);
         })
-        .finally(function() {
+        .then(function() {
             // Release the lock
             var release = RELEASOR[aggregateId];
 
