@@ -177,8 +177,6 @@ function onAggregateChange(newAggregate) {
         return;
     }
 
-    debugger;
-
     Promise.all([
         getProjectFilesFromAggregateFileShas(aggregateFileShas),
         getConsortiumIdFromAggregateFileShas(aggregateFileShas),
@@ -226,7 +224,6 @@ function onAnalysisComplete(result) {
 
     db.get(id)
         .then(function(doc) {
-            debugger;
             return db.save(assign({}, doc, result, {
                 history: doc.history.concat(result.data),
             }));
