@@ -9,6 +9,7 @@ var consortiumAnalysesResults =
     require('./consortium-analyses-results');
 var dbs = require('./db-registry');
 var getConsortiumDbName = require('./consortium').getConsortiumDbName;
+var Lock = require('lock');
 var Promise = require('bluebird');
 var getAnalysisId = require('../utils/get-analysis-id');
 
@@ -16,9 +17,9 @@ var getAnalysisId = require('../utils/get-analysis-id');
 var aggregateChangeListeners = [];
 var aggregateChangeHandlers = [];
 
-var Lock = require('lock');
 var lock = Lock();
 
+// Cache lock release functions
 var RELEASOR = {};
 
 /**
@@ -53,83 +54,27 @@ function getProjectFilesFromAggregateFileShas(aggregateFileShas) {
 }
 
 /**
- * Get a consortium's ID from an aggregate analysis's ID.
+ * Get a user's analysis history.
  *
- * @param  {string}  aggregateId
- * @return {Promise}             Resolves to a consortium's ID (string)
+ * @param  {string}  consortiumId
+ * @return {Promise}              Resolves to an analysis history array
  */
-function getConsortiumIdFromAggregateId(aggregateId) {
+function getAnalysisHistoryFromConsortiumId(consortiumId) {
     var username = auth.getUser().username;
 
-    if (!username) {
-        return Promise.reject('Username required');
-    }
-
-    return consortia.getUserConsortia(username)
-        .then(function(consortia) {
-            return Promise.all(consortia.map(function(consortium) {
-                return new Promise(function(resolve, reject) {
-                    dbs.get(getConsortiumDbName(consortium._id))
-                        .all()
-                        .then(function(docs) {
-                            var result = docs.find(function(doc) {
-                                return doc._id === aggregateId;
-                            });
-
-                            resolve(!!result ? consortium._id : undefined);
-                        })
-                        .catch(reject);
-                });
-            }));
-        })
-        .then(function(results) {
-            var result = results.find(function(result) {
-                return !!result;
+    return dbs.get(getConsortiumDbName(consortiumId))
+        .all()
+        .then(function(docs) {
+            return docs.find(function(doc) {
+                return !doc.aggregate && doc.username === username;
             });
-
-            if (!result) {
-                throw new Error(
-                    'Could’t find consortium from aggregate file shas'
-                );
-            }
-
-            return result;
-        });
-}
-
-function getAnalysisHistoryFromAggregateFileShas(aggregateFileShas) {
-    var username = auth.getUser().username;
-
-    return consortia.getUserConsortia(username)
-        .then(function(userConsortia) {
-            return Promise.all(userConsortia.map(function(consortium) {
-                return dbs.get(getConsortiumDbName(consortium._id))
-                    .all()
-                    .then(function(docs) {
-                        return docs.find(function(doc) {
-                            if (
-                                !doc.aggregate &&
-                                doc.username === username
-                            ) {
-                                return doc.fileShas.every(function(sha) {
-                                    return aggregateFileShas
-                                        .indexOf(sha) !== -1;
-                                });
-                            }
-                        });
-                    });
-                }));
         })
-        .then(function(results) {
-            var result = results.find(function(result) {
-                return !!result;
-            });
-
-            if (!result) {
+        .then(function(analysis) {
+            if (!analysis) {
                 throw new Error('Couldn’t find analysis history');
             }
 
-            return result.history;
+            return analysis.history;
         });
 }
 
@@ -139,12 +84,10 @@ function getAnalysisHistoryFromAggregateFileShas(aggregateFileShas) {
  * @param  {object}    options
  * @param  {string}    options.aggregateId
  * @param  {array}     options.files
- * @param  {array}     options.mVals
+ * @param  {object}    options.mVals
  * @return {undefined}
  */
 function runAnalysis(options) {
-    console.log('Running analysis', options); //TODO Remove log
-
     var aggregateId = options.aggregateId;
     var consortiumId = options.consortiumId;
     var files = options.files;
@@ -183,12 +126,11 @@ function runAnalysis(options) {
 /**
  * Respond to aggregate analysis changes.
  *
- * @param  {object}   newAggregate New aggregate document
+ * @param  {object}    newAggregate New aggregate document
+ * @param  {string}    consortiumId
  * @return {undefined}
  */
-function onAggregateChange(newAggregate) {
-    console.log('Aggregate analysis changed', newAggregate); //TODO Remove
-
+function onAggregateChange(newAggregate, consortiumId) {
     var aggregateId = newAggregate._id;
 
     console.log('Waiting for lock...', aggregateId);
@@ -204,14 +146,14 @@ function onAggregateChange(newAggregate) {
             !Array.isArray(aggregateFileShas) ||
             aggregateFileShas.length === 0 ||
 
-            // See if iteration count exceeds maximum count
-            // There should be one more history item than the max iteration count
+            /**
+             * See if iteration count exceeds maximum count. There should be one
+             * more history item than the max iteration count.
+             */
             !Array.isArray(aggregateHistory) ||
             aggregateHistory.length > newAggregate.maxIterations ||
 
-            // See if user is a part of this aggregate
-            // TODO:  Figure out why server mutates the aggregate's contributors.
-            // This changes the array `indexOf` check
+            // See if user has contributed to the current iteration
             !newAggregate.contributors ||
             newAggregate.contributors.indexOf(username) !== -1
         ) {
@@ -220,22 +162,21 @@ function onAggregateChange(newAggregate) {
         }
 
         Promise.all([
-            getProjectFilesFromAggregateFileShas(aggregateFileShas),
-            getConsortiumIdFromAggregateId(aggregateId),
-            getAnalysisHistoryFromAggregateFileShas(aggregateFileShas),
+            getProjectFilesFromAggregateFileShas(aggregateId),
+            getAnalysisHistoryFromConsortiumId(consortiumId),
         ])
             .then(function(responses) {
                 var files = responses[0];
-                var consortiumId = responses[1];
-                var analysisHistory = responses[2];
-                var options;
+                var analysisHistory = responses[1];
 
                 if (
                     analysisHistory.length < aggregateHistory.length &&
                     files
                 ) {
                     if (RELEASOR[aggregateId]) {
-                        throw new Error('Lock on ' + aggregateId + ' already exists!');
+                        throw new Error(
+                            'Lock on ' + aggregateId + ' already exists!'
+                        );
                     }
 
                     RELEASOR[aggregateId] = release();
@@ -248,13 +189,11 @@ function onAggregateChange(newAggregate) {
                     });
                 } else {
                     console.log('Releasing lock.', aggregateId);
-
                     release()();
                 }
             })
             .catch(function(error) {
                 console.log('Releasing lock.', aggregateId);
-
                 release()();
                 console.error(error);
             });
@@ -268,8 +207,6 @@ function onAggregateChange(newAggregate) {
  * @return {undefined}
  */
 function onAnalysisComplete(result) {
-    console.log('Client analysis complete', result); //TODO Remove
-
     var aggregateId = result.aggregateId;
     var consortiumId = result.consortiumId;
     var error = result.error;
@@ -356,7 +293,7 @@ function addConsortiumAggregateListener(consortiumId) {
     // Only pass aggregates to `onAggregateChange`
     changeHandler = function(change) {
         if (change.doc.aggregate) {
-            onAggregateChange(change.doc);
+            onAggregateChange(change.doc, consortiumId);
         }
     };
     consortiumListener = consortiumAnalysesResults.getListener(consortiumId);
