@@ -43,19 +43,20 @@ class ConsortiumSingleResult extends Component {
         return toList(data);
     }
     renderProgress() {
-        const { error } = this.props;
+        const { error, history, maxIterations } = this.props;
+        const now = Math.round(100 * (history.length - 1) / maxIterations);
 
         if (error) {
             return (
                 <div>
-                    <ProgressBar bsStyle="danger" label="Error" now={100} />
+                    <ProgressBar bsStyle="danger" label="Error" now={now} />
                     <p className="text-danger">{error}</p>
                 </div>
             );
         }
 
         return (
-            <ProgressBar bsStyle="success" label="Complete" now={100} />
+            <ProgressBar bsStyle="success" label="Complete" now={now} />
         );
     }
     render() {
@@ -63,6 +64,7 @@ class ConsortiumSingleResult extends Component {
             _id: id,
             contributors,
             files,
+            history,
             sampleSize,
         } = this.props;
 
@@ -75,6 +77,7 @@ class ConsortiumSingleResult extends Component {
                     <li>Files: <strong>{files.length}</strong></li>
                     <li>Sample Size: <strong>{sampleSize}</strong></li>
                     <li>Contributors: <strong>{contributors.length}</strong></li>
+                    <li>History length: <strong>{history.length}</strong></li>
                 </ul>
             </Panel>
         );
@@ -85,6 +88,7 @@ ConsortiumSingleResult.defaultProps = {
     contributors: [],
     data: {},
     files: [],
+    history: [],
     sampleSize: 0,
 };
 
@@ -96,6 +100,8 @@ ConsortiumSingleResult.propTypes = {
     data: PropTypes.object.isRequired,
     error: PropTypes.any,
     files: PropTypes.array.isRequired,
+    history: PropTypes.array.isRequired,
+    maxIterations: PropTypes.number.isRequired,
     sampleSize: PropTypes.number.isRequired,
 };
 
