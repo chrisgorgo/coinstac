@@ -155,13 +155,17 @@ const Auth = {
     /**
      * Get saved user.
      *
-     * @return {(Object|undefined)}
+     * @return {object}
      */
     getUser: function() {
+        let user;
+
         // Get stored user if needed
         if (localStorage.getItem(USER_KEY)) {
-            return JSON.parse(localStorage.getItem(USER_KEY));
+            user = JSON.parse(localStorage.getItem(USER_KEY));
         }
+
+        return (user instanceof Object) ? user : {};
     },
 
     /**

@@ -246,6 +246,20 @@ export function validateAnalysis(consortiumId, { label }) {
 }
 
 /**
+ * Get a consortium's analysis/aggregate CouchDB name.
+ *
+ * @param  {string} consortiumId
+ * @return {string}
+ */
+export function getConsortiumDbName(consortiumId) {
+    return (
+        config.db.remote.url + '/' +
+        (config.db.remote.pathname ? config.db.remote.pathname + '/': '') +
+        'consortium-' + consortiumId.replace(/_/g, '-')
+    );
+}
+
+/**
  * Consortium.
  *
  * @type {object}

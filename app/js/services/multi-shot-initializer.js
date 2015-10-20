@@ -3,65 +3,18 @@
 var analyze = require('./analyze');
 var app = require('ampersand-app');
 var assign = require('lodash/object/assign');
-var config = require('config');
+var auth = require('./auth');
 var consortia = require('./consortia');
 var consortiumAnalysesResults =
     require('./consortium-analyses-results');
-var clientIdentifier = require('../../common/utils/client-identifier');
 var dbs = require('./db-registry');
+var getConsortiumDbName = require('./consortium').getConsortiumDbName;
 var Promise = require('bluebird');
-var sha1 = require('sha-1');
+var getAnalysisId = require('../utils/get-analysis-id');
 
 // Cache listeners and change handlers
 var aggregateChangeListeners = [];
 var aggregateChangeHandlers = [];
-
-/**
- * Get an analysis's ID from its files' shas.
- *
- * @param  {array}  fileShas
- * @return {string}
- */
-function getAnalysisId(fileShas) {
-    return sha1(fileShas.sort().join(''));
-}
-
-/**
- * Get a consortium's analysis/aggregate CouchDB name.
- *
- * @param  {string} consortiumId
- * @return {string}
- */
-function getConsortiumDbName(consortiumId) {
-    return (
-        config.db.remote.url + '/' +
-        (config.db.remote.pathname ? config.db.remote.pathname + '/': '') +
-        'consortium-' + consortiumId.replace(/_/g, '-')
-    );
-}
-
-/**
- * Get consortia that a user has joined.
- *
- * @param  {string}  username
- * @return {Promise}          Resolves to an array of consortium objects as
- *                            provided by the API.
- */
-function getUserConsortia(username) {
-    /** @todo  Use the auth service to retrieve username */
-    if (typeof username === 'undefined') {
-        username = clientIdentifier;
-    }
-
-    return consortia.all()
-        .then(function(consortia) {
-            return consortia.filter(function(consortium) {
-                return consortium.users.some(function(user) {
-                    return user.username === username;
-                });
-            });
-        });
-}
 
 /**
  * Get a project's files from an aggregate analysis's file shas.
@@ -151,6 +104,7 @@ function onAggregateChange(newAggregate) {
 
     var aggregateFileShas = newAggregate.files;
     var history = newAggregate.history;
+    var username = auth.getUser().username;
 
     // Exit early if client shouldn't run a new analysis
     if (
@@ -162,7 +116,7 @@ function onAggregateChange(newAggregate) {
         // TODO:  Figure out why server mutates the aggregate's contributors.
         // This changes the array `indexOf` check
         !newAggregate.contributors ||
-        newAggregate.contributors.indexOf(clientIdentifier) !== -1
+        newAggregate.contributors.indexOf(username) !== -1
     ) {
         return;
     }
@@ -282,7 +236,7 @@ function addConsortiumAggregateListener(consortiumId) {
 function init() {
     analyze.addChangeListener(onAnalysisComplete);
 
-    return getUserConsortia()
+    return consortia.getUserConsortia()
         .then(function(userConsortia) {
             return Promise.all(userConsortia.map(function(consortium) {
                 return dbs.get(getConsortiumDbName(consortium._id))
