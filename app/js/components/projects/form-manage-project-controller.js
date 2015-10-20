@@ -101,26 +101,14 @@ class FormManageProjectController extends React.Component {
      */
     handleFileControlChange(fileIndex, isControl) {
         const controlTagValue = !!isControl;
-        const projectId = this.project._id;
-        const projectsDb = dbs.get('projects');
+        this.project.files
+            .at(fileIndex)
+            .set('tags', { control: controlTagValue });
 
-        function errorHandler(error) {
-            app.notifications.push({
-                level: 'error',
-                message: `Couldn’t change control tag on file #${fileIndex + 1}`,
-            });
-            console.error(error);
-        }
-
-        return projectsDb.get(projectId)
-            .then(project => {
-                const file = project.files[fileIndex];
-                file.tags.control = controlTagValue;
-                return projectsDb.save(project)
-                    .then(() => {
-                        actions.setProject((new Project(project).serialize()))
-                    }, errorHandler);
-            }, errorHandler);
+        return dbs.get('projects')
+            .save(this.project.serialize())
+            .then(() => dbs.get('projects').get(project._id))
+            .then(project => this.project.set(project));
     }
 
     handleFileDelete(file, data, rowIndex, property) {
