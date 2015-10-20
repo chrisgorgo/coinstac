@@ -162,7 +162,7 @@ function onAggregateChange(newAggregate, consortiumId) {
         }
 
         Promise.all([
-            getProjectFilesFromAggregateFileShas(aggregateId),
+            getProjectFilesFromAggregateFileShas(aggregateFileShas),
             getAnalysisHistoryFromConsortiumId(consortiumId),
         ])
             .then(function(responses) {
@@ -345,7 +345,7 @@ function init() {
                  *        better way.
                  */
                 if (result.aggregate) {
-                    onAggregateChange(result.aggregate);
+                    onAggregateChange(result.aggregate, result.consortiumId);
                 }
 
                 return addConsortiumAggregateListener(result.consortiumId);
