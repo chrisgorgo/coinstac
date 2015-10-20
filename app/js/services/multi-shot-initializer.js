@@ -16,6 +16,8 @@ var getAnalysisId = require('../utils/get-analysis-id');
 var aggregateChangeListeners = [];
 var aggregateChangeHandlers = [];
 
+var LOCK = false;
+
 /**
  * Get a project's files from an aggregate analysis's file shas.
  *
@@ -139,6 +141,13 @@ function getAnalysisHistoryFromAggregateFileShas(aggregateFileShas) {
 function runAnalysis(options) {
     console.log('Running analysis', options); //TODO Remove log
 
+    // Engage the lock
+    if (LOCK) {
+        console.log('Analysis already running! Exiting.');
+        return;
+    }
+    LOCK = true;
+
     var consortiumId = options.consortiumId;
     var files = options.files;
 
@@ -215,7 +224,12 @@ function onAggregateChange(newAggregate) {
             var consortiumId = responses[1];
             var analysisHistory = responses[2];
 
-            if (analysisHistory.length <= aggregateHistory.length && files) {
+            debugger;
+
+            if (
+                analysisHistory.length <= aggregateHistory.length + 1 &&
+                files
+            ) {
                 return runAnalysis({
                     consortiumId: consortiumId,
                     files: files,
@@ -236,6 +250,9 @@ function onAggregateChange(newAggregate) {
  */
 function onAnalysisComplete(result) {
     console.log('Client analysis complete', result); //TODO Remove
+
+    // Release the lock
+    LOCK = false;
 
     var consortiumId = result.consortiumId;
     var error = result.error;
