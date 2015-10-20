@@ -48,6 +48,61 @@ function getProjectFilesFromAggregateFileShas(aggregateFileShas) {
 }
 
 /**
+ * Get a consortium's ID from an aggregate analysis's file shas.
+ *
+ * @param  {array}   aggregateFileShas Collection of file shas from an aggregate
+ *                                     document
+ * @return {Promise}                   Resolves to a consortium's ID (string)
+ */
+function getConsortiumIdFromAggregateFileShas(aggregateFileShas) {
+    var username = auth.getUser().username;
+
+    if (!username) {
+        return Promise.reject('Username required');
+    }
+
+    return consortia.getUserConsortia(username)
+        .then(function(consortia) {
+            return Promise.all(consortia.map(function(consortium) {
+                return new Promise(function(resolve, reject) {
+                    dbs.get(getConsortiumDbName(consortium._id))
+                        .all()
+                        .then(function(docs) {
+                            var result = docs.find(function(doc) {
+                                if (
+                                    !doc.aggregate &&
+                                    Array.isArray(doc.fileShas) &&
+                                    doc.username === username
+                                ) {
+                                    return doc.fileShas.every(function(sha) {
+                                        return aggregateFileShas
+                                            .indexOf(sha) !== -1;
+                                    });
+                                }
+                            });
+
+                            resolve(!!result ? consortium._id : undefined);
+                        })
+                        .catch(reject);
+                });
+            }));
+        })
+        .then(function(results) {
+            var result = results.find(function(result) {
+                return !!result;
+            });
+
+            if (!result) {
+                throw new Error(
+                    'Could’t find consortium from aggregate file shas'
+                );
+            }
+
+            return result;
+        });
+}
+
+/**
  * Run an analysis on the client.
  *
  * @param  {object}    options
@@ -60,7 +115,6 @@ function runAnalysis(options) {
 
     var consortiumId = options.consortiumId;
     var files = options.files;
-    var history = options.history || [];
 
     /** @todo  Don't hard-code these attributes */
     var mVals = options.mVals || { 'Left-Hippocampus': 0 };
@@ -81,7 +135,6 @@ function runAnalysis(options) {
         consortiumId: consortiumId,
         files: files,
         mVals: mVals,
-        history: history,
         predictors: predictors,
         requestId: ++app.analysisRequestId,
         type: type,
@@ -108,6 +161,9 @@ function onAggregateChange(newAggregate) {
 
     // Exit early if client shouldn't run a new analysis
     if (
+        !Array.isArray(aggregateFileShas) ||
+        aggregateFileShas.length === 0 ||
+
         // See if iteration count exceeds maximum count
         !Array.isArray(history) ||
         history.length >= newAggregate.maxIterations ||
@@ -121,10 +177,19 @@ function onAggregateChange(newAggregate) {
         return;
     }
 
-    getProjectFilesFromAggregateFileShas(aggregateFileShas)
-        .then(function(files) {
+    debugger;
+
+    Promise.all([
+        getProjectFilesFromAggregateFileShas(aggregateFileShas),
+        getConsortiumIdFromAggregateFileShas(aggregateFileShas),
+    ])
+        .then(function(responses) {
+            var files = responses[0];
+            var consortiumId = responses[1];
+
             if (files) {
                 return runAnalysis({
+                    consortiumId: consortiumId,
                     files: files,
                     mVals: newAggregate.data.mVals,
                 });
@@ -146,8 +211,8 @@ function onAnalysisComplete(result) {
 
     var consortiumId = result.consortiumId;
     var error = result.error;
-    var analysis;
     var db;
+    var id;
 
     if (error) {
         return app.notifications.push({
@@ -156,25 +221,26 @@ function onAnalysisComplete(result) {
         });
     }
 
-    analysis = Object.assign({}, result, {
-        /** @todo  Figure out how to no regenerate this id */
-        _id: getAnalysisId(result.fileShas),
-        /** Clone `data` into the history array */
-        history: result.history.concat(result.data),
-    });
     db = dbs.get(getConsortiumDbName(consortiumId));
+    id = getAnalysisId(result.fileShas);
 
-    db.get(analysis._id)
+    db.get(id)
         .then(function(doc) {
-            return db.save(assign({}, doc, analysis));
+            debugger;
+            return db.save(assign({}, doc, result, {
+                history: doc.history.concat(result.data),
+            }));
         }, function() {
             // Doc doesn't exist, save new analysis
-            return db.save(analysis);
+            return db.save(Object.assign({}, result, {
+                _id: id,
+                history: [].concat(result.data),
+            }));
         })
         .then(function(response) {
             app.notifications.push({
                 level: 'success',
-                message: 'Analysis request' + analysis.requestId + ' complete!',
+                message: 'Analysis request ' + result.requestId + ' complete!',
             });
             return response;
         })

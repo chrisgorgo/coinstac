@@ -35,7 +35,6 @@ ipc.on('analyze-files', function(event, request) {
             consortiumId: request.consortiumId,
             requestId: request.requestId,
             fileShas: _.pluck(request.files, 'sha'),
-            history: request.history,
             data: result,
             error: err,
             username: clientIdentifier,
