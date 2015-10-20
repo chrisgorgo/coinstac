@@ -165,8 +165,9 @@ function onAggregateChange(newAggregate) {
         aggregateFileShas.length === 0 ||
 
         // See if iteration count exceeds maximum count
+        // There should be one more history item than the max iteration count
         !Array.isArray(history) ||
-        history.length >= newAggregate.maxIterations ||
+        history.length > newAggregate.maxIterations ||
 
         // See if user is a part of this aggregate
         // TODO:  Figure out why server mutates the aggregate's contributors.
