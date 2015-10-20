@@ -48,13 +48,12 @@ function getProjectFilesFromAggregateFileShas(aggregateFileShas) {
 }
 
 /**
- * Get a consortium's ID from an aggregate analysis's file shas.
+ * Get a consortium's ID from an aggregate analysis's ID.
  *
- * @param  {array}   aggregateFileShas Collection of file shas from an aggregate
- *                                     document
- * @return {Promise}                   Resolves to a consortium's ID (string)
+ * @param  {string}  aggregateId
+ * @return {Promise}             Resolves to a consortium's ID (string)
  */
-function getConsortiumIdFromAggregateFileShas(aggregateFileShas) {
+function getConsortiumIdFromAggregateId(aggregateId) {
     var username = auth.getUser().username;
 
     if (!username) {
@@ -69,16 +68,7 @@ function getConsortiumIdFromAggregateFileShas(aggregateFileShas) {
                         .all()
                         .then(function(docs) {
                             var result = docs.find(function(doc) {
-                                if (
-                                    !doc.aggregate &&
-                                    Array.isArray(doc.fileShas) &&
-                                    doc.username === username
-                                ) {
-                                    return doc.fileShas.every(function(sha) {
-                                        return aggregateFileShas
-                                            .indexOf(sha) !== -1;
-                                    });
-                                }
+                                return doc._id === aggregateId;
                             });
 
                             resolve(!!result ? consortium._id : undefined);
@@ -99,6 +89,42 @@ function getConsortiumIdFromAggregateFileShas(aggregateFileShas) {
             }
 
             return result;
+        });
+}
+
+function getAnalysisHistoryFromAggregateFileShas(aggregateFileShas) {
+    var username = auth.getUser().username;
+
+    return consortia.getUserConsortia(username)
+        .then(function(userConsortia) {
+            return Promise.all(userConsortia.map(function(consortium) {
+                return dbs.get(getConsortiumDbName(consortium._id))
+                    .all()
+                    .then(function(docs) {
+                        return docs.find(function(doc) {
+                            if (
+                                !doc.aggregate &&
+                                doc.username === username
+                            ) {
+                                return doc.fileShas.every(function(sha) {
+                                    return aggregateFileShas
+                                        .indexOf(sha) !== -1;
+                                });
+                            }
+                        });
+                    });
+                }));
+        })
+        .then(function(results) {
+            var result = results.find(function(result) {
+                return !!result;
+            });
+
+            if (!result) {
+                throw new Error('Couldn’t find analysis history');
+            }
+
+            return result.history;
         });
 }
 
@@ -156,7 +182,8 @@ function onAggregateChange(newAggregate) {
     console.log('Aggregate analysis changed', newAggregate); //TODO Remove
 
     var aggregateFileShas = newAggregate.files;
-    var history = newAggregate.history;
+    var aggregateHistory = newAggregate.history;
+    var aggregateId = newAggregate._id;
     var username = auth.getUser().username;
 
     // Exit early if client shouldn't run a new analysis
@@ -166,8 +193,8 @@ function onAggregateChange(newAggregate) {
 
         // See if iteration count exceeds maximum count
         // There should be one more history item than the max iteration count
-        !Array.isArray(history) ||
-        history.length > newAggregate.maxIterations ||
+        !Array.isArray(aggregateHistory) ||
+        aggregateHistory.length > newAggregate.maxIterations ||
 
         // See if user is a part of this aggregate
         // TODO:  Figure out why server mutates the aggregate's contributors.
@@ -180,13 +207,15 @@ function onAggregateChange(newAggregate) {
 
     Promise.all([
         getProjectFilesFromAggregateFileShas(aggregateFileShas),
-        getConsortiumIdFromAggregateFileShas(aggregateFileShas),
+        getConsortiumIdFromAggregateId(aggregateId),
+        getAnalysisHistoryFromAggregateFileShas(aggregateFileShas),
     ])
         .then(function(responses) {
             var files = responses[0];
             var consortiumId = responses[1];
+            var analysisHistory = responses[2];
 
-            if (files) {
+            if (analysisHistory.length <= aggregateHistory.length && files) {
                 return runAnalysis({
                     consortiumId: consortiumId,
                     files: files,
