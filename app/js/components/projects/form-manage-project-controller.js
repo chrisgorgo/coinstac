@@ -111,6 +111,23 @@ class FormManageProjectController extends React.Component {
             .then(project => this.project.set(project));
     }
 
+    /**
+     * Toggle all files' control tags.
+     *
+     * @return {Promise}
+     */
+    handleToggleAllFileControlChange() {
+        this.project.files.forEach(file => {
+            const value = !file.get('tags').control;
+            file.set('tags', { control: value });
+        });
+
+        return dbs.get('projects')
+            .save(this.project.serialize())
+            .then(() => dbs.get('projects').get(project._id))
+            .then(project => this.project.set(project));
+    }
+
     handleFileDelete(file, data, rowIndex, property) {
         // queue all updates to the project to happen one at a time
         projectAsyncQueue = projectAsyncQueue.then(() => {
@@ -296,7 +313,9 @@ class FormManageProjectController extends React.Component {
                 setDefaultConsortium={this.setDefaultConsortium.bind(this)}
                 setDefaultAnalysis={this.setDefaultAnalysis.bind(this)}
                 triggerAddFiles={this.triggerAddFiles.bind(this)}
-                fieldNameClass={fieldStateToBsClass(this.props.project.ui_fieldNameState)} />
+                fieldNameClass={fieldStateToBsClass(this.props.project.ui_fieldNameState)}
+                handleToggleAllFileControlChange={this.handleToggleAllFileControlChange.bind(this)}
+                 />
         );
     }
 };

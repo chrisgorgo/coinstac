@@ -90,15 +90,22 @@ export default class FormManageProject extends React.Component {
                 {selectedAnalysis ?
                     (
                         <div className="page-header clearfix">
-                            <Button
-                                type="button"
-                                onClick={this.props.triggerAddFiles}
-                                bsStyle="primary"
-                                className="pull-right"
-                                disabled={!consortium}>
-                                <strong>+</strong>
-                                Add File
-                            </Button>
+                            <div className="pull-right">
+                                <Button
+                                    bsStyle="default"
+                                    onClick={this.props.handleToggleAllFileControlChange}>
+                                    Toggle “Is Control”
+                                </Button>
+                                {' '}
+                                <Button
+                                    type="button"
+                                    onClick={this.props.triggerAddFiles}
+                                    bsStyle="primary"
+                                    disabled={!consortium}>
+                                    <strong>+</strong>
+                                    Add File
+                                </Button>
+                            </div>
                         </div>
                     ) : ''
                 }
