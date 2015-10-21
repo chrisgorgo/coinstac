@@ -109,6 +109,7 @@ dbs.register = function(opts) {
     // build db and cache it
     db = new Pouchy(opts);
     dbs.registery[opts.name] = db;
+    dbs.registery[opts.url] = db;
     dbs.push(db);
     return db;
 };
