@@ -44,7 +44,14 @@ class ConsortiumSingleResult extends Component {
     }
     renderProgress() {
         const { error, history, maxIterations } = this.props;
-        const now = Math.round(100 * (history.length - 1) / maxIterations);
+        const now = Math.round(100 * (history.length) / maxIterations);
+        let label;
+
+        if (now === 100) {
+            label = 'Complete';
+        } else if (now > 0) {
+            label = `${now}% complete`;
+        }
 
         if (error) {
             return (
@@ -56,15 +63,15 @@ class ConsortiumSingleResult extends Component {
         }
 
         return (
-            <ProgressBar bsStyle="success" label="Complete" now={now} />
+            <ProgressBar bsStyle="success" label={label} now={now} />
         );
     }
     render() {
         const {
             _id: id,
-            contributors,
             files,
             history,
+            maxIterations,
             sampleSize,
         } = this.props;
 
@@ -76,8 +83,8 @@ class ConsortiumSingleResult extends Component {
                     <li>ID: <code>{id}</code></li>
                     <li>Files: <strong>{files.length}</strong></li>
                     <li>Sample Size: <strong>{sampleSize}</strong></li>
-                    <li>Contributors: <strong>{contributors.length}</strong></li>
-                    <li>History length: <strong>{history.length}</strong></li>
+                    <li>Current Iteration: <strong>{history.length}</strong></li>
+                    <li>Max Iteration: <strong>{maxIterations}</strong></li>
                 </ul>
             </Panel>
         );
