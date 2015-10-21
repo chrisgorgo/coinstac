@@ -133,44 +133,38 @@ function runAnalysis(options) {
 function onAggregateChange(newAggregate, consortiumId) {
     var aggregateId = newAggregate._id;
 
-    console.log('Waiting for lock...', aggregateId);
+    console.log('Waiting for lock', aggregateId);
     lock(aggregateId, function(release) {
-        console.log('Aquiring lock', aggregateId);
+        console.log('Acquiring lock', aggregateId);
 
         var aggregateFileShas = newAggregate.files;
         var aggregateHistory = newAggregate.history;
         var username = auth.getUser().username;
 
-        // Exit early if client shouldn't run a new analysis
-        if (
-            !Array.isArray(aggregateFileShas) ||
-            aggregateFileShas.length === 0 ||
-
-            /**
-             * See if iteration count exceeds maximum count. There should be one
-             * more history item than the max iteration count.
-             */
-            !Array.isArray(aggregateHistory) ||
-            aggregateHistory.length > newAggregate.maxIterations ||
-
-            // See if user has contributed to the current iteration
-            !newAggregate.contributors ||
-            newAggregate.contributors.indexOf(username) !== -1
-        ) {
+        function releaseLock() {
             console.log('Releasing lock.', aggregateId);
             return release()();
         }
 
-        Promise.all([
-            getProjectFilesFromAggregateFileShas(aggregateFileShas),
-            getAnalysisHistoryFromConsortiumId(consortiumId),
-        ])
-            .then(function(responses) {
+        if (
+            // Ensure the aggregate has files
+            aggregateFileShas.length !== 0 &&
+
+            // Stop running analysis at max count
+            aggregateHistory.length < newAggregate.maxIterations &&
+
+            // See if user has contributed to the current iteration
+            newAggregate.contributors.indexOf(username) === -1
+        ) {
+            Promise.all([
+                getProjectFilesFromAggregateFileShas(aggregateFileShas),
+                getAnalysisHistoryFromConsortiumId(consortiumId),
+            ]).then(function(responses) {
                 var files = responses[0];
                 var analysisHistory = responses[1];
 
                 if (
-                    analysisHistory.length < aggregateHistory.length &&
+                    analysisHistory.length <= aggregateHistory.length &&
                     files
                 ) {
                     if (RELEASOR[aggregateId]) {
@@ -188,15 +182,16 @@ function onAggregateChange(newAggregate, consortiumId) {
                         mVals: newAggregate.data.mVals,
                     });
                 } else {
-                    console.log('Releasing lock.', aggregateId);
-                    release()();
+                    releaseLock();
                 }
             })
             .catch(function(error) {
-                console.log('Releasing lock.', aggregateId);
-                release()();
+                releaseLock();
                 console.error(error);
             });
+        } else {
+            releaseLock();
+        }
     });
 }
 
