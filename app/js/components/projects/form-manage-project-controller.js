@@ -166,7 +166,14 @@ class FormManageProjectController extends React.Component {
         runAnalysis({
             consortiumId: _id,
             files,
-        });
+        })
+            .catch(error => {
+                app.notifications.push({
+                    level: 'error',
+                    message: error.message,
+                });
+                console.error(error);
+            });
         addConsortiumAggregateListener(_id);
     }
 

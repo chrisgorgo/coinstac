@@ -96,11 +96,18 @@ function sendRequestToAnalyze(request) {
  * Run an analysis on the client.
  *
  * @param  {object}  options
- * @param  {string}  options.aggregateId
- * @param  {string}  options.consortiumId
- * @param  {array}   options.files
- * @param  {object=} options.mVals
- * @return {Promise}
+ * @param  {string}  options.consortiumId Target consortium's ID, passed to
+ *                                        `analyze.analyze`
+ * @param  {array}   options.files        Files to run analysis on, passed to
+ *                                        `analyze.analyze`
+ * @param  {string=} options.aggregateId  Aggregate document's `_id`, passed to
+ *                                        `analyze.analyze`. Will be empty on
+ *                                        the first run.
+ * @param  {object=} options.mVals        mVals to pass to `analyze.analyze`. If
+ *                                        empty, this function gets the mVals
+ *                                        from the aggregate document.
+ * @return {Promise}                      Resolves with `undefined`, rejects
+ *                                        with an `Error` object
  */
 function runAnalysis(options) {
     /** @todo  Don't hard-code these attributes */
@@ -114,19 +121,24 @@ function runAnalysis(options) {
     });
 
     if (!Array.isArray(request.files) || !request.files.length) {
-        return app.notifications.push({
-            level: 'error',
-            message: 'Analysis requires files',
-        });
+        return Promise.reject(new Error('Analysis requires files.'));
     }
     if (!request.consortiumId) {
-        throw new Error('Running analysis requires a consortium ID');
+        return Promise.reject(new Error(
+            'Running analysis requires a consortium ID'
+        ));
     }
+
+    /**
+     * The first analysis run doesn't have mVals. Use the aggregate's mVals to
+     * seed the analysis.
+     */
     if (!request.mVals) {
         return dbs.get(getConsortiumDbName(request.consortiumId))
             .all()
             .then(function(docs) {
-                /** @todo  This only checks whether the document has an
+                /**
+                 * @todo  This only checks whether the document has an
                  *         `aggregate` property. This will need to match the
                  *         specific analysis definition or `id` once consortium
                  *         have more than one aggregate.
@@ -148,13 +160,6 @@ function runAnalysis(options) {
                 request.mVals = aggregate.data.mVals;
 
                 return sendRequestToAnalyze(request);
-            })
-            .catch(function(error) {
-                app.notifications.push({
-                    level: 'error',
-                    message: 'Analysis failed',
-                });
-                console.error(error);
             });
     } else {
         return Promise.resolve(sendRequestToAnalyze(request));
@@ -218,7 +223,15 @@ function onAggregateChange(newAggregate, consortiumId) {
                         consortiumId: consortiumId,
                         files: files,
                         mVals: newAggregate.data.mVals,
-                    });
+                    })
+                        .catch(function(error) {
+                            app.notifications.push({
+                                level: 'error',
+                                message: error.message,
+                            });
+                            releaseLock();
+                            console.error(error);
+                        });
                 } else {
                     releaseLock();
                 }
