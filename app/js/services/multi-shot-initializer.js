@@ -79,48 +79,86 @@ function getAnalysisHistoryFromConsortiumId(consortiumId) {
 }
 
 /**
- * Run an analysis on the client.
+ * Pass analysis request to the analyze service.
  *
- * @param  {object}    options
- * @param  {string}    options.aggregateId
- * @param  {array}     options.files
- * @param  {object}    options.mVals
+ * @param  {object}    request
  * @return {undefined}
  */
-function runAnalysis(options) {
-    var aggregateId = options.aggregateId;
-    var consortiumId = options.consortiumId;
-    var files = options.files;
+function sendRequestToAnalyze(request) {
+    analyze.analyze(request);
+    app.notifications.push({
+        level: 'info',
+        message: 'Analysis request ' + request.requestId + ' dispatched!',
+    });
+}
 
+/**
+ * Run an analysis on the client.
+ *
+ * @param  {object}  options
+ * @param  {string}  options.aggregateId
+ * @param  {string}  options.consortiumId
+ * @param  {array}   options.files
+ * @param  {object=} options.mVals
+ * @return {Promise}
+ */
+function runAnalysis(options) {
     /** @todo  Don't hard-code these attributes */
-    var mVals = options.mVals || { 'Left-Hippocampus': 0 };
     var predictors = ['Left-Hippocampus'];
     var type = 'multi';
 
-    if (!Array.isArray(files) || !files.length) {
+    var request = assign({}, options, {
+        predictors: predictors,
+        requestId: ++app.analysisRequestId,
+        type: type,
+    });
+
+    if (!Array.isArray(request.files) || !request.files.length) {
         return app.notifications.push({
             level: 'error',
             message: 'Analysis requires files',
         });
     }
-    if (!consortiumId) {
+    if (!request.consortiumId) {
         throw new Error('Running analysis requires a consortium ID');
     }
+    if (!request.mVals) {
+        return dbs.get(getConsortiumDbName(request.consortiumId))
+            .all()
+            .then(function(docs) {
+                /** @todo  This only checks whether the document has an
+                 *         `aggregate` property. This will need to match the
+                 *         specific analysis definition or `id` once consortium
+                 *         have more than one aggregate.
+                 */
+                var aggregate = docs.find(function(doc) {
+                    return !!doc.aggregate;
+                });
 
-    analyze.analyze({
-        aggregateId: aggregateId,
-        consortiumId: consortiumId,
-        files: files,
-        mVals: mVals,
-        predictors: predictors,
-        requestId: ++app.analysisRequestId,
-        type: type,
-    });
-    app.notifications.push({
-        level: 'info',
-        message:
-            'Analysis request ' + app.analysisRequestId + ' dispatched!',
-    });
+                if (!aggregate) {
+                    throw new Error(
+                        'Couldn’t find analysis’s aggregate document'
+                    );
+                } else if (!aggregate.data.mVals) {
+                    throw new Error(
+                        'Aggregate document missing mVals'
+                    );
+                }
+
+                request.mVals = aggregate.data.mVals;
+
+                return sendRequestToAnalyze(request);
+            })
+            .catch(function(error) {
+                app.notifications.push({
+                    level: 'error',
+                    message: 'Analysis failed',
+                });
+                console.error(error);
+            });
+    } else {
+        return Promise.resolve(sendRequestToAnalyze(request));
+    }
 }
 
 /**
