@@ -190,6 +190,9 @@ function onAggregateChange(newAggregate, consortiumId) {
         }
 
         if (
+            // Ensure server iteration is 'on'
+            newAggregate.iterate &&
+
             // Ensure the aggregate has files
             aggregateFileShas.length !== 0 &&
 
