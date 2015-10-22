@@ -3,7 +3,7 @@ var path = require('path');
 var _ = require('lodash');
 var FreeSurfer = require('freesurfer-parser');
 var algos = require('coinstac-distributed-algorithm-set');
-var osr = algos.oneShotRegression;
+var ridgeReg = algos.ridgeRegression;
 var utils = algos.utils;
 
 /**
@@ -19,17 +19,21 @@ var computeRegression = function(analysisInputs, analysisMeta) {
     var normalizedYVals = utils.normalize(yVals);
     var normalizedXVals = utils.normalize(xVals);
 
-    var objectiveScore = osr.objective(
+    var objectiveScore = ridgeReg.objective(
         aggregateMVals,
         normalizedXVals,
         normalizedYVals
     );
 
-    var predictedYVals = osr.applyModel(aggregateMVals, normalizedXVals);
+    var predictedYVals = ridgeReg.applyModel(aggregateMVals, normalizedXVals);
 
     var r2 = utils.r2(normalizedYVals, predictedYVals);
 
-    var gradient = osr.gradient(
+    console.log('gradient inputs');
+    console.log('aggregateMVals: ', aggregateMVals);
+    console.log('normalizedXVals: ', normalizedXVals);
+    console.log('normalizedYVals: ', normalizedYVals);
+    var gradient = ridgeReg.gradient(
         aggregateMVals,
         normalizedXVals,
         normalizedYVals
