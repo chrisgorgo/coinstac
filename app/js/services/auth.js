@@ -109,35 +109,82 @@ const Auth = {
     },
 
     /**
+     * Get authorization header.
+     *
+     * @param  {string} url
+     * @param  {string} method
+     * Return  {Object}        Authorization header
+     */
+    getAuthorizationHeader: function(url, method) {
+        const authResponse = Auth.getAuthResponse();
+        const { field: Authorization } = hawk.client.header(
+            url,
+            method.toUpperCase(),
+            { credentials: authResponse }
+        );
+
+        return { Authorization };
+    },
+
+    /**
      * Log out.
      *
      * @return {Promise} Axios's response
      */
     logout: function() {
         const authResponse = Auth.getAuthResponse();
-
-        Auth.clearAuthResponse();
-        Auth.clearUser();
+        let request;
 
         if (authResponse && authResponse.id) {
             const url = getApiUrl(`/auth/keys/${authResponse.id}`);
             const method = 'delete';
-            const hawkHeaders = hawk.client.header(
-                url,
-                method.toUpperCase(),
-                { credentials: authResponse }
-            );
+            const headers = Auth.getAuthorizationHeader(url, method);
 
-            return axios({
-                headers: {
-                    Authorization: hawkHeaders.field,
-                },
+            request = axios({
+                headers,
                 method,
                 withCredentials: true,
                 url,
             });
+        }
+
+        Auth.clearAuthResponse();
+        Auth.clearUser();
+
+        return request || Promise.resolve('Logged out');
+    },
+
+    /**
+     * Validate user's stored credentials against the API.
+     *
+     * @return {Promise}
+     */
+    validateCredentials: function() {
+        const authResponse = Auth.getAuthResponse();
+        const user = Auth.getUser();
+
+        if (user.username && authResponse && authResponse.id) {
+            const url = getApiUrl(`/auth/keys/${authResponse.id}`);
+            const method = 'get';
+            const headers = getAuthorizationHeader(url, method);
+
+            return axios.get({
+                headers,
+                method,
+                withCredentials: true,
+                url,
+            }).then(
+                response => response, // Pass response on
+                error => {
+                    Auth.logout();
+                    throw error; // Pass error on
+                });
         } else {
-            return Promise.resolve();
+            // Clear everything
+            Auth.clearAuthResponse();
+            Auth.clearUser();
+
+            return Promise.reject('Not logged in');
         }
     },
 
