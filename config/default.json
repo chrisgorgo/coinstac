@@ -1,0 +1,16 @@
+{
+    "api": {
+        "protocol": "https",
+        "hostname": "localcoin.mrn.org",
+        "port": 8443,
+        "pathname": "/api/v1.3.0"
+    },
+    "db": {
+        "remote": {
+            "protocol": "https",
+            "hostname": "localcoin.mrn.org",
+            "port": 8443,
+            "pathname": "couchdb"
+        }
+    }
+}

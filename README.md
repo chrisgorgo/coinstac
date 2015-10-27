@@ -28,22 +28,24 @@ Always run `electron . --help` to see the latest and most accurate options.
 * @flag `--webpack` / `-w` - Boots the WPDS as a child process of the electron COINSTAC app
 
 ## config
-This project uses [config](https://www.npmjs.com/package/config) to pass configuration to the application. You’ll need to make a _config/default.json_ or _config/local.json_ file.  See _config/default.example.json_ for an example.
-  Move it to one of the aforementioned pathnames and update to your needs.  It should have connectivity information for the [MRN-Code/nodeapi](MRN-Code/nodeapi) contained within.  API and the local database configurations match [node-style URL objects](https://nodejs.org/api/url.html):
+This project uses [config](https://www.npmjs.com/package/config) to pass configuration to the application. You’ll need to make a _config/local.json_ file to override _config/default.json_ with your API and database connections.
+
+It should have an `api` key with connectivity information for the [MRN-Code/nodeapi](MRN-Code/nodeapi) and a `db` key with connectivity information for your CouchDB server. API and the local database configurations match [node-style URL objects](https://nodejs.org/api/url.html):
 
 ```json
 {
     "api": {
-        "protocol": "http",
-        "hostname": "localhost",
-        "port": 8800,
+        "protocol": "https",
+        "hostname": "localcoin.mrn.org",
+        "port": 8443,
         "pathname": "/api/v1.3.0"
     },
     "db": {
         "remote": {
-            "protocol": "http",
-            "hostname": "localhost",
-            "port": 5984
+            "protocol": "https",
+            "hostname": "localcoin.mrn.org",
+            "port": 8443,
+            "pathname": "couchdb"
         }
     }
 }
