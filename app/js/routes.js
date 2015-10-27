@@ -33,7 +33,7 @@ import FormAddProjectController from './components/projects/form-add-project-con
  * @return {undefined}
  */
 function requireAuth(nextState, replaceState) {
-    if (!auth.getUser()) {
+    if (!('username' in auth.getUser())) {
         replaceState({
             nextPathname: nextState.location.pathname
         }, '/login');
