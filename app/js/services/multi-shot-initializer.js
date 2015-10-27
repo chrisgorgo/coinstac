@@ -114,10 +114,13 @@ function runAnalysis(options) {
     var predictors = ['Left-Hippocampus'];
     var type = 'multi';
 
+    var username = auth.getUser().username;
+
     var request = assign({}, options, {
         predictors: predictors,
         requestId: ++app.analysisRequestId,
         type: type,
+        username: username,
     });
 
     if (!Array.isArray(request.files) || !request.files.length) {

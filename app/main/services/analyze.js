@@ -4,7 +4,6 @@ var oneShot = require('./analyses/one-shot.js');
 var multiShot = require('./analyses/multi-shot.js');
 var Errio = require('errio');
 var _ = require('lodash');
-var clientIdentifier = require('../../common/utils/client-identifier.js');
 
 /**
  * analyze files requested from render process
@@ -38,7 +37,7 @@ ipc.on('analyze-files', function(event, request) {
             fileShas: _.pluck(request.files, 'sha'),
             data: result,
             error: err,
-            username: clientIdentifier,
+            username: request.username,
         });
     };
 
