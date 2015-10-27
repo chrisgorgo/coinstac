@@ -46,6 +46,8 @@ class FormSignupController extends Component {
      * @return {undefined}
      */
     onSubmit(formData) {
+        const { history: { pushState } } = this.props;
+
         let error;
 
         if (!formData.name) {
