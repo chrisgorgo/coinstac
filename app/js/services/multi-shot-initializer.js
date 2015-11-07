@@ -111,7 +111,7 @@ function sendRequestToAnalyze(request) {
  */
 function runAnalysis(options) {
     /** @todo  Don't hard-code these attributes */
-    var predictors = ['Left-Thalamus-Proper'];
+    var predictors = ['Right-Thalamus-Proper'];
     var type = 'multi';
 
     var username = auth.getUser().username;
