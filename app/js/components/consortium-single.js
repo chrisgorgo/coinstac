@@ -1,6 +1,7 @@
-import { Button } from 'react-bootstrap';
+import { Button, Panel } from 'react-bootstrap';
 import React, { Component, PropTypes } from 'react';
 
+import ConsortiumAnalysis from './consortium-analysis';
 import ConsortiumSingleResult from './consortium-single-result';
 import FormAddAnalysis from './form-add-analysis';
 
@@ -28,18 +29,12 @@ class ConsortiumSingle extends Component {
         const { analyses, actions: { removeAnalysis } } = this.props;
         return (
             <ul className="list-unstyled">
-                {analyses.map(x => {
-                    const { id, label } = x;
+                {analyses.map((analysis, index) => {
                     return (
-                        <li key={id} className="clearfix">
-                            {label}
-                            <span className="text-muted pull-right">
-                                (id: {id})
-                            </span>
-                            <Button
-                                bsStyle="danger"
-                                className="pull-right"
-                                onClick={removeAnalysis.bind(null, id)}>Delete</Button>
+                        <li key={index}>
+                            <ConsortiumAnalysis
+                                removeAnalysis={removeAnalysis}
+                                {...analysis} />
                         </li>
                     );
                 })}
