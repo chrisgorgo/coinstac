@@ -161,11 +161,16 @@ class FormManageProjectController extends React.Component {
     }
 
     handleSubmitAnalyze() {
-        const { project: { consortium: { _id } , files } } = this.props;
+        const { project: { consortium, files } } = this.props;
+
+        const selectedAnalysis = consortium.analyses.find(analysis => {
+            return analysis.id === consortium.ui_selectedAnalysis;
+        });
 
         runAnalysis({
-            consortiumId: _id,
+            consortiumId: consortium._id,
             files,
+            predictors: [selectedAnalysis.predictor],
         })
             .catch(error => {
                 app.notifications.push({
@@ -174,7 +179,7 @@ class FormManageProjectController extends React.Component {
                 });
                 console.error(error);
             });
-        addConsortiumAggregateListener(_id);
+        addConsortiumAggregateListener(consortium._id);
     }
 
     saveFile(meta) {

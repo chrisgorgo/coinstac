@@ -100,6 +100,8 @@ function sendRequestToAnalyze(request) {
  *                                        `analyze.analyze`
  * @param  {array}   options.files        Files to run analysis on, passed to
  *                                        `analyze.analyze`
+ * @param  {array}   options.predictors   Regions of interest to run analysis
+ *                                        on. Ex: `['Left-Hippocampus']`
  * @param  {string=} options.aggregateId  Aggregate document's `_id`, passed to
  *                                        `analyze.analyze`. Will be empty on
  *                                        the first run.
@@ -110,14 +112,12 @@ function sendRequestToAnalyze(request) {
  *                                        with an `Error` object
  */
 function runAnalysis(options) {
-    /** @todo  Don't hard-code these attributes */
-    var predictors = ['Left-Hippocampus'];
+    /** @todo  Don't hard-code this attribute */
     var type = 'multi';
 
     var username = auth.getUser().username;
 
     var request = assign({}, options, {
-        predictors: predictors,
         requestId: ++app.analysisRequestId,
         type: type,
         username: username,
@@ -125,6 +125,9 @@ function runAnalysis(options) {
 
     if (!Array.isArray(request.files) || !request.files.length) {
         return Promise.reject(new Error('Analysis requires files.'));
+    }
+    if (!Array.isArray(request.predictors) || !request.predictors.length) {
+        return Promise.reject(new Error('Analysis requires predictors.'));
     }
     if (!request.consortiumId) {
         return Promise.reject(new Error(
@@ -212,6 +215,14 @@ function onAggregateChange(newAggregate, consortiumId) {
                 var files = responses[0];
                 var analysisHistory = responses[1];
 
+                /**
+                 * @todo  Predictors are gathered from the server's new
+                 *        aggregate but they're set in the first `runAnalysis`
+                 *        call. This is confusing. Figure out a way to have a
+                 *        single origin for predictors.
+                 */
+                var predictors = Object.keys(newAggregate.data.mVals);
+
                 if (
                     analysisHistory.length <= aggregateHistory.length &&
                     files
@@ -229,6 +240,7 @@ function onAggregateChange(newAggregate, consortiumId) {
                         consortiumId: consortiumId,
                         files: files,
                         mVals: newAggregate.data.mVals,
+                        predictors: predictors,
                     })
                         .catch(function(error) {
                             app.notifications.push({
