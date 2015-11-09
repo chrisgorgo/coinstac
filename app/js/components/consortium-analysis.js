@@ -1,17 +1,17 @@
 import React, { Component, PropTypes } from 'react';
 import { Button, Panel } from 'react-bootstrap';
 
-import regions from '../../common/utils/freesurfer-regions';
+import predictors from '../../common/utils/freesurfer-predictors';
 
 class ConsortiumAnalysis extends Component {
     render() {
-        const { label, id, region, removeAnalysis } = this.props;
+        const { label, id, predictor, removeAnalysis } = this.props;
 
         return (
             <Panel>
                 <h2 className="h4">{label}</h2>
                 <ul>
-                    <li>Region of Interest: <code>{regions[region]}</code></li>
+                    <li>Predictor: <code>{predictors[predictor]}</code></li>
                     <li>ID: <code>{id}</code></li>
                 </ul>
                 <Button
@@ -27,7 +27,7 @@ ConsortiumAnalysis.displayName = 'ConsortiumAnalysis';
 ConsortiumAnalysis.propTypes = {
     id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    region: PropTypes.string.isRequired,
+    predictor: PropTypes.string.isRequired,
     removeAnalysis: PropTypes.func.isRequired,
 };
 

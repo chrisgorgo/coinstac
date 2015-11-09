@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Button, ButtonToolbar, Input } from 'react-bootstrap';
 
-import regions from '../../common/utils/freesurfer-regions';
+import predictors from '../../common/utils/freesurfer-predictors';
 
 class FormAddAnalysis extends Component {
     constructor(props) {
@@ -9,7 +9,7 @@ class FormAddAnalysis extends Component {
         this.clearValues = this.clearValues.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.renderRegions = this.renderRegions.bind(this);
+        this.renderPredictors = this.renderPredictors.bind(this);
 
         this.state = {
             label: this.props.label || '',
@@ -18,22 +18,22 @@ class FormAddAnalysis extends Component {
     clearValues() {
         this.setState({
             label: '',
-            region: 0,
+            predictor: 0,
             ui_error: null,
         });
     }
     getValues() {
         return {
             label: this.refs.label.getValue(),
-            region: this.refs.region.getValue(),
+            predictor: this.refs.predictor.getValue(),
         };
     }
     handleChange() {
-        const { label, region } = this.getValues();
+        const { label, predictor } = this.getValues();
 
         this.setState({
             label,
-            region,
+            predictor,
             ui_error: null,
         });
     }
@@ -48,17 +48,17 @@ class FormAddAnalysis extends Component {
                 });
             });
     }
-    renderRegions() {
+    renderPredictors() {
         var options = [
             <option disabled="true" key="-1" value="0">
-                Select a region…
+                Select a predictor…
             </option>
         ];
 
-        Object.keys(regions).forEach((region, index) => {
+        Object.keys(predictors).forEach((predictor, index) => {
             options.push(
-                <option key={index} value={region}>
-                    {regions[region]}
+                <option key={index} value={predictor}>
+                    {predictors[predictor]}
                 </option>
             );
         });
@@ -66,11 +66,11 @@ class FormAddAnalysis extends Component {
         return (
             <Input
                 defaultValue="0"
-                label="Region of Interest"
+                label="Predictor"
                 onChange={this.handleChange}
-                ref="region"
+                ref="predictor"
                 type="select"
-                value={this.state.region}>
+                value={this.state.predictor}>
                 {options.map(option => option)}
             </Input>
         );
@@ -93,7 +93,7 @@ class FormAddAnalysis extends Component {
         return (
             <form className="clearfix" onSubmit={this.handleSubmit}>
                 <Input {...labelInputProps} />
-                {this.renderRegions()}
+                {this.renderPredictors()}
                 <ButtonToolbar className="pull-right">
                     <Button
                         bsStyle="default"
