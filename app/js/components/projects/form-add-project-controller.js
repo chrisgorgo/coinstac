@@ -14,14 +14,19 @@ export default class FormAddProjectController extends React.Component {
     }
 
     handleClickCancel() {
-        app.router.transitionTo('projects');
+        const { history: { pushState } } = this.props;
+
+        pushState({ state: 'cancelNewProject' }, '/projects');
     }
 
     handleClickSave(evt) {
         evt.preventDefault();
-        const data = this.refs.add.data();
-        const name = data.name;
+
+        const { history: { pushState } } = this.props;
+        const { name } = this.refs.add.data();
         const { errors } = this.state;
+        let id;
+        let project;
 
         if (!name) {
             errors.name = 'Name required';
@@ -34,15 +39,24 @@ export default class FormAddProjectController extends React.Component {
             return this.setState({ errors });
         }
 
-        let project = new Project({ _id: uuid.v4(), name });
+        id = uuid.v4();
+        project = new Project({ _id: id, name });
+
         return dbs.get('projects').add(project.serialize())
-        .then(() => {
-            app.notifications.push({
-                message: `Project '${name}' created`,
-                level: 'success'
+            .then(() => {
+                app.notifications.push({
+                    level: 'success',
+                    message: `Project '${name}' created`,
+                });
+                pushState({ state: 'createNewProject' }, `/projects/${id}`);
+            })
+            .catch(error => {
+                app.notifications.push({
+                    level: 'error',
+                    message: error.message || error,
+                });
+                pushState({ state: 'projectError' }, '/projects');
             });
-            app.router.transitionTo('projects');
-        });
     }
 
     render() {
