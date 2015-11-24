@@ -15,8 +15,7 @@ export function fetchConsortium(id) {
     return dispatch => {
         dispatch(requestConsortium(id));
         consortium.get(id)
-            .then(consortium => dispatch(receiveConsortium(consortium)))
-            .catch(error => dispatch(consortiumError(error)));
+            .then(consortium => dispatch(receiveConsortium(consortium)));
     };
 }
 
@@ -31,13 +30,6 @@ function receiveConsortium(consortium) {
     return {
         consortium,
         type: CONSORTIUM_RECEIVE,
-    };
-}
-
-export function consortiumError(error) {
-    return {
-        error,
-        type: CONSORTIUM_ERROR,
     };
 }
 
@@ -208,8 +200,7 @@ export function fetchResults(consortiumId) {
     return dispatch => {
         dispatch(requestResults(consortiumId));
         getResults(consortiumId)
-            .then(results => dispatch(receiveResults(consortiumId, results)))
-            .catch(error => dispatch(consortiumError(error)));
+            .then(results => dispatch(receiveResults(consortiumId, results)));
     }
 }
 

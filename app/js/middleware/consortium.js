@@ -26,21 +26,20 @@ export default store => next => action => {
     action.user = { username };
 
     const nextAction = () => next(action);
-    const errorHandler = error => next(consortiumError(error));
 
     switch (type) {
         case CONSORTIUM_ADD_USER:
             return consortium.addUser(consortiumId, username)
-                .then(nextAction, errorHandler);
+                .then(nextAction);
         case CONSORTIUM_REMOVE_USER:
             return consortium.removeUser(consortiumId, username)
-                .then(nextAction, errorHandler);
+                .then(nextAction);
         case CONSORTIUM_ADD_ANALYSIS:
             return consortium.addAnalysis(consortiumId, analysis)
-                .then(nextAction, errorHandler);
+                .then(nextAction);
         case CONSORTIUM_REMOVE_ANALYSIS:
             return consortium.removeAnalysis(consortiumId, id)
-                .then(nextAction, errorHandler);
+                .then(nextAction);
         default:
             return nextAction();
     }
