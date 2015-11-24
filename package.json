@@ -90,10 +90,7 @@
     "lint": "echo 'run linter!'",
     "validate": "echo 'run validator!'",
     "test": "grunt test",
-    "webpack": "node webpack-server.js --development",
-    "debug": "electron --debug-brk=5858 . --development",
-    "start": "npm run shownotes && electron . --development",
-    "shownotes": "node ./dev-notes.js",
+    "start": "electron . --development --webpack",
     "postinstall": "electron-rebuild"
   },
   "repository": {

@@ -22,7 +22,7 @@ module.exports = function() {
     if (opts.webpack) {
         var spawn = require('child_process').spawn;
         console.log(chalk.blue('booting webpack-dev-server'));
-        var wpds = spawn('npm', ['run', 'webpack']);
+        var wpds = spawn('node', ['webpack-dev-server.js', '--development']);
         wpds.stdout.on('data', function(data) {
             console.log(chalk.cyan('coinstac-webpack-server: ' + data));
         });
