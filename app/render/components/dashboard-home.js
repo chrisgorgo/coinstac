@@ -1,6 +1,6 @@
 'use strict';
 import React from 'react';
-import welcomeContent from '../../content/welcome.md';
+import welcomeContent from '../content/welcome.md';
 
 export default class DashboardHome extends React.Component {
     render() {

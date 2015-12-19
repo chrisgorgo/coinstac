@@ -1,7 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var path = require('path');
-var Base = require(path.join(process.cwd(), 'app/js/models/base.js'));
+var Base = require(path.join(process.cwd(), 'app/common/models/base.js'));
 var test = require('tape');
 
 var BaseModel = Base.extend({

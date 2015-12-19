@@ -1,7 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var path = require('path');
-var File = require(path.join(process.cwd(), 'app/js/models/file.js'));
+var File = require(path.join(process.cwd(), 'app/common/models/file.js'));
 var test = require('tape');
 
 var factory = function(opts) {

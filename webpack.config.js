@@ -10,7 +10,8 @@ var isDev = process.env.COINS_ENV === 'development';
  */
 var getExternals = function() {
     var internals = [/react/]; // assert that all of these entries remain in webpack bundle
-    var externals =  {
+    var externals =  [];
+    var externalsHash = {
         fs: 'commonjs fs',
         ipc: 'commonjs ipc',
         remote: 'commonjs remote',
@@ -18,20 +19,27 @@ var getExternals = function() {
         config: 'commonjs config',
         os: 'commonjs os',
     };
+
+    // add all packages to externals that aren't otherwise explicity internal
     Object.keys(require('./package.json').dependencies).forEach(function(packageName) {
-        if (internals.some(function(internal) { return packageName.match(internal) })) {
-            return; // internal matched
+        var isInternal = internals.some(function(internal) { return packageName.match(internal) });
+        if (isInternal) {
+            return;
         }
-        externals[packageName] = 'commonjs ' + packageName
+        externalsHash[packageName] = 'commonjs ' + packageName
     });
+
+    externals.push(externalsHash);
+    externals.push(/common\/models\/.*js$/);
     return externals;
 };
 
 module.exports = {
+    bail: isDev ? false : true,
     context: __dirname + '/app',
     devtool: 'eval',
     entry: [
-        './js/index.js'
+        './render/index.js'
     ].concat(isDev ? [
         'webpack-dev-server/client?http://localhost:3000',
         'webpack/hot/only-dev-server'
@@ -41,7 +49,7 @@ module.exports = {
         filename: 'bundle.js',
         publicPath: isDev ? 'http://localhost:3000/' : __dirname + '/app/build'
     },
-    externals: [ getExternals() ],
+    externals: getExternals(),
     plugins: [
         new webpack.NoErrorsPlugin()
     ].concat(isDev ? [
@@ -50,14 +58,17 @@ module.exports = {
         new webpack.optimize.UglifyJsPlugin({ sourceMap: false })
     ]),
     resolve: {
-        extensions: ['', '.js', '.jsx']
+        extensions: ['', '.js', '.jsx'],
+        alias: {
+            models: path.resolve(process.cwd(), 'app/common/models')
+        }
     },
     module: {
         loaders: [
             { test: /\.css$/, loader: 'style-loader!css-loader' },
             { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file' },
             { test: /\.json$/, loader: 'json' },
-            { test: /\.jsx?$/, loaders: ['react-hot', 'babel?stage=0'], include: path.join(__dirname, 'app/js/') },
+            { test: /\.jsx?$/, loaders: ['react-hot', 'babel?stage=0'], include: path.join(__dirname, 'app/') },
             { test: /\.scss$/, loader: 'style!css!sass?sourceMap' },
             { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&minetype=image/svg+xml' },
             { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&minetype=application/octet-stream' },

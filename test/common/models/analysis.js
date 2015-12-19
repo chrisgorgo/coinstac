@@ -1,7 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var path = require('path');
-var Analysis = require(path.join(process.cwd(), 'app/js/models/analysis.js'));
+var Analysis = require(path.join(process.cwd(), 'app/common/models/analysis.js'));
 var test = require('tape');
 var moment = require('moment');
 

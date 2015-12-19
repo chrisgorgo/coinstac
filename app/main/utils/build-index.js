@@ -18,10 +18,14 @@ module.exports = function() {
     }
 
     // Complile the index template
-    var fn = jade.compileFile(path.join(process.cwd(), './app/index.jade'), {
+    var fn = jade.compileFile(path.join(process.cwd(), 'app/render/index.jade'), {
         pretty: true
     });
     var html = fn(locals);
 
-    fs.writeFileSync('./app/index.html', html, {encoding: 'utf8'});
+    fs.writeFileSync(
+        path.join(process.cwd(), 'app/render/index.html'),
+        html,
+        {encoding: 'utf8'}
+    );
 };

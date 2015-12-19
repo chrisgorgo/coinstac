@@ -1,6 +1,7 @@
 'use strict';
-require('./main/bootstrap.js')();
+require('./utils/bootstrap.js')();
 var app = require('app');
+var path = require('path');
 var BrowserWindow = require('browser-window');
 
 require('crash-reporter').start();
@@ -33,7 +34,8 @@ app.on('ready', function() {
     });
 
     // and load the index.html of the app.
-    mainWindow.loadUrl('file://' + __dirname + '/index.html');
+    var renderIndexPath =  path.resolve(__dirname, '../render/index.html');
+    mainWindow.loadUrl('file://' + renderIndexPath);
 
     // Open the devtools.
     mainWindow.openDevTools();
@@ -47,7 +49,7 @@ app.on('ready', function() {
     });
 
     // bind x-process listeners
-    require('./main/services/analyze.js');
-    require('./main/services/files.js')(mainWindow);
+    require('./services/analyze.js');
+    require('./services/files.js')(mainWindow);
 
 });

@@ -1,5 +1,6 @@
 import app from 'ampersand-app';
-import Project from '../../models/project.js'
+import path from 'path';
+import Project from 'models/project.js';
 import React from 'react';
 import FormAddProject from './form-add-project';
 import uuid from 'uuid';

@@ -33,5 +33,6 @@ app/index.html
 npm-debug*
 
 # Configuration files
-config/local.json
+config/*local.json
 .vscode
+app/render/index.html

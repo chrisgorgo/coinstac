@@ -1,8 +1,8 @@
 'use strict';
 var _ = require('lodash');
 var path = require('path');
-var File = require(path.join(process.cwd(), 'app/js/models/file.js'));
-var FileCollection = require(path.join(process.cwd(), 'app/js/models/file-collection.js'));
+var File = require(path.join(process.cwd(), 'app/common/models/file.js'));
+var FileCollection = require(path.join(process.cwd(), 'app/common/models/file-collection.js'));
 var test = require('tape');
 var moment = require('moment');
 

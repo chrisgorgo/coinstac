@@ -1,6 +1,4 @@
 'use strict';
-var chalk = require('chalk');
-
 /**
  * handle bogus url detection.  in our test cases, this is OK,
  * so simply do nothing
