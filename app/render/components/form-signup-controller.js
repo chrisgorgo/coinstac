@@ -1,4 +1,5 @@
 import app from 'ampersand-app';
+import path from 'path';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import React, { Component, PropTypes } from 'react';
@@ -7,7 +8,7 @@ import auth from '../services/auth';
 import FormSignup from './form-signup';
 import LayoutNoauth from './layout-noauth';
 import { setSignupUser } from '../actions';
-import User from '../models/user';
+import User from 'models/user.js';
 
 function errorHandler(error) {
     let message;

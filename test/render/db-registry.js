@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var path = require('path');
 var test = require('tape');
-var dbs = require(path.join(process.cwd(), 'app/js/services/db-registry.js'));
+var dbs = require(path.join(process.cwd(), 'app/render/services/db-registry.js'));
 var Pouchy = require('pouchy');
 
 var app = require('ampersand-app');

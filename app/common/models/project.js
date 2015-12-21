@@ -2,12 +2,12 @@
 var PouchDocument = require('./pouch-document');
 var FileCollection = require('./file-collection');
 var config = require('config');
-var dbs = require('../services/db-registry.js');
+var dbs = require('../../render/services/db-registry.js');
 
 var Project = PouchDocument.extend({
     initialize: function() {
         PouchDocument.prototype.initialize.apply(this, arguments);
-        this.on('change:name', this.handleNameChange);
+        this.on('change:name', this.handleNameChange); // @todo huh? valid method?
     },
     collections: {
         files: FileCollection

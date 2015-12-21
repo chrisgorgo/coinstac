@@ -3,7 +3,7 @@ import app from 'ampersand-app';
 import sha1 from 'sha-1';
 import Errio from 'errio';
 import React from 'react';
-import Project from '../../models/project.js';
+import Project from 'models/project.js';
 import dbs from '../../services/db-registry.js';
 import consortia from '../../services/consortia.js';
 import fileService from '../../services/files.js';

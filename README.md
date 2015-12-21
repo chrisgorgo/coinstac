@@ -7,7 +7,7 @@ A research project by your friends @[MRN](http://www.mrn.org/).
 ## About
 Collaboration is hard.  Leak-tight privacy is hard.  Computation is hard.
 
-_But not always._
+_But there is hope!_
 
 COINSTAC is a cross platform program designed to make decentralized research collaboration easy.  Specifically, it enables users to join a group of research collaborators and collectively execute analyses scripts/programs/pipelines on their common research data.  It provides:
 

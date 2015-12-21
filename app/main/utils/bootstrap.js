@@ -21,7 +21,7 @@ module.exports = function(opts) {
 
     // require utility and execute it with optional config
     bootUtils.forEach(function(util) {
-        var utilPath = path.resolve(__dirname, './utils', util + '.js');
+        var utilPath = path.resolve(__dirname, util + '.js');
         require(utilPath)(opts[util]);
     });
 

@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var path = require('path');
 var oneShot = require(path.join(process.cwd(), 'app/main/services/analyses/one-shot.js'));
-var File = require(path.join(process.cwd(), 'app/js/models/file.js'));
+var File = require(path.join(process.cwd(), 'app/common/models/file.js'));
 var test = require('tape');
 
 test('main process analyze::one-shot', function(t) {

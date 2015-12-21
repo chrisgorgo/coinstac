@@ -3,13 +3,11 @@ import EventEmitter from 'events';
 import memdown from 'memdown';
 import Pouchy from 'pouchy';
 import test from 'tape';
+import path from 'path';
 
-import dbs from '../../app/js/services/db-registry';
-import {
-    getListener,
-    deleteListener,
-    getResults,
-} from '../../app/js/services/consortium-analyses-results';
+var dbs = require(path.resolve(process.cwd(), 'app/render/services/db-registry'));
+var analysisResults = require(path.resolve(process.cwd(), 'app/render/services/consortium-analyses-results'));
+let { getListener, deleteListener, getResults } = analysisResults;
 
 // Do a little setup
 const consortiumId = 'consortium-bla-bla-bla';

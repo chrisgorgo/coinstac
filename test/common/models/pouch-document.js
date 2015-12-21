@@ -1,7 +1,7 @@
 'use strict';
 var _ = require('lodash');
 var path = require('path');
-var PD = require(path.join(process.cwd(), 'app/js/models/pouch-document.js'));
+var PD = require(path.join(process.cwd(), 'app/common/models/pouch-document.js'));
 var test = require('tape');
 var moment = require('moment');
 

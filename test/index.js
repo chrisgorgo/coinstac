@@ -2,8 +2,8 @@
 var path = require('path');
 var glob = require("glob");
 var chalk = require('chalk');
-
-require('../app/main/bootstrap.js')({
+var bootstrap = require(path.resolve(process.cwd(), 'app/main/utils/bootstrap.js'));
+bootstrap({
     'configure-uncaught-errors': {
         handlers: require('./utils/db-registry-uncaught-handlers.js')
     }

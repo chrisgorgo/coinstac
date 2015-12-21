@@ -1,7 +1,6 @@
-import 'babel/polyfill';
-
-import path from 'path';
+require('babel/polyfill');
 require('../common/utils/promise-uncaught-polyfill.js')({ root: window });
+import path from 'path';
 import app from 'ampersand-app';
 import createHistory from 'history/lib/createHashHistory';
 import { Provider } from 'react-redux';
@@ -19,7 +18,7 @@ const store = configureStore();
 const history = createHistory();
 
 // Load application stylesheets
-require('../styles/app.scss');
+require('./styles/app.scss');
 require('reactabular/style.css');
 
 render(

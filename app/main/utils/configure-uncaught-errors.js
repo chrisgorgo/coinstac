@@ -9,7 +9,7 @@ module.exports = function(opts) {
     var uncaughtOpts = _.defaults({}, opts, { root: global });
     require(path.join(process.cwd(), 'app/common/utils/promise-uncaught-polyfill.js'))(uncaughtOpts);
     process.on('uncaughtException', function(err) {
-        console.log('Caught exception: ' + err);
-        console.dir(err);
+        console.log('Uncaught exception: ' + err);
+        throw err;
     });
 };
